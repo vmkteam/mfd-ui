@@ -1,7 +1,7 @@
 // Code generated from zenrpc smd. DO NOT EDIT.
 
 // To update this file:
-// 1. Pull fresh version and start apisvc locally on 8080 port.
+// 1. Start mfd-generator locally on 8080 port: `mfd-generator server -a=:8080`.
 // 2. Navigate in terminal to root directory of this flutter project.
 // 3. `curl http://localhost:8080/doc/api_client.dart --output ./lib/services/api/api_client.dart`
 // 4. `dart format --fix -l 150 ./lib/services/api/api_client.dart`
@@ -20,12 +20,73 @@ abstract class JSONRPCClient {
 // ----- main api client class -----
 
 class ApiClient {
-  ApiClient(JSONRPCClient client) : xml = _ServiceXml(client);
+  ApiClient(JSONRPCClient client)
+      : api = _ServiceApi(client),
+        xml = _ServiceXml(client);
 
+  final _ServiceApi api;
   final _ServiceXml xml;
 }
 
 // ----- namespace classes -----
+
+class _ServiceApi {
+  _ServiceApi(this._client);
+
+  final JSONRPCClient _client;
+
+  Future<Project?> loadProject(ApiLoadProjectArgs args) {
+    return Future(() async {
+      final response = await _client.call('api.loadProject', args) as Map<String, dynamic>;
+      return Project.fromJson(response);
+    });
+  }
+
+  Future<String?> ping(ApiPingArgs args) {
+    return Future(() async {
+      final response = await _client.call('api.ping', args) as String?;
+      return response;
+    });
+  }
+
+  Future<Project?> project(ApiProjectArgs args) {
+    return Future(() async {
+      final response = await _client.call('api.project', args) as Map<String, dynamic>;
+      return Project.fromJson(response);
+    });
+  }
+}
+
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
+class ApiLoadProjectArgs {
+  ApiLoadProjectArgs({this.filepath});
+
+  factory ApiLoadProjectArgs.fromJson(Map<String, dynamic> json) => _$ApiLoadProjectArgsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ApiLoadProjectArgsToJson(this);
+
+  final String? filepath;
+}
+
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
+class ApiPingArgs {
+  ApiPingArgs();
+
+  factory ApiPingArgs.fromJson(Map<String, dynamic> json) => _$ApiPingArgsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ApiPingArgsToJson(this);
+}
+
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
+class ApiProjectArgs {
+  ApiProjectArgs({this.name});
+
+  factory ApiProjectArgs.fromJson(Map<String, dynamic> json) => _$ApiProjectArgsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ApiProjectArgsToJson(this);
+
+  final String? name;
+}
 
 class _ServiceXml {
   _ServiceXml(this._client);
@@ -167,3 +228,107 @@ class XmlTablesArgs {
 }
 
 // ----- models -----
+
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
+class Attribute {
+  Attribute(
+      {this.addable,
+      this.dbName,
+      this.dbType,
+      this.defaultValue,
+      this.foreignKey,
+      this.goType,
+      this.isArray,
+      this.max,
+      this.min,
+      this.name,
+      this.nullable,
+      this.primaryKey,
+      this.updatable});
+
+  factory Attribute.fromJson(Map<String, dynamic> json) => _$AttributeFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AttributeToJson(this);
+
+  final bool? addable;
+  final String? dbName;
+  final String? dbType;
+  final String? defaultValue;
+  final String? foreignKey;
+  final String? goType;
+  final bool? isArray;
+  final int? max;
+  final int? min;
+  final String? name;
+  final bool? nullable;
+  final bool? primaryKey;
+  final bool? updatable;
+}
+
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
+class CustomType {
+  CustomType({this.dbType, this.goImport, this.goType});
+
+  factory CustomType.fromJson(Map<String, dynamic> json) => _$CustomTypeFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CustomTypeToJson(this);
+
+  final String? dbType;
+  final String? goImport;
+  final String? goType;
+}
+
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
+class Entity {
+  Entity({this.attributes, this.name, this.namespace, this.searches, this.table});
+
+  factory Entity.fromJson(Map<String, dynamic> json) => _$EntityFromJson(json);
+
+  Map<String, dynamic> toJson() => _$EntityToJson(this);
+
+  final List<Attribute?>? attributes;
+  final String? name;
+  final String? namespace;
+  final List<Search?>? searches;
+  final String? table;
+}
+
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
+class Namespace {
+  Namespace({this.entities, this.name});
+
+  factory Namespace.fromJson(Map<String, dynamic> json) => _$NamespaceFromJson(json);
+
+  Map<String, dynamic> toJson() => _$NamespaceToJson(this);
+
+  final List<Entity?>? entities;
+  final String? name;
+}
+
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
+class Project {
+  Project({this.customTypes, this.goPgVer, this.languages, this.name, this.namespaces});
+
+  factory Project.fromJson(Map<String, dynamic> json) => _$ProjectFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ProjectToJson(this);
+
+  final List<CustomType?>? customTypes;
+  final int? goPgVer;
+  final List<String?>? languages;
+  final String? name;
+  final List<Namespace?>? namespaces;
+}
+
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
+class Search {
+  Search({this.attrName, this.name, this.searchType});
+
+  factory Search.fromJson(Map<String, dynamic> json) => _$SearchFromJson(json);
+
+  Map<String, dynamic> toJson() => _$SearchToJson(this);
+
+  final String? attrName;
+  final String? name;
+  final String? searchType;
+}

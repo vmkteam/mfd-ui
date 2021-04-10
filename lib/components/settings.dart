@@ -1,7 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mfdui/services/api/api_client.dart';
+import 'package:mfdui/blocs/settings/settings_bloc.dart';
 
 class Settings extends StatelessWidget {
   @override
@@ -20,7 +20,7 @@ class Settings extends StatelessWidget {
                   child: Text('Настройки', style: Theme.of(context).textTheme.headline5),
                 ),
               ),
-              _AddrTextField(),
+              _AddrTextField(value: BlocProvider.of<SettingsBloc>(context).state.url),
               _FileTextField(),
               SizedBox(
                 height: 20,
@@ -43,38 +43,51 @@ class Settings extends StatelessWidget {
 }
 
 class _AddrTextField extends StatefulWidget {
+  const _AddrTextField({Key? key, this.value = ''}) : super(key: key);
+
+  final String value;
+
   @override
   __AddrTextFieldState createState() => __AddrTextFieldState();
 }
 
 class __AddrTextFieldState extends State<_AddrTextField> {
   String? errText;
+  TextEditingController textController = TextEditingController();
+
+  @override
+  void initState() {
+    textController.text = widget.value;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: TextField(
-        decoration: InputDecoration(
-          border: OutlineInputBorder(),
-          labelText: 'Адрес подключения',
-          errorText: errText,
+    return BlocListener<SettingsBloc, SettingsState>(
+      listener: (context, state) {
+        if (state is SettingsUpdateFailed) {
+          errText = state.err;
+        } else {
+          errText = null;
+        }
+        setState(() {});
+      },
+      child: ListTile(
+        title: TextField(
+          controller: textController,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Адрес подключения',
+            errorText: errText,
+          ),
         ),
-      ),
-      trailing: IconButton(
-        icon: Icon(Icons.sync),
-        onPressed: () async {
-          try {
-            final pong = await RepositoryProvider.of<ApiClient>(context).xml.loadProject(XmlLoadProjectArgs());
-            setState(() {
-              errText = null;
-            });
-          } catch (e) {
-            setState(() {
-              errText = e.toString();
-            });
-          }
-        },
-        tooltip: 'Подключиться',
+        trailing: IconButton(
+          icon: Icon(Icons.sync),
+          onPressed: () {
+            BlocProvider.of<SettingsBloc>(context).add(SettingsUpdated(textController.text));
+          },
+          tooltip: 'Подключиться',
+        ),
       ),
     );
   }
