@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
       child: BlocProvider<SettingsBloc>(
         create: (context) => SettingsBloc(rpcClient, defaultApiUrl),
         child: MaterialApp(
-          title: 'Flutter Demo',
+          title: 'MFDUI',
           theme: ThemeData(
             // This is the theme of your application.
             //
