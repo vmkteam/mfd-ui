@@ -35,13 +35,6 @@ class _ServiceApi {
 
   final JSONRPCClient _client;
 
-  Future<Project?> loadProject(ApiLoadProjectArgs args) {
-    return Future(() async {
-      final response = await _client.call('api.loadProject', args) as Map<String, dynamic>;
-      return Project.fromJson(response);
-    });
-  }
-
   Future<String?> ping(ApiPingArgs args) {
     return Future(() async {
       final response = await _client.call('api.ping', args) as String?;
@@ -58,17 +51,6 @@ class _ServiceApi {
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
-class ApiLoadProjectArgs {
-  ApiLoadProjectArgs({this.filepath});
-
-  factory ApiLoadProjectArgs.fromJson(Map<String, dynamic> json) => _$ApiLoadProjectArgsFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ApiLoadProjectArgsToJson(this);
-
-  final String? filepath;
-}
-
-@JsonSerializable(includeIfNull: false, explicitToJson: true)
 class ApiPingArgs {
   ApiPingArgs();
 
@@ -79,13 +61,13 @@ class ApiPingArgs {
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
 class ApiProjectArgs {
-  ApiProjectArgs({this.name});
+  ApiProjectArgs({this.filepath});
 
   factory ApiProjectArgs.fromJson(Map<String, dynamic> json) => _$ApiProjectArgsFromJson(json);
 
   Map<String, dynamic> toJson() => _$ApiProjectArgsToJson(this);
 
-  final String? name;
+  final String? filepath;
 }
 
 class _ServiceXml {

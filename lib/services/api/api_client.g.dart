@@ -6,25 +6,6 @@ part of 'api_client.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-ApiLoadProjectArgs _$ApiLoadProjectArgsFromJson(Map<String, dynamic> json) {
-  return ApiLoadProjectArgs(
-    filepath: json['filepath'] as String?,
-  );
-}
-
-Map<String, dynamic> _$ApiLoadProjectArgsToJson(ApiLoadProjectArgs instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('filepath', instance.filepath);
-  return val;
-}
-
 ApiPingArgs _$ApiPingArgsFromJson(Map<String, dynamic> json) {
   return ApiPingArgs();
 }
@@ -34,7 +15,7 @@ Map<String, dynamic> _$ApiPingArgsToJson(ApiPingArgs instance) =>
 
 ApiProjectArgs _$ApiProjectArgsFromJson(Map<String, dynamic> json) {
   return ApiProjectArgs(
-    name: json['name'] as String?,
+    filepath: json['filepath'] as String?,
   );
 }
 
@@ -47,7 +28,7 @@ Map<String, dynamic> _$ApiProjectArgsToJson(ApiProjectArgs instance) {
     }
   }
 
-  writeNotNull('name', instance.name);
+  writeNotNull('filepath', instance.filepath);
   return val;
 }
 

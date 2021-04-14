@@ -4,7 +4,7 @@ part of 'project_bloc.dart';
 abstract class ProjectEvent {}
 
 class ProjectLoadStarted extends ProjectEvent {
-  ProjectLoadStarted(this.name);
+  ProjectLoadStarted(this.filepath);
 
-  final String name;
+  final String filepath;
 }

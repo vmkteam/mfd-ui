@@ -5,10 +5,13 @@ abstract class ProjectState {}
 
 class ProjectInitial extends ProjectState {}
 
+class ProjectLoadInProgress extends ProjectState {}
+
 class ProjectLoadSuccess extends ProjectState {
-  ProjectLoadSuccess(this.project);
+  ProjectLoadSuccess(this.project, this.filename);
 
   final api.Project project;
+  final String filename;
 }
 
 class ProjectLoadFailed extends ProjectState {

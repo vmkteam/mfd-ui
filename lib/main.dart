@@ -6,10 +6,8 @@ import 'package:mfdui/components/main_page.dart';
 import 'package:mfdui/services/api/api_client.dart';
 import 'package:mfdui/services/api/jsonrpc_client.dart';
 
-const defaultApiUrl = 'http://192.168.1.192:8080/';
-
 void main() {
-  runApp(MyApp(RPCClient(defaultApiUrl, http.Client())));
+  runApp(MyApp(RPCClient('http://localhost:8080/', http.Client())));
 }
 
 class MyApp extends StatelessWidget {
@@ -25,20 +23,12 @@ class MyApp extends StatelessWidget {
         RepositoryProvider(create: (context) => ApiClient(rpcClient)),
       ],
       child: BlocProvider<SettingsBloc>(
-        create: (context) => SettingsBloc(rpcClient, defaultApiUrl),
+        create: (context) => SettingsBloc(rpcClient, defaultApiUrl)..add(SettingsStarted()),
+        lazy: false,
         child: MaterialApp(
           title: 'MFDUI',
           theme: ThemeData(
-            // This is the theme of your application.
-            //
-            // Try running your application with "flutter run". You'll see the
-            // application has a blue toolbar. Then, without quitting the app, try
-            // changing the primarySwatch below to Colors.green and then invoke
-            // "hot reload" (press "r" in the console where you ran "flutter run",
-            // or simply save your changes to "hot reload" in a Flutter IDE).
-            // Notice that the counter didn't reset back to zero; the application
-            // is not restarted.
-            primarySwatch: Colors.blue,
+            primarySwatch: Colors.deepPurple,
           ),
           routes: {
             '/': (context) => MainPage(),
