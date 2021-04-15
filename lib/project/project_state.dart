@@ -1,4 +1,4 @@
-part of 'project_bloc.dart';
+part of 'project.dart';
 
 @immutable
 abstract class ProjectState {}
@@ -10,7 +10,7 @@ class ProjectLoadInProgress extends ProjectState {}
 class ProjectLoadSuccess extends ProjectState {
   ProjectLoadSuccess(this.project, this.filename);
 
-  final api.Project project;
+  final Project project;
   final String filename;
 }
 

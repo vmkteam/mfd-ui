@@ -4,6 +4,8 @@ import 'package:mfdui/blocs/work_area_bloc.dart';
 import 'package:mfdui/components/table.dart';
 import 'package:mfdui/services/api/api_client.dart';
 
+import 'file:///C:/Users/Arog/AndroidStudioProjects/mfdui/lib/project/project_bloc.dart';
+
 class WorkArea extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -134,7 +136,7 @@ class SearchesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('Searchable attribute'),
+        header: const Header('Attribute'),
         builder: (context, row) {
           return Text(row.attrName!);
         },
@@ -143,6 +145,21 @@ class SearchesTable extends StatelessWidget {
         header: const Header('Type'),
         builder: (context, row) {
           return Text(row.searchType!);
+        },
+      ),
+      TableColumn(
+        header: const Header('Actions'),
+        builder: (context, row) {
+          return Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  BlocProvider.of<ProjectBloc>(context).add(ProjectEntitySearchDeleted(entityName, searchName));
+                },
+              )
+            ],
+          );
         },
       ),
     ];

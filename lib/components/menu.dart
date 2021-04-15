@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mfdui/blocs/project_bloc.dart';
+import 'package:mfdui/project/project.dart';
 import 'package:mfdui/blocs/work_area_bloc.dart';
 import 'package:mfdui/services/api/api_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,6 +38,7 @@ class Menu extends StatelessWidget {
                                 if (filepath != null) {
                                   BlocProvider.of<ProjectBloc>(context).add(ProjectLoadStarted(filepath));
                                 }
+                                Theme.of(context).copyWith()
                               },
                               child: const Text('Open project'),
                             ),

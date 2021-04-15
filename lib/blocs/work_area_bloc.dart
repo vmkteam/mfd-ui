@@ -2,8 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:mfdui/blocs/project_bloc.dart';
-import 'package:mfdui/services/api/api_client.dart';
+import 'package:mfdui/project/project.dart';
 
 part 'work_area_event.dart';
 part 'work_area_state.dart';

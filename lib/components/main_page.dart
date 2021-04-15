@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mfdui/blocs/project_bloc.dart';
 import 'package:mfdui/blocs/work_area_bloc.dart';
 import 'package:mfdui/components/menu.dart';
 import 'package:mfdui/components/settings.dart';
 import 'package:mfdui/components/work_area.dart';
+import 'package:mfdui/project/project.dart';
 import 'package:mfdui/services/api/api_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
