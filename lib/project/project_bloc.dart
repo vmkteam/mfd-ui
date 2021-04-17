@@ -25,7 +25,7 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('filepath', event.filepath);
 
-      yield ProjectLoadSuccess(resp!, event.filepath);
+      yield ProjectLoadSuccess(Project.fromApi(resp!), event.filepath);
     } catch (e) {
       yield ProjectLoadFailed(e.toString());
     }
@@ -34,7 +34,12 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
   Stream<ProjectState> _mapProjectSearchDeletedToState(ProjectEntitySearchDeleted event) async* {
     final localState = state;
     if (localState is ProjectLoadSuccess) {
-      final project = localState.project;
+      localState.project.namespaces
+          .firstWhere((namespace) => namespace.name == event.namespaceName)
+          .entities
+          .firstWhere((entity) => entity.name == event.entityName)
+          .searches
+          .removeWhere((search) => search.name == event.searchName);
       yield ProjectLoadSuccess(localState.project, localState.filename);
     }
   }

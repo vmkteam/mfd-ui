@@ -14,7 +14,12 @@ class Settings extends StatelessWidget {
             children: [
               ListTile(
                 title: Text('Settings', style: Theme.of(context).textTheme.headline6),
-                trailing: const CloseButton(),
+                trailing: IconButton(
+                  icon: const Icon(Icons.close),
+                  tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                  splashRadius: 23,
+                  onPressed: () => Navigator.maybePop(context),
+                ),
               ),
               const SizedBox(height: 20),
               _AddrTextField(value: BlocProvider.of<SettingsBloc>(context).state.url),
@@ -62,7 +67,7 @@ class __AddrTextFieldState extends State<_AddrTextField> {
           controller: textController,
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            labelText: 'Address',
+            labelText: 'Connection address',
             hintText: 'default: http//localhost:8080',
             errorText: errText,
           ),
@@ -74,6 +79,8 @@ class __AddrTextFieldState extends State<_AddrTextField> {
             }
             return IconButton(
               icon: const Icon(Icons.save),
+              color: Theme.of(context).primaryColor,
+              splashRadius: 23,
               onPressed: () {
                 BlocProvider.of<SettingsBloc>(context).add(SettingsUpdated(textController.text));
               },

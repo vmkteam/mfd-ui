@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mfdui/project/project.dart';
 import 'package:mfdui/blocs/work_area_bloc.dart';
-import 'package:mfdui/services/api/api_client.dart';
+import 'package:mfdui/project/project.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Menu extends StatelessWidget {
@@ -38,7 +37,7 @@ class Menu extends StatelessWidget {
                                 if (filepath != null) {
                                   BlocProvider.of<ProjectBloc>(context).add(ProjectLoadStarted(filepath));
                                 }
-                                Theme.of(context).copyWith()
+                                Theme.of(context).copyWith();
                               },
                               child: const Text('Open project'),
                             ),
@@ -53,7 +52,7 @@ class Menu extends StatelessWidget {
             BlocBuilder<ProjectBloc, ProjectState>(
               builder: (context, state) {
                 if (state is ProjectLoadSuccess) {
-                  final namespaces = state.project.namespaces ?? List<Namespace?>.empty();
+                  final namespaces = state.project.namespaces;
                   return BlocBuilder<WorkAreaBloc, WorkAreaState>(
                     builder: (context, workAreaState) {
                       String? selectedEntityName;
@@ -72,18 +71,18 @@ class Menu extends StatelessWidget {
                           if (index.isOdd) {
                             return const Divider();
                           }
-                          final namespace = namespaces[itemIndex]!;
-                          final Iterable<Widget> tiles = namespace.entities!.map(
+                          final namespace = namespaces[itemIndex];
+                          final Iterable<Widget> tiles = namespace.entities.map(
                             (e) => ListTile(
-                              selected: namespace.name == selectedNamespaceName && e?.name == selectedEntityName,
+                              selected: namespace.name == selectedNamespaceName && e.name == selectedEntityName,
                               selectedTileColor: Colors.blueGrey.shade50,
-                              title: Text(e!.name!),
-                              onTap: () => BlocProvider.of<WorkAreaBloc>(context).add(EntitySelected(e.name!, namespace.name!)),
+                              title: Text(e.name),
+                              onTap: () => BlocProvider.of<WorkAreaBloc>(context).add(EntitySelected(e.name, namespace.name)),
                             ),
                           );
                           return Column(
                             children: [
-                              ListTile(title: Text(namespace.name!, style: Theme.of(context).textTheme.headline6)),
+                              ListTile(title: Text(namespace.name, style: Theme.of(context).textTheme.headline6)),
                               ...ListTile.divideTiles(
                                 context: context,
                                 tiles: tiles,

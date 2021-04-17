@@ -10,8 +10,9 @@ class ProjectLoadStarted extends ProjectEvent {
 }
 
 class ProjectEntitySearchDeleted extends ProjectEvent {
-  ProjectEntitySearchDeleted(this.entityName, this.searchName);
+  ProjectEntitySearchDeleted(this.namespaceName, this.entityName, this.searchName);
 
+  final String namespaceName;
   final String entityName;
   final String searchName;
 }

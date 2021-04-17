@@ -6,6 +6,25 @@ part of 'api_client.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+ApiOpenProjectArgs _$ApiOpenProjectArgsFromJson(Map<String, dynamic> json) {
+  return ApiOpenProjectArgs(
+    filepath: json['filepath'] as String?,
+  );
+}
+
+Map<String, dynamic> _$ApiOpenProjectArgsToJson(ApiOpenProjectArgs instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('filepath', instance.filepath);
+  return val;
+}
+
 ApiPingArgs _$ApiPingArgsFromJson(Map<String, dynamic> json) {
   return ApiPingArgs();
 }
@@ -32,62 +51,34 @@ Map<String, dynamic> _$ApiProjectArgsToJson(ApiProjectArgs instance) {
   return val;
 }
 
-XmlCreateProjectArgs _$XmlCreateProjectArgsFromJson(Map<String, dynamic> json) {
-  return XmlCreateProjectArgs(
-    filePath: json['filePath'] as String?,
-  );
+ApiProjectxArgs _$ApiProjectxArgsFromJson(Map<String, dynamic> json) {
+  return ApiProjectxArgs();
 }
 
-Map<String, dynamic> _$XmlCreateProjectArgsToJson(
-    XmlCreateProjectArgs instance) {
-  final val = <String, dynamic>{};
+Map<String, dynamic> _$ApiProjectxArgsToJson(ApiProjectxArgs instance) =>
+    <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('filePath', instance.filePath);
-  return val;
+ApiSaveProjectArgs _$ApiSaveProjectArgsFromJson(Map<String, dynamic> json) {
+  return ApiSaveProjectArgs();
 }
 
-XmlGenerateEntityArgs _$XmlGenerateEntityArgsFromJson(
+Map<String, dynamic> _$ApiSaveProjectArgsToJson(ApiSaveProjectArgs instance) =>
+    <String, dynamic>{};
+
+ApiUpdateEntityAttributesArgs _$ApiUpdateEntityAttributesArgsFromJson(
     Map<String, dynamic> json) {
-  return XmlGenerateEntityArgs(
-    filePath: json['filePath'] as String?,
-    namespace: json['namespace'] as String?,
-    table: json['table'] as String?,
-    url: json['url'] as String?,
-  );
-}
-
-Map<String, dynamic> _$XmlGenerateEntityArgsToJson(
-    XmlGenerateEntityArgs instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('filePath', instance.filePath);
-  writeNotNull('namespace', instance.namespace);
-  writeNotNull('table', instance.table);
-  writeNotNull('url', instance.url);
-  return val;
-}
-
-XmlLoadEntityArgs _$XmlLoadEntityArgsFromJson(Map<String, dynamic> json) {
-  return XmlLoadEntityArgs(
+  return ApiUpdateEntityAttributesArgs(
     entity: json['entity'] as String?,
-    filePath: json['filePath'] as String?,
     namespace: json['namespace'] as String?,
+    newAttributes: (json['newAttributes'] as List<dynamic>?)
+        ?.map((e) =>
+            e == null ? null : Attribute.fromJson(e as Map<String, dynamic>))
+        .toList(),
   );
 }
 
-Map<String, dynamic> _$XmlLoadEntityArgsToJson(XmlLoadEntityArgs instance) {
+Map<String, dynamic> _$ApiUpdateEntityAttributesArgsToJson(
+    ApiUpdateEntityAttributesArgs instance) {
   final val = <String, dynamic>{};
 
   void writeNotNull(String key, dynamic value) {
@@ -97,18 +88,26 @@ Map<String, dynamic> _$XmlLoadEntityArgsToJson(XmlLoadEntityArgs instance) {
   }
 
   writeNotNull('entity', instance.entity);
-  writeNotNull('filePath', instance.filePath);
   writeNotNull('namespace', instance.namespace);
+  writeNotNull('newAttributes',
+      instance.newAttributes?.map((e) => e?.toJson()).toList());
   return val;
 }
 
-XmlLoadProjectArgs _$XmlLoadProjectArgsFromJson(Map<String, dynamic> json) {
-  return XmlLoadProjectArgs(
-    filePath: json['filePath'] as String?,
+ApiUpdateEntitySearchesArgs _$ApiUpdateEntitySearchesArgsFromJson(
+    Map<String, dynamic> json) {
+  return ApiUpdateEntitySearchesArgs(
+    entity: json['entity'] as String?,
+    namespace: json['namespace'] as String?,
+    newSearches: (json['newSearches'] as List<dynamic>?)
+        ?.map((e) =>
+            e == null ? null : Search.fromJson(e as Map<String, dynamic>))
+        .toList(),
   );
 }
 
-Map<String, dynamic> _$XmlLoadProjectArgsToJson(XmlLoadProjectArgs instance) {
+Map<String, dynamic> _$ApiUpdateEntitySearchesArgsToJson(
+    ApiUpdateEntitySearchesArgs instance) {
   final val = <String, dynamic>{};
 
   void writeNotNull(String key, dynamic value) {
@@ -117,68 +116,10 @@ Map<String, dynamic> _$XmlLoadProjectArgsToJson(XmlLoadProjectArgs instance) {
     }
   }
 
-  writeNotNull('filePath', instance.filePath);
-  return val;
-}
-
-XmlSaveEntityArgs _$XmlSaveEntityArgsFromJson(Map<String, dynamic> json) {
-  return XmlSaveEntityArgs(
-    contents: json['contents'] as String?,
-    filePath: json['filePath'] as String?,
-  );
-}
-
-Map<String, dynamic> _$XmlSaveEntityArgsToJson(XmlSaveEntityArgs instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('contents', instance.contents);
-  writeNotNull('filePath', instance.filePath);
-  return val;
-}
-
-XmlSaveProjectArgs _$XmlSaveProjectArgsFromJson(Map<String, dynamic> json) {
-  return XmlSaveProjectArgs(
-    contents: json['contents'] as String?,
-    filePath: json['filePath'] as String?,
-  );
-}
-
-Map<String, dynamic> _$XmlSaveProjectArgsToJson(XmlSaveProjectArgs instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('contents', instance.contents);
-  writeNotNull('filePath', instance.filePath);
-  return val;
-}
-
-XmlTablesArgs _$XmlTablesArgsFromJson(Map<String, dynamic> json) {
-  return XmlTablesArgs(
-    url: json['url'] as String?,
-  );
-}
-
-Map<String, dynamic> _$XmlTablesArgsToJson(XmlTablesArgs instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('url', instance.url);
+  writeNotNull('entity', instance.entity);
+  writeNotNull('namespace', instance.namespace);
+  writeNotNull(
+      'newSearches', instance.newSearches?.map((e) => e?.toJson()).toList());
   return val;
 }
 

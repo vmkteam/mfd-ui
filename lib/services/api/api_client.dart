@@ -20,12 +20,9 @@ abstract class JSONRPCClient {
 // ----- main api client class -----
 
 class ApiClient {
-  ApiClient(JSONRPCClient client)
-      : api = _ServiceApi(client),
-        xml = _ServiceXml(client);
+  ApiClient(JSONRPCClient client) : api = _ServiceApi(client);
 
   final _ServiceApi api;
-  final _ServiceXml xml;
 }
 
 // ----- namespace classes -----
@@ -34,6 +31,12 @@ class _ServiceApi {
   _ServiceApi(this._client);
 
   final JSONRPCClient _client;
+
+  Future<void> openProject(ApiOpenProjectArgs args) {
+    return Future(() async {
+      await _client.call('api.openProject', args);
+    });
+  }
 
   Future<String?> ping(ApiPingArgs args) {
     return Future(() async {
@@ -48,6 +51,41 @@ class _ServiceApi {
       return Project.fromJson(response);
     });
   }
+
+  Future<void> projectx(ApiProjectxArgs args) {
+    return Future(() async {
+      await _client.call('api.projectx', args);
+    });
+  }
+
+  Future<void> saveProject(ApiSaveProjectArgs args) {
+    return Future(() async {
+      await _client.call('api.saveProject', args);
+    });
+  }
+
+  Future<void> updateEntityAttributes(ApiUpdateEntityAttributesArgs args) {
+    return Future(() async {
+      await _client.call('api.updateEntityAttributes', args);
+    });
+  }
+
+  Future<void> updateEntitySearches(ApiUpdateEntitySearchesArgs args) {
+    return Future(() async {
+      await _client.call('api.updateEntitySearches', args);
+    });
+  }
+}
+
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
+class ApiOpenProjectArgs {
+  ApiOpenProjectArgs({this.filepath});
+
+  factory ApiOpenProjectArgs.fromJson(Map<String, dynamic> json) => _$ApiOpenProjectArgsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ApiOpenProjectArgsToJson(this);
+
+  final String? filepath;
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
@@ -70,143 +108,48 @@ class ApiProjectArgs {
   final String? filepath;
 }
 
-class _ServiceXml {
-  _ServiceXml(this._client);
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
+class ApiProjectxArgs {
+  ApiProjectxArgs();
 
-  final JSONRPCClient _client;
+  factory ApiProjectxArgs.fromJson(Map<String, dynamic> json) => _$ApiProjectxArgsFromJson(json);
 
-  Future<void> createProject(XmlCreateProjectArgs args) {
-    return Future(() async {
-      await _client.call('xml.createProject', args);
-    });
-  }
-
-  Future<void> generateEntity(XmlGenerateEntityArgs args) {
-    return Future(() async {
-      await _client.call('xml.generateEntity', args);
-    });
-  }
-
-  Future<void> loadEntity(XmlLoadEntityArgs args) {
-    return Future(() async {
-      await _client.call('xml.loadEntity', args);
-    });
-  }
-
-  Future<void> loadProject(XmlLoadProjectArgs args) {
-    return Future(() async {
-      await _client.call('xml.loadProject', args);
-    });
-  }
-
-  Future<void> saveEntity(XmlSaveEntityArgs args) {
-    return Future(() async {
-      await _client.call('xml.saveEntity', args);
-    });
-  }
-
-  Future<void> saveProject(XmlSaveProjectArgs args) {
-    return Future(() async {
-      await _client.call('xml.saveProject', args);
-    });
-  }
-
-  Future<List<String?>?> tables(XmlTablesArgs args) {
-    return Future(() async {
-      final response = await _client.call('xml.tables', args) as List?;
-      final responseList = response?.map((e) {
-        if (e == null) {
-          return null;
-        }
-        return e as String;
-      });
-      return responseList?.toList();
-    });
-  }
+  Map<String, dynamic> toJson() => _$ApiProjectxArgsToJson(this);
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
-class XmlCreateProjectArgs {
-  XmlCreateProjectArgs({this.filePath});
+class ApiSaveProjectArgs {
+  ApiSaveProjectArgs();
 
-  factory XmlCreateProjectArgs.fromJson(Map<String, dynamic> json) => _$XmlCreateProjectArgsFromJson(json);
+  factory ApiSaveProjectArgs.fromJson(Map<String, dynamic> json) => _$ApiSaveProjectArgsFromJson(json);
 
-  Map<String, dynamic> toJson() => _$XmlCreateProjectArgsToJson(this);
-
-  final String? filePath;
+  Map<String, dynamic> toJson() => _$ApiSaveProjectArgsToJson(this);
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
-class XmlGenerateEntityArgs {
-  XmlGenerateEntityArgs({this.filePath, this.namespace, this.table, this.url});
+class ApiUpdateEntityAttributesArgs {
+  ApiUpdateEntityAttributesArgs({this.entity, this.namespace, this.newAttributes});
 
-  factory XmlGenerateEntityArgs.fromJson(Map<String, dynamic> json) => _$XmlGenerateEntityArgsFromJson(json);
+  factory ApiUpdateEntityAttributesArgs.fromJson(Map<String, dynamic> json) => _$ApiUpdateEntityAttributesArgsFromJson(json);
 
-  Map<String, dynamic> toJson() => _$XmlGenerateEntityArgsToJson(this);
-
-  final String? filePath;
-  final String? namespace;
-  final String? table;
-  final String? url;
-}
-
-@JsonSerializable(includeIfNull: false, explicitToJson: true)
-class XmlLoadEntityArgs {
-  XmlLoadEntityArgs({this.entity, this.filePath, this.namespace});
-
-  factory XmlLoadEntityArgs.fromJson(Map<String, dynamic> json) => _$XmlLoadEntityArgsFromJson(json);
-
-  Map<String, dynamic> toJson() => _$XmlLoadEntityArgsToJson(this);
+  Map<String, dynamic> toJson() => _$ApiUpdateEntityAttributesArgsToJson(this);
 
   final String? entity;
-  final String? filePath;
   final String? namespace;
+  final List<Attribute?>? newAttributes;
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
-class XmlLoadProjectArgs {
-  XmlLoadProjectArgs({this.filePath});
+class ApiUpdateEntitySearchesArgs {
+  ApiUpdateEntitySearchesArgs({this.entity, this.namespace, this.newSearches});
 
-  factory XmlLoadProjectArgs.fromJson(Map<String, dynamic> json) => _$XmlLoadProjectArgsFromJson(json);
+  factory ApiUpdateEntitySearchesArgs.fromJson(Map<String, dynamic> json) => _$ApiUpdateEntitySearchesArgsFromJson(json);
 
-  Map<String, dynamic> toJson() => _$XmlLoadProjectArgsToJson(this);
+  Map<String, dynamic> toJson() => _$ApiUpdateEntitySearchesArgsToJson(this);
 
-  final String? filePath;
-}
-
-@JsonSerializable(includeIfNull: false, explicitToJson: true)
-class XmlSaveEntityArgs {
-  XmlSaveEntityArgs({this.contents, this.filePath});
-
-  factory XmlSaveEntityArgs.fromJson(Map<String, dynamic> json) => _$XmlSaveEntityArgsFromJson(json);
-
-  Map<String, dynamic> toJson() => _$XmlSaveEntityArgsToJson(this);
-
-  final String? contents;
-  final String? filePath;
-}
-
-@JsonSerializable(includeIfNull: false, explicitToJson: true)
-class XmlSaveProjectArgs {
-  XmlSaveProjectArgs({this.contents, this.filePath});
-
-  factory XmlSaveProjectArgs.fromJson(Map<String, dynamic> json) => _$XmlSaveProjectArgsFromJson(json);
-
-  Map<String, dynamic> toJson() => _$XmlSaveProjectArgsToJson(this);
-
-  final String? contents;
-  final String? filePath;
-}
-
-@JsonSerializable(includeIfNull: false, explicitToJson: true)
-class XmlTablesArgs {
-  XmlTablesArgs({this.url});
-
-  factory XmlTablesArgs.fromJson(Map<String, dynamic> json) => _$XmlTablesArgsFromJson(json);
-
-  Map<String, dynamic> toJson() => _$XmlTablesArgsToJson(this);
-
-  final String? url;
+  final String? entity;
+  final String? namespace;
+  final List<Search?>? newSearches;
 }
 
 // ----- models -----

@@ -16,7 +16,7 @@ class MainPage extends StatelessWidget {
       create: (context) {
         final bloc = ProjectBloc(RepositoryProvider.of<ApiClient>(context));
         SharedPreferences.getInstance().then((prefs) {
-          String? filepath = prefs.getString('filepath');
+          final String? filepath = prefs.getString('filepath');
           if (filepath != null) {
             bloc.add(ProjectLoadStarted(filepath));
           }
@@ -31,16 +31,18 @@ class MainPage extends StatelessWidget {
               builder: (context, state) {
                 String projectName = '';
                 if (state is ProjectLoadSuccess) {
-                  projectName = state.project.name ?? '';
+                  projectName = state.project.name;
                 }
                 return Text('MFDUI $projectName');
               },
             ),
             actions: [
               Builder(
-                builder: (context) => IconButton(
-                  icon: Icon(Icons.settings),
-                  tooltip: 'Settings',
+                builder: (context) => TextButton(
+                  child: Text(
+                    'Settings',
+                    style: Theme.of(context).textTheme.button?.copyWith(color: Colors.white),
+                  ),
                   onPressed: () async {
                     await showDialog(
                       context: context,
@@ -54,6 +56,7 @@ class MainPage extends StatelessWidget {
                   },
                 ),
               ),
+              const SizedBox(width: 15),
             ],
           ),
           body: BlocBuilder<ProjectBloc, ProjectState>(

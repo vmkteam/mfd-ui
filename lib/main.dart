@@ -29,6 +29,11 @@ class MyApp extends StatelessWidget {
           title: 'MFDUI',
           theme: ThemeData(
             primarySwatch: Colors.deepPurple,
+            inputDecorationTheme: const InputDecorationTheme(
+              border: OutlineInputBorder(
+                borderSide: BorderSide(style: BorderStyle.none, width: 0),
+              ),
+            ),
           ),
           routes: {
             '/': (context) => MainPage(),
@@ -36,130 +41,5 @@ class MyApp extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key}) : super(key: key);
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  String? mode = 'Full';
-  TextEditingController terminalPathController = TextEditingController.fromValue(TextEditingValue(text: 'integrations'));
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text('Namespace: catalogue'),
-        ),
-        body: ListView(
-          children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('Entity: City'),
-                        SizedBox(width: 20),
-                        DropdownButton<String>(
-                          value: mode,
-                          items: [
-                            DropdownMenuItem(
-                              child: Text('Full'),
-                              value: 'Full',
-                            ),
-                            DropdownMenuItem(
-                              child: Text('ReadOnly'),
-                              value: 'ReadOnly',
-                            ),
-                          ],
-                          onChanged: (value) {
-                            setState(() {
-                              mode = value;
-                            });
-                          },
-                        )
-                      ],
-                    ),
-                    TextField(
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        prefix: Text('TerminalPath: '),
-                      ),
-                      controller: terminalPathController,
-                    ),
-                    SizedBox(height: 15),
-                    Text('Атрибуты сущности'),
-                    DataTable(
-                      columns: [
-                        DataColumn(label: Text('Атрибут')),
-                        DataColumn(label: Text('AttrName')),
-                        DataColumn(label: Text('SearchName')),
-                        DataColumn(label: Text('Summary')),
-                        DataColumn(label: Text('Search?')),
-                        DataColumn(label: Text('min/max')),
-                        DataColumn(label: Text('Required')),
-                        DataColumn(label: Text('Validate rule')),
-                      ],
-                      rows: [
-                        DataRow(
-                          cells: [
-                            DataCell(Text('ID')),
-                            DataCell(Text('ID')),
-                            DataCell(Text('ID')),
-                            DataCell(Checkbox(value: true, onChanged: (value) {})),
-                            DataCell(Checkbox(value: true, onChanged: (value) {})),
-                            DataCell(Row(
-                              children: [Expanded(child: TextField()), Text('/'), Expanded(child: TextField())],
-                            )),
-                            DataCell(Checkbox(value: false, onChanged: (value) {})),
-                            DataCell(TextField()),
-                          ],
-                        ),
-                        DataRow(
-                          cells: [
-                            DataCell(Text('Title')),
-                            DataCell(Text('Title')),
-                            DataCell(Text('TitleILike')),
-                            DataCell(Checkbox(value: true, onChanged: (value) {})),
-                            DataCell(Checkbox(value: true, onChanged: (value) {})),
-                            DataCell(Row(
-                              children: [
-                                Expanded(child: TextField()),
-                                Text('/'),
-                                Expanded(child: TextField(controller: TextEditingController(text: '255')))
-                              ],
-                            )),
-                            DataCell(Checkbox(value: false, onChanged: (value) {})),
-                            DataCell(TextField()),
-                          ],
-                        )
-                      ],
-                    ),
-                    SizedBox(height: 15),
-                    Text('Настройки шаблона'),
-                    DataTable(
-                      columns: [
-                        DataColumn(label: Text('Атрибут')),
-                        DataColumn(label: Text('s')),
-                        DataColumn(label: Text('s')),
-                      ],
-                      rows: [
-                        DataRow(cells: [DataCell(Text('s')), DataCell(Text('f')), DataCell(Text('e'))])
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ));
   }
 }
