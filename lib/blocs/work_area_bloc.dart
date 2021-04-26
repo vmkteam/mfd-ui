@@ -37,6 +37,19 @@ class WorkAreaBloc extends Bloc<WorkAreaEvent, WorkAreaState> {
       yield WorkAreaSelectSuccess(namespace!, entity!);
       return;
     }
+    if (event is EntityAdded) {
+      namespace = project!.namespaces.firstWhere((element) => element.name == event.namespaceName);
+      namespace?.entities.add(Entity(
+        name: event.entityName,
+        namespace: event.namespaceName,
+        table: '',
+        attributes: const [],
+        searches: const [],
+      ));
+      entity = namespace!.entities.firstWhere((element) => element.name == event.entityName);
+      yield WorkAreaSelectSuccess(namespace!, entity!);
+      return;
+    }
     if (event is EntityTableChanged) {
       entity = entity?.copyWith(table: event.newTable);
       return;
@@ -99,7 +112,7 @@ class WorkAreaBloc extends Bloc<WorkAreaEvent, WorkAreaState> {
     }
     if (event is EntitySearchAdded) {
       final newSearches = entity?.searches;
-      newSearches?.add(const Search(attrName: '', name: '', searchType: SearchTypeEnum.SEARCHTYPE_UNKNOWN));
+      newSearches?.add(const Search(attrName: '', name: '', searchType: ''));
       entity = entity?.copyWith(searches: newSearches);
       return;
     }

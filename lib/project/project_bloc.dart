@@ -12,7 +12,7 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
     if (event is ProjectLoadStarted) {
       yield* _mapProjectLoadStartedToState(event);
     } else if (event is ProjectEntitySearchDeleted) {
-      yield* _mapProjectSearchDeletedToState(event);
+      // yield* _mapProjectSearchDeletedToState(event);
     } else if (event is ProjectEntitySearchAdded) {
       yield* _mapProjectSearchAddedToState(event);
     }
@@ -31,18 +31,18 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
     }
   }
 
-  Stream<ProjectState> _mapProjectSearchDeletedToState(ProjectEntitySearchDeleted event) async* {
-    final localState = state;
-    if (localState is ProjectLoadSuccess) {
-      localState.project.namespaces
-          .firstWhere((namespace) => namespace.name == event.namespaceName)
-          .entities
-          .firstWhere((entity) => entity.name == event.entityName)
-          .searches
-          .removeWhere((search) => search.name == event.searchName);
-      yield ProjectLoadSuccess(localState.project, localState.filename);
-    }
-  }
+  // Stream<ProjectState> _mapProjectSearchDeletedToState(ProjectEntitySearchDeleted event) async* {
+  //   final localState = state;
+  //   if (localState is ProjectLoadSuccess) {
+  //     localState.project.namespaces
+  //         .firstWhere((namespace) => namespace.name == event.namespaceName)
+  //         .entities
+  //         .firstWhere((entity) => entity.name == event.entityName)
+  //         .searches
+  //         .removeWhere((search) => search.name == event.searchName);
+  //     yield ProjectLoadSuccess(localState.project, localState.filename);
+  //   }
+  // }
 
   Stream<ProjectState> _mapProjectSearchAddedToState(ProjectEntitySearchAdded event) async* {}
 }

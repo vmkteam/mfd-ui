@@ -222,17 +222,14 @@ class Search {
     return Search(
       attrName: search.attrName!,
       name: search.name!,
-      searchType: SearchTypeEnum.values.firstWhere(
-        (e) => describeEnum(e) == search.searchType!,
-        orElse: () => SearchTypeEnum.SEARCHTYPE_UNKNOWN,
-      ),
+      searchType: search.searchType!,
     );
   }
 
   Search copyWith({
     String? name,
     String? attrName,
-    SearchTypeEnum? searchType,
+    String? searchType,
   }) {
     return Search(
       name: name ?? this.name,
@@ -243,7 +240,7 @@ class Search {
 
   final String name;
   final String attrName;
-  final SearchTypeEnum searchType;
+  final String searchType;
 }
 
 enum SearchTypeEnum {

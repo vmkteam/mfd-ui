@@ -31,8 +31,8 @@ class MyApp extends StatelessWidget {
             primarySwatch: Colors.deepPurple,
             inputDecorationTheme: const InputDecorationTheme(
               border: OutlineInputBorder(
-                borderSide: BorderSide(style: BorderStyle.none, width: 0),
-              ),
+                  //borderSide: BorderSide(style: BorderStyle.none, width: 0),
+                  ),
             ),
           ),
           routes: {

@@ -82,7 +82,20 @@ class Menu extends StatelessWidget {
                           );
                           return Column(
                             children: [
-                              ListTile(title: Text(namespace.name, style: Theme.of(context).textTheme.headline6)),
+                              ListTile(
+                                title: Text(namespace.name, style: Theme.of(context).textTheme.headline6),
+                                trailing: IconButton(
+                                  icon: const Icon(
+                                    Icons.add,
+                                    color: Colors.green,
+                                  ),
+                                  tooltip: 'Add entity',
+                                  onPressed: () {
+                                    BlocProvider.of<WorkAreaBloc>(context).add(EntityAdded(namespace.name, 'NewEntity'));
+                                  },
+                                  splashRadius: 20,
+                                ),
+                              ),
                               ...ListTile.divideTiles(
                                 context: context,
                                 tiles: tiles,
