@@ -10,10 +10,10 @@ class Project {
 
   factory Project.fromApi(api.Project apiProject) {
     return Project(
-      name: apiProject.name!,
-      customTypes: apiProject.customTypes?.map((e) => CustomType.fromApi(e!)).toList() ?? List.empty(),
-      languages: apiProject.languages?.map((e) => e!).toList() ?? List.empty(),
-      namespaces: Namespace.fromApi(apiProject.namespaces?.map((e) => e!).toList() ?? List.empty()),
+      name: apiProject.name,
+      customTypes: apiProject.customTypes.map((e) => CustomType.fromApi(e!)).toList(),
+      languages: apiProject.languages.map((e) => e!).toList(),
+      namespaces: Namespace.fromApi(apiProject.namespaces.map((e) => e!).toList()),
     );
   }
 
@@ -46,10 +46,10 @@ class Namespace {
   static List<Namespace> fromApi(List<api.MfdNSMapping> mp) {
     final x = <String, List<String>>{};
     for (final item in mp) {
-      if (!x.containsKey(item.namespace!)) {
-        x[item.namespace!] = [];
+      if (!x.containsKey(item.namespace)) {
+        x[item.namespace] = [];
       }
-      x[item.namespace!]!.add(item.entity!);
+      x[item.namespace]!.add(item.entity);
     }
     return x.entries.map((e) => Namespace(name: e.key, entities: e.value)).toList();
   }
@@ -73,9 +73,9 @@ class CustomType {
 
   factory CustomType.fromApi(api.MfdCustomTypes ct) {
     return CustomType(
-      dbType: ct.dbType!,
-      goImport: ct.goImport!,
-      goType: ct.goType!,
+      dbType: ct.dbType,
+      goImport: ct.goImport,
+      goType: ct.goType,
     );
   }
 
@@ -95,21 +95,19 @@ class Entity extends Equatable {
 
   factory Entity.fromApi(api.Entity entity) {
     return Entity(
-      name: entity.name!,
-      namespace: entity.namespace!,
-      table: entity.table!,
+      name: entity.name,
+      namespace: entity.namespace,
+      table: entity.table,
       attributes: entity.attributes
-              ?.map(
-                (e) => Attribute.fromApi(e!),
-              )
-              .toList() ??
-          List.empty(),
+          .map(
+            (e) => Attribute.fromApi(e!),
+          )
+          .toList(),
       searches: entity.searches
-              ?.map(
-                (e) => Search.fromApi(e!),
-              )
-              .toList() ??
-          List.empty(),
+          .map(
+            (e) => Search.fromApi(e!),
+          )
+          .toList(),
     );
   }
 
@@ -158,19 +156,19 @@ class Attribute {
 
   factory Attribute.fromApi(api.MfdAttributes attribute) {
     return Attribute(
-      addable: attribute.addable!,
-      dbName: attribute.dbName!,
-      dbType: attribute.dbType!,
-      defaultValue: attribute.defaultVal ?? '',
-      foreignKey: attribute.fk!,
-      goType: attribute.goType!,
-      isArray: attribute.isArray!,
-      max: attribute.max!,
-      min: attribute.min!,
-      name: attribute.name!,
-      nullable: attribute.nullable! == 'Yes',
-      primaryKey: attribute.pk!,
-      updatable: attribute.updatable!,
+      addable: attribute.addable,
+      dbName: attribute.dbName,
+      dbType: attribute.dbType,
+      defaultValue: attribute.defaultVal,
+      foreignKey: attribute.fk,
+      goType: attribute.goType,
+      isArray: attribute.isArray,
+      max: attribute.max,
+      min: attribute.min,
+      name: attribute.name,
+      nullable: attribute.nullable == 'Yes',
+      primaryKey: attribute.pk,
+      updatable: attribute.updatable,
     );
   }
 
@@ -230,9 +228,9 @@ class Search {
 
   factory Search.fromApi(api.MfdSearches search) {
     return Search(
-      attrName: search.attrName!,
-      name: search.name!,
-      searchType: search.searchType!,
+      attrName: search.attrName,
+      name: search.name,
+      searchType: search.searchType,
     );
   }
 

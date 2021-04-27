@@ -30,7 +30,7 @@ class _SearchTypeAutocompleteState extends State<SearchTypeAutocomplete> {
           return Future(() => cachedResp!.where((element) => element.contains(query)));
         }
         final resp = RepositoryProvider.of<api.ApiClient>(context).public.searchTypes(api.PublicSearchTypesArgs());
-        return resp.then((value) => value!.map((e) => e!)).then((value) {
+        return resp.then((value) => value.map((e) => e!)).then((value) {
           cachedResp = value.toList();
           return value.where((element) => element.contains(query));
         });
