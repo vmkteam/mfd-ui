@@ -74,10 +74,10 @@ class Menu extends StatelessWidget {
                           final namespace = namespaces[itemIndex];
                           final Iterable<Widget> tiles = namespace.entities.map(
                             (e) => ListTile(
-                              selected: namespace.name == selectedNamespaceName && e.name == selectedEntityName,
+                              selected: namespace.name == selectedNamespaceName && e == selectedEntityName,
                               selectedTileColor: Colors.blueGrey.shade50,
-                              title: Text(e.name),
-                              onTap: () => BlocProvider.of<WorkAreaBloc>(context).add(EntitySelected(e.name, namespace.name)),
+                              title: Text(e),
+                              onTap: () => BlocProvider.of<WorkAreaBloc>(context).add(EntitySelected(e, namespace.name)),
                             ),
                           );
                           return Column(

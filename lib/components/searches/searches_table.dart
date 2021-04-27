@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mfdui/blocs/work_area_bloc.dart';
+import 'package:mfdui/components/searches/searchtype_autocomplete.dart';
 import 'package:mfdui/components/table.dart';
 import 'package:mfdui/project/project.dart';
-import 'package:mfdui/ui/autocomplete/autocomplete.dart';
 
 class SearchesTable extends StatefulWidget {
   const SearchesTable({Key? key, required this.waBloc}) : super(key: key);
@@ -58,17 +58,9 @@ class _SearchesTableState extends State<SearchesTable> {
       TableColumn(
         header: const Header('Type'),
         builder: (context, index, row) {
-          return MFDAutocomplete(
-            initialValue: row.searchType,
-            optionsLoader: (query) {
-              // // todo: too many requests
-              // final result = await RepositoryProvider.of<api.ApiClient>(context).public.searchTypes(api.PublicSearchTypesArgs());
-              // return Future(() async {
-              //   return result!.map((e) => e!).toList();
-              // });
-              return Future(() => ['SEARCHTYPE_ARRAY', 'SEARCHTYPE_EQUAL'].where((element) => element.contains(query)));
-            },
-            onSubmitted: (value) => widget.waBloc.add(EntitySearchChanged(index, row.copyWith(searchType: value))),
+          return SearchTypeAutocomplete(
+            value: row.searchType,
+            onChanged: (value) => widget.waBloc.add(EntitySearchChanged(index, row.copyWith(searchType: value))),
           );
         },
       ),

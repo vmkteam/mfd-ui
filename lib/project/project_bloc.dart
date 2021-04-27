@@ -21,7 +21,10 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
   Stream<ProjectState> _mapProjectLoadStartedToState(ProjectLoadStarted event) async* {
     yield ProjectLoadInProgress();
     try {
-      final resp = await apiClient.api.project(api.ApiProjectArgs(filepath: event.filepath));
+      final resp = await apiClient.project.open(api.ProjectOpenArgs(
+        filePath: event.filepath,
+        connection: 'postgres://postgres:postgres@localhost:5432/uteka?sslmode=disable', //todo
+      ));
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('filepath', event.filepath);
 

@@ -1,14 +1,16 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:mfdui/project/project.dart';
+import 'package:mfdui/services/api/api_client.dart' as api;
 
 part 'work_area_event.dart';
 part 'work_area_state.dart';
 
 class WorkAreaBloc extends Bloc<WorkAreaEvent, WorkAreaState> {
-  WorkAreaBloc(this.projectBloc) : super(WorkAreaInitial()) {
+  WorkAreaBloc(this.projectBloc, this._apiClient) : super(WorkAreaInitial()) {
     projectBlocSub = projectBloc.stream.listen((event) {
       if (event is ProjectLoadSuccess) {
         project = event.project;
@@ -16,6 +18,7 @@ class WorkAreaBloc extends Bloc<WorkAreaEvent, WorkAreaState> {
     });
   }
 
+  final api.ApiClient _apiClient;
   final ProjectBloc projectBloc;
   late StreamSubscription<ProjectState> projectBlocSub;
 
@@ -32,21 +35,21 @@ class WorkAreaBloc extends Bloc<WorkAreaEvent, WorkAreaState> {
     WorkAreaEvent event,
   ) async* {
     if (event is EntitySelected) {
+      yield WorkAreaSelectInProgress();
       namespace = project!.namespaces.firstWhere((element) => element.name == event.namespaceName);
-      entity = namespace!.entities.firstWhere((element) => element.name == event.entityName);
+      final resp = await _apiClient.xml.loadEntity(api.XmlLoadEntityArgs(entity: event.entityName, namespace: event.namespaceName));
+      entity = Entity.fromApi(resp!);
       yield WorkAreaSelectSuccess(namespace!, entity!);
       return;
     }
     if (event is EntityAdded) {
-      namespace = project!.namespaces.firstWhere((element) => element.name == event.namespaceName);
-      namespace?.entities.add(Entity(
-        name: event.entityName,
+      final resp = await _apiClient.xml.generateEntity(api.XmlGenerateEntityArgs(
         namespace: event.namespaceName,
-        table: '',
-        attributes: const [],
-        searches: const [],
+        table: event.tableName,
       ));
-      entity = namespace!.entities.firstWhere((element) => element.name == event.entityName);
+      namespace = project!.namespaces.firstWhere((element) => element.name == event.namespaceName);
+      namespace?.entities.add(event.tableName);
+      entity = Entity.fromApi(resp!);
       yield WorkAreaSelectSuccess(namespace!, entity!);
       return;
     }

@@ -24,7 +24,7 @@ class MainPage extends StatelessWidget {
         return bloc;
       },
       child: BlocProvider(
-        create: (context) => WorkAreaBloc(BlocProvider.of<ProjectBloc>(context)),
+        create: (context) => WorkAreaBloc(BlocProvider.of<ProjectBloc>(context), RepositoryProvider.of<ApiClient>(context)),
         child: Scaffold(
           appBar: AppBar(
             title: BlocBuilder<ProjectBloc, ProjectState>(

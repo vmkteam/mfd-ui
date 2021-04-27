@@ -13,7 +13,7 @@ class Project {
       name: apiProject.name!,
       customTypes: apiProject.customTypes?.map((e) => CustomType.fromApi(e!)).toList() ?? List.empty(),
       languages: apiProject.languages?.map((e) => e!).toList() ?? List.empty(),
-      namespaces: apiProject.namespaces?.map((e) => Namespace.fromApi(e!)).toList() ?? List.empty(),
+      namespaces: Namespace.fromApi(apiProject.namespaces?.map((e) => e!).toList() ?? List.empty()),
     );
   }
 
@@ -43,15 +43,25 @@ class Namespace {
     required this.entities,
   });
 
-  factory Namespace.fromApi(api.Namespace namespace) {
-    return Namespace(
-      name: namespace.name!,
-      entities: namespace.entities?.map((e) => Entity.fromApi(e!)).toList() ?? List.empty(),
-    );
+  static List<Namespace> fromApi(List<api.MfdNSMapping> mp) {
+    final x = <String, List<String>>{};
+    for (final item in mp) {
+      if (!x.containsKey(item.namespace!)) {
+        x[item.namespace!] = [];
+      }
+      x[item.namespace!]!.add(item.entity!);
+    }
+    return x.entries.map((e) => Namespace(name: e.key, entities: e.value)).toList();
   }
+  // factory Namespace.fromApi(api.Namespace namespace) {
+  //   return Namespace(
+  //     name: namespace.name!,
+  //     entities: namespace.entities?.map((e) => Entity.fromApi(e!)).toList() ?? List.empty(),
+  //   );
+  // }
 
   final String name;
-  final List<Entity> entities;
+  final List<String> entities;
 }
 
 class CustomType {
@@ -61,7 +71,7 @@ class CustomType {
     required this.goType,
   });
 
-  factory CustomType.fromApi(api.CustomType ct) {
+  factory CustomType.fromApi(api.MfdCustomTypes ct) {
     return CustomType(
       dbType: ct.dbType!,
       goImport: ct.goImport!,
@@ -146,20 +156,20 @@ class Attribute {
     required this.updatable,
   });
 
-  factory Attribute.fromApi(api.Attribute attribute) {
+  factory Attribute.fromApi(api.MfdAttributes attribute) {
     return Attribute(
       addable: attribute.addable!,
       dbName: attribute.dbName!,
       dbType: attribute.dbType!,
-      defaultValue: attribute.defaultValue ?? '',
-      foreignKey: attribute.foreignKey!,
+      defaultValue: attribute.defaultVal ?? '',
+      foreignKey: attribute.fk!,
       goType: attribute.goType!,
       isArray: attribute.isArray!,
       max: attribute.max!,
       min: attribute.min!,
       name: attribute.name!,
-      nullable: attribute.nullable!,
-      primaryKey: attribute.primaryKey!,
+      nullable: attribute.nullable! == 'Yes',
+      primaryKey: attribute.pk!,
       updatable: attribute.updatable!,
     );
   }
@@ -218,7 +228,7 @@ class Search {
     required this.searchType,
   });
 
-  factory Search.fromApi(api.Search search) {
+  factory Search.fromApi(api.MfdSearches search) {
     return Search(
       attrName: search.attrName!,
       name: search.name!,
@@ -241,28 +251,4 @@ class Search {
   final String name;
   final String attrName;
   final String searchType;
-}
-
-enum SearchTypeEnum {
-  SEARCHTYPE_UNKNOWN,
-  SEARCHTYPE_EQUALS,
-  SEARCHTYPE_NOT_EQUALS,
-  SEARCHTYPE_NULL,
-  SEARCHTYPE_NOT_NULL,
-  SEARCHTYPE_GE,
-  SEARCHTYPE_LE,
-  SEARCHTYPE_G,
-  SEARCHTYPE_L,
-  SEARCHTYPE_LEFT_LIKE,
-  SEARCHTYPE_LEFT_ILIKE,
-  SEARCHTYPE_RIGHT_LIKE,
-  SEARCHTYPE_RIGHT_ILIKE,
-  SEARCHTYPE_LIKE,
-  SEARCHTYPE_ILIKE,
-  SEARCHTYPE_ARRAY,
-  SEARCHTYPE_NOT_INARRAY,
-  SEARCHTYPE_ARRAY_CONTAINS,
-  SEARCHTYPE_ARRAY_NOT_CONTAINS,
-  SEARCHTYPE_ARRAY_CONTAINED,
-  SEARCHTYPE_ARRAY_INTERSECT,
 }

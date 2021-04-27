@@ -63,7 +63,9 @@ class _MFDAutocompleteState extends State<MFDAutocomplete> {
         onSubmitted: _select,
         onEditingComplete: _onSubmitted,
         decoration: InputDecoration(
+          contentPadding: EdgeInsets.all(6),
           border: OutlineInputBorder(
+            gapPadding: 1,
             borderSide: _focusNode.hasFocus ? const BorderSide() : const BorderSide(style: BorderStyle.none, width: 0),
           ),
         ),

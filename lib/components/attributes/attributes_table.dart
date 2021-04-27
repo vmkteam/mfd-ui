@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mfdui/blocs/work_area_bloc.dart';
 import 'package:mfdui/components/attributes/dbtype_autocomplete.dart';
+import 'package:mfdui/components/attributes/gotype_autocomplete.dart';
 import 'package:mfdui/components/checkbox.dart';
 import 'package:mfdui/components/table.dart';
 import 'package:mfdui/project/project.dart';
@@ -79,6 +80,10 @@ class _AttributesTableState extends State<AttributesTable> {
       TableColumn(
         header: const Header('go type'),
         builder: (context, index, row) {
+          return GoTypeAutocomplete(
+            value: row.goType,
+            onChanged: (value) => widget.waBloc.add(EntityAttributeChanged(index, row.copyWith(goType: value))),
+          );
           return TextField(
             controller: TextEditingController(text: row.goType),
             onChanged: (value) => widget.waBloc.add(EntityAttributeChanged(index, row.copyWith(goType: value))),

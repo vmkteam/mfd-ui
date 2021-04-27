@@ -21,5 +21,5 @@ class ProjectEntitySearchAdded extends ProjectEvent {
   ProjectEntitySearchAdded(this.entityName, this.search);
 
   final String entityName;
-  final api.Search search;
+  final api.MfdSearches search;
 }

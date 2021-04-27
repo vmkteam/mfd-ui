@@ -14,6 +14,9 @@ class _WorkAreaState extends State<WorkArea> {
   Widget build(BuildContext context) {
     return BlocBuilder<WorkAreaBloc, WorkAreaState>(
       builder: (context, state) {
+        if (state is WorkAreaSelectInProgress) {
+          return const Center(child: CircularProgressIndicator());
+        }
         if (state is WorkAreaSelectSuccess) {
           return CustomScrollView(
             slivers: [

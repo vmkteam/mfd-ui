@@ -11,10 +11,10 @@ class EntitySelected extends WorkAreaEvent {
 }
 
 class EntityAdded extends WorkAreaEvent {
-  EntityAdded(this.namespaceName, this.entityName);
+  EntityAdded(this.namespaceName, this.tableName);
 
   final String namespaceName;
-  final String entityName;
+  final String tableName;
 }
 
 class EntityTableChanged extends WorkAreaEvent {

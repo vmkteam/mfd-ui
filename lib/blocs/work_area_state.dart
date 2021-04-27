@@ -5,6 +5,8 @@ abstract class WorkAreaState {}
 
 class WorkAreaInitial extends WorkAreaState {}
 
+class WorkAreaSelectInProgress extends WorkAreaState {}
+
 class WorkAreaSelectSuccess extends WorkAreaState {
   WorkAreaSelectSuccess(this.namespace, this.entity);
 
