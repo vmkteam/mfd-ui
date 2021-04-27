@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mfdui/blocs/work_area_bloc.dart';
+import 'package:mfdui/components/settings.dart';
 import 'package:mfdui/project/project.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,6 +12,39 @@ class Menu extends StatelessWidget {
       child: Scrollbar(
         child: CustomScrollView(
           slivers: [
+            SliverAppBar(
+              title: BlocBuilder<ProjectBloc, ProjectState>(
+                builder: (context, state) {
+                  String projectName = '';
+                  if (state is ProjectLoadSuccess) {
+                    projectName = state.project.name;
+                  }
+                  return Text('MFDUI $projectName');
+                },
+              ),
+              actions: [
+                Builder(
+                  builder: (context) => TextButton(
+                    child: Text(
+                      'Settings',
+                      style: Theme.of(context).textTheme.button?.copyWith(color: Colors.white),
+                    ),
+                    onPressed: () async {
+                      await showDialog(
+                        context: context,
+                        builder: (context) => Settings(),
+                      );
+                      final bloc = BlocProvider.of<ProjectBloc>(context);
+                      final state = bloc.state;
+                      if (state is ProjectLoadSuccess) {
+                        bloc.add(ProjectLoadStarted(state.filename));
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(width: 15),
+              ],
+            ),
             SliverList(
               delegate: SliverChildListDelegate(
                 [

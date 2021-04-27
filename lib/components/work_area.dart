@@ -15,7 +15,21 @@ class _WorkAreaState extends State<WorkArea> {
     return BlocBuilder<WorkAreaBloc, WorkAreaState>(
       builder: (context, state) {
         if (state is WorkAreaSelectInProgress) {
-          return const Center(child: CircularProgressIndicator());
+          return CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                title: Text(state.entityName),
+                primary: false,
+                automaticallyImplyLeading: false,
+                backgroundColor: Colors.blueGrey.shade300,
+                elevation: 1,
+                pinned: true,
+              ),
+              const SliverFillRemaining(
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            ],
+          );
         }
         if (state is WorkAreaSelectSuccess) {
           return CustomScrollView(
@@ -27,7 +41,6 @@ class _WorkAreaState extends State<WorkArea> {
                 backgroundColor: Colors.blueGrey.shade300,
                 elevation: 1,
                 pinned: true,
-                toolbarHeight: 40,
               ),
               SliverList(
                 delegate: SliverChildListDelegate([

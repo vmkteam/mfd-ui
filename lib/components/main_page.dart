@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mfdui/blocs/work_area_bloc.dart';
 import 'package:mfdui/components/menu.dart';
-import 'package:mfdui/components/settings.dart';
 import 'package:mfdui/components/work_area.dart';
 import 'package:mfdui/project/project.dart';
 import 'package:mfdui/services/api/api_client.dart';
@@ -26,39 +25,6 @@ class MainPage extends StatelessWidget {
       child: BlocProvider(
         create: (context) => WorkAreaBloc(BlocProvider.of<ProjectBloc>(context), RepositoryProvider.of<ApiClient>(context)),
         child: Scaffold(
-          appBar: AppBar(
-            title: BlocBuilder<ProjectBloc, ProjectState>(
-              builder: (context, state) {
-                String projectName = '';
-                if (state is ProjectLoadSuccess) {
-                  projectName = state.project.name;
-                }
-                return Text('MFDUI $projectName');
-              },
-            ),
-            actions: [
-              Builder(
-                builder: (context) => TextButton(
-                  child: Text(
-                    'Settings',
-                    style: Theme.of(context).textTheme.button?.copyWith(color: Colors.white),
-                  ),
-                  onPressed: () async {
-                    await showDialog(
-                      context: context,
-                      builder: (context) => Settings(),
-                    );
-                    final bloc = BlocProvider.of<ProjectBloc>(context);
-                    final state = bloc.state;
-                    if (state is ProjectLoadSuccess) {
-                      bloc.add(ProjectLoadStarted(state.filename));
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(width: 15),
-            ],
-          ),
           body: BlocBuilder<ProjectBloc, ProjectState>(
             builder: (context, state) {
               Widget? loader;

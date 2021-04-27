@@ -5,7 +5,11 @@ abstract class WorkAreaState {}
 
 class WorkAreaInitial extends WorkAreaState {}
 
-class WorkAreaSelectInProgress extends WorkAreaState {}
+class WorkAreaSelectInProgress extends WorkAreaState {
+  WorkAreaSelectInProgress(this.entityName);
+
+  final String entityName;
+}
 
 class WorkAreaSelectSuccess extends WorkAreaState {
   WorkAreaSelectSuccess(this.namespace, this.entity);

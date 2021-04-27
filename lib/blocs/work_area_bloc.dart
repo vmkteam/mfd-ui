@@ -35,7 +35,7 @@ class WorkAreaBloc extends Bloc<WorkAreaEvent, WorkAreaState> {
     WorkAreaEvent event,
   ) async* {
     if (event is EntitySelected) {
-      yield WorkAreaSelectInProgress();
+      yield WorkAreaSelectInProgress(event.entityName);
       namespace = project!.namespaces.firstWhere((element) => element.name == event.namespaceName);
       final resp = await _apiClient.xml.loadEntity(api.XmlLoadEntityArgs(entity: event.entityName, namespace: event.namespaceName));
       entity = Entity.fromApi(resp!);
