@@ -30,7 +30,7 @@ class _GoTypeAutocompleteState extends State<GoTypeAutocomplete> {
           return Future(() => cachedResp!.where((element) => element.contains(query)));
         }
         final resp = RepositoryProvider.of<api.ApiClient>(context).public.types(api.PublicTypesArgs());
-        return resp.then((value) => value.map((e) => e!)).then((value) {
+        return resp.then((value) => value!.map((e) => e!)).then((value) {
           cachedResp = value.toList();
           return value.where((element) => element.contains(query));
         });

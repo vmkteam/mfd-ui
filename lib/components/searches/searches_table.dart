@@ -18,26 +18,6 @@ class _SearchesTableState extends State<SearchesTable> {
   List<TableColumn<Search>> get columns {
     return [
       TableColumn(
-        header: const Header(''),
-        builder: (context, index, row) {
-          return const SizedBox();
-        },
-        footerBuilder: (context) {
-          return Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.add, color: Colors.green),
-                tooltip: 'Add search',
-                onPressed: () => setState(() {
-                  widget.waBloc.add(EntitySearchAdded());
-                }),
-                splashRadius: 19,
-              )
-            ],
-          );
-        },
-      ),
-      TableColumn(
         header: const Header('Name'),
         builder: (context, index, row) {
           return TextField(
@@ -74,6 +54,20 @@ class _SearchesTableState extends State<SearchesTable> {
                 tooltip: 'Remove search',
                 onPressed: () => setState(() {
                   widget.waBloc.add(EntitySearchDeleted(index));
+                }),
+                splashRadius: 19,
+              )
+            ],
+          );
+        },
+        footerBuilder: (context) {
+          return Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.add, color: Colors.green),
+                tooltip: 'Add search',
+                onPressed: () => setState(() {
+                  widget.waBloc.add(EntitySearchAdded());
                 }),
                 splashRadius: 19,
               )

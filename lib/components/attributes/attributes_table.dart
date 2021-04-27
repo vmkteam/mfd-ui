@@ -20,26 +20,6 @@ class _AttributesTableState extends State<AttributesTable> {
   List<TableColumn<Attribute>> get columns {
     return [
       TableColumn(
-        header: const Header(''),
-        builder: (context, index, row) {
-          return const SizedBox.shrink();
-        },
-        footerBuilder: (context) {
-          return Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.add, color: Colors.green),
-                tooltip: 'Add attribute',
-                onPressed: () => setState(() {
-                  widget.waBloc.add(EntityAttributeAdded());
-                }),
-                splashRadius: 19,
-              )
-            ],
-          );
-        },
-      ),
-      TableColumn(
         header: const Header('Name'),
         builder: (context, index, row) {
           final name = TextField(
@@ -83,13 +63,6 @@ class _AttributesTableState extends State<AttributesTable> {
           return GoTypeAutocomplete(
             value: row.goType,
             onChanged: (value) => widget.waBloc.add(EntityAttributeChanged(index, row.copyWith(goType: value))),
-          );
-          return TextField(
-            controller: TextEditingController(text: row.goType),
-            onChanged: (value) => widget.waBloc.add(EntityAttributeChanged(index, row.copyWith(goType: value))),
-            onEditingComplete: () {
-              setState(() {});
-            },
           );
         },
       ),
@@ -136,6 +109,20 @@ class _AttributesTableState extends State<AttributesTable> {
                 tooltip: 'Remove attribute',
                 onPressed: () => setState(() {
                   widget.waBloc.add(EntityAttributeDeleted(index));
+                }),
+                splashRadius: 19,
+              )
+            ],
+          );
+        },
+        footerBuilder: (context) {
+          return Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.add, color: Colors.green),
+                tooltip: 'Add attribute',
+                onPressed: () => setState(() {
+                  widget.waBloc.add(EntityAttributeAdded());
                 }),
                 splashRadius: 19,
               )

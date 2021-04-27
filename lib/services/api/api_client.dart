@@ -39,14 +39,6 @@ class _ServiceProject {
 
   final JSONRPCClient _client;
 
-  // Gets vt entity for selected base entity
-  Future<VTEntity?> generateEntity(XmlvtGenerateEntityArgs args) {
-    return Future(() async {
-      final response = await _client.call('project.generateEntity', args) as Map<String, dynamic>;
-      return VTEntity.fromJson(response);
-    });
-  }
-
   // Loads project from file
   Future<Project?> open(ProjectOpenArgs args) {
     return Future(() async {
@@ -55,10 +47,10 @@ class _ServiceProject {
     });
   }
 
-  Future<String> ping(ProjectPingArgs args) {
+  Future<String?> ping(ProjectPingArgs args) {
     return Future(() async {
       final response = await _client.call('project.ping', args) as String?;
-      return response!;
+      return response;
     });
   }
 
@@ -70,7 +62,7 @@ class _ServiceProject {
   }
 
   // Gets all tables from database
-  Future<List<String?>> tables(ProjectTablesArgs args) {
+  Future<List<String?>?> tables(ProjectTablesArgs args) {
     return Future(() async {
       final response = await _client.call('project.tables', args) as List?;
       final responseList = response?.map((e) {
@@ -79,7 +71,7 @@ class _ServiceProject {
         }
         return e as String;
       });
-      return responseList?.toList() ?? List.empty();
+      return responseList?.toList();
     });
   }
 
@@ -89,45 +81,18 @@ class _ServiceProject {
       await _client.call('project.update', args);
     });
   }
-
-  // Saves vt entity in project
-  Future<void> updateEntity(XmlvtUpdateEntityArgs args) {
-    return Future(() async {
-      await _client.call('project.updateEntity', args);
-    });
-  }
-}
-
-@JsonSerializable(includeIfNull: false, explicitToJson: true)
-class XmlvtGenerateEntityArgs {
-  XmlvtGenerateEntityArgs({
-    required this.entity,
-    required this.namespace,
-  });
-
-  factory XmlvtGenerateEntityArgs.fromJson(Map<String, dynamic> json) => _$XmlvtGenerateEntityArgsFromJson(json);
-
-  Map<String, dynamic> toJson() => _$XmlvtGenerateEntityArgsToJson(this);
-
-  final String entity;
-
-  final String namespace;
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
 class ProjectOpenArgs {
-  ProjectOpenArgs({
-    required this.connection,
-    required this.filePath,
-  });
+  ProjectOpenArgs({this.connection, this.filePath});
 
   factory ProjectOpenArgs.fromJson(Map<String, dynamic> json) => _$ProjectOpenArgsFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProjectOpenArgsToJson(this);
 
-  final String connection;
-
-  final String filePath;
+  final String? connection;
+  final String? filePath;
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
@@ -159,31 +124,13 @@ class ProjectTablesArgs {
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
 class ProjectUpdateArgs {
-  ProjectUpdateArgs({
-    required this.project,
-  });
+  ProjectUpdateArgs({this.project});
 
   factory ProjectUpdateArgs.fromJson(Map<String, dynamic> json) => _$ProjectUpdateArgsFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProjectUpdateArgsToJson(this);
 
-  final Project project;
-}
-
-@JsonSerializable(includeIfNull: false, explicitToJson: true)
-class XmlvtUpdateEntityArgs {
-  XmlvtUpdateEntityArgs({
-    this.entity,
-    required this.namespace,
-  });
-
-  factory XmlvtUpdateEntityArgs.fromJson(Map<String, dynamic> json) => _$XmlvtUpdateEntityArgsFromJson(json);
-
-  Map<String, dynamic> toJson() => _$XmlvtUpdateEntityArgsToJson(this);
-
-  final VTEntity? entity;
-
-  final String namespace;
+  final Project? project;
 }
 
 class _ServicePublic {
@@ -192,7 +139,7 @@ class _ServicePublic {
   final JSONRPCClient _client;
 
   // Gets all supported go-pg versions
-  Future<List<int?>> goPGVersions(PublicGoPGVersionsArgs args) {
+  Future<List<int?>?> goPGVersions(PublicGoPGVersionsArgs args) {
     return Future(() async {
       final response = await _client.call('public.goPGVersions', args) as List?;
       final responseList = response?.map((e) {
@@ -201,12 +148,12 @@ class _ServicePublic {
         }
         return e as int;
       });
-      return responseList?.toList() ?? List.empty();
+      return responseList?.toList();
     });
   }
 
   // Gets all available entity modes
-  Future<List<String?>> modes(PublicModesArgs args) {
+  Future<List<String?>?> modes(PublicModesArgs args) {
     return Future(() async {
       final response = await _client.call('public.modes', args) as List?;
       final responseList = response?.map((e) {
@@ -215,12 +162,12 @@ class _ServicePublic {
         }
         return e as String;
       });
-      return responseList?.toList() ?? List.empty();
+      return responseList?.toList();
     });
   }
 
   // Gets all available search types
-  Future<List<String?>> searchTypes(PublicSearchTypesArgs args) {
+  Future<List<String?>?> searchTypes(PublicSearchTypesArgs args) {
     return Future(() async {
       final response = await _client.call('public.searchTypes', args) as List?;
       final responseList = response?.map((e) {
@@ -229,12 +176,12 @@ class _ServicePublic {
         }
         return e as String;
       });
-      return responseList?.toList() ?? List.empty();
+      return responseList?.toList();
     });
   }
 
   // Gets std types
-  Future<List<String?>> types(PublicTypesArgs args) {
+  Future<List<String?>?> types(PublicTypesArgs args) {
     return Future(() async {
       final response = await _client.call('public.types', args) as List?;
       final responseList = response?.map((e) {
@@ -243,7 +190,7 @@ class _ServicePublic {
         }
         return e as String;
       });
-      return responseList?.toList() ?? List.empty();
+      return responseList?.toList();
     });
   }
 }
@@ -315,41 +262,31 @@ class _ServiceXml {
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
 class XmlGenerateEntityArgs {
-  XmlGenerateEntityArgs({
-    required this.namespace,
-    required this.table,
-  });
+  XmlGenerateEntityArgs({this.namespace, this.table});
 
   factory XmlGenerateEntityArgs.fromJson(Map<String, dynamic> json) => _$XmlGenerateEntityArgsFromJson(json);
 
   Map<String, dynamic> toJson() => _$XmlGenerateEntityArgsToJson(this);
 
-  final String namespace;
-
-  final String table;
+  final String? namespace;
+  final String? table;
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
 class XmlLoadEntityArgs {
-  XmlLoadEntityArgs({
-    required this.entity,
-    required this.namespace,
-  });
+  XmlLoadEntityArgs({this.entity, this.namespace});
 
   factory XmlLoadEntityArgs.fromJson(Map<String, dynamic> json) => _$XmlLoadEntityArgsFromJson(json);
 
   Map<String, dynamic> toJson() => _$XmlLoadEntityArgsToJson(this);
 
-  final String entity;
-
-  final String namespace;
+  final String? entity;
+  final String? namespace;
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
 class XmlUpdateEntityArgs {
-  XmlUpdateEntityArgs({
-    this.entity,
-  });
+  XmlUpdateEntityArgs({this.entity});
 
   factory XmlUpdateEntityArgs.fromJson(Map<String, dynamic> json) => _$XmlUpdateEntityArgsFromJson(json);
 
@@ -363,6 +300,14 @@ class _ServiceXmlvt {
 
   final JSONRPCClient _client;
 
+  // Gets vt entity for selected base entity
+  Future<VTEntity?> generateEntity(XmlvtGenerateEntityArgs args) {
+    return Future(() async {
+      final response = await _client.call('xmlvt.generateEntity', args) as Map<String, dynamic>;
+      return VTEntity.fromJson(response);
+    });
+  }
+
   // Gets vt entity for selected entity from project
   Future<VTEntity?> loadEntity(XmlvtLoadEntityArgs args) {
     return Future(() async {
@@ -370,272 +315,206 @@ class _ServiceXmlvt {
       return VTEntity.fromJson(response);
     });
   }
+
+  // Saves vt entity in project
+  Future<void> updateEntity(XmlvtUpdateEntityArgs args) {
+    return Future(() async {
+      await _client.call('xmlvt.updateEntity', args);
+    });
+  }
+}
+
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
+class XmlvtGenerateEntityArgs {
+  XmlvtGenerateEntityArgs({this.entity, this.namespace});
+
+  factory XmlvtGenerateEntityArgs.fromJson(Map<String, dynamic> json) => _$XmlvtGenerateEntityArgsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$XmlvtGenerateEntityArgsToJson(this);
+
+  final String? entity;
+  final String? namespace;
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
 class XmlvtLoadEntityArgs {
-  XmlvtLoadEntityArgs({
-    required this.entity,
-    required this.namespace,
-  });
+  XmlvtLoadEntityArgs({this.entity, this.namespace});
 
   factory XmlvtLoadEntityArgs.fromJson(Map<String, dynamic> json) => _$XmlvtLoadEntityArgsFromJson(json);
 
   Map<String, dynamic> toJson() => _$XmlvtLoadEntityArgsToJson(this);
 
-  final String entity;
+  final String? entity;
+  final String? namespace;
+}
 
-  final String namespace;
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
+class XmlvtUpdateEntityArgs {
+  XmlvtUpdateEntityArgs({this.entity, this.namespace});
+
+  factory XmlvtUpdateEntityArgs.fromJson(Map<String, dynamic> json) => _$XmlvtUpdateEntityArgsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$XmlvtUpdateEntityArgsToJson(this);
+
+  final VTEntity? entity;
+  final String? namespace;
 }
 
 // ----- models -----
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
 class Entity {
-  Entity({
-    required this.attributes,
-    required this.name,
-    required this.namespace,
-    required this.searches,
-    required this.table,
-  });
+  Entity({this.attributes, this.name, this.namespace, this.searches, this.table});
 
   factory Entity.fromJson(Map<String, dynamic> json) => _$EntityFromJson(json);
 
   Map<String, dynamic> toJson() => _$EntityToJson(this);
 
-  final List<MfdAttributes?> attributes;
-
-  final String name;
-
-  final String namespace;
-
-  final List<MfdSearches?> searches;
-
-  final String table;
+  final List<MfdAttributes?>? attributes;
+  final String? name;
+  final String? namespace;
+  final List<MfdSearches?>? searches;
+  final String? table;
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
 class MfdAttributes {
-  MfdAttributes({
-    required this.addable,
-    required this.dbName,
-    required this.dbType,
-    required this.defaultVal,
-    required this.disablePointer,
-    required this.fk,
-    required this.goType,
-    required this.isArray,
-    required this.max,
-    required this.min,
-    required this.name,
-    required this.nullable,
-    required this.pk,
-    required this.updatable,
-  });
+  MfdAttributes(
+      {this.addable,
+      this.dbName,
+      this.dbType,
+      this.defaultVal,
+      this.disablePointer,
+      this.fk,
+      this.goType,
+      this.isArray,
+      this.max,
+      this.min,
+      this.name,
+      this.nullable,
+      this.pk,
+      this.updatable});
 
   factory MfdAttributes.fromJson(Map<String, dynamic> json) => _$MfdAttributesFromJson(json);
 
   Map<String, dynamic> toJson() => _$MfdAttributesToJson(this);
 
-  final bool addable;
-
-  final String dbName;
-
-  final String dbType;
-
-  final String defaultVal;
-
-  final bool disablePointer;
-
-  final String fk;
-
-  final String goType;
-
-  final bool isArray;
-
-  final int max;
-
-  final int min;
-
-  final String name;
-
-  final String nullable;
-
-  final bool pk;
-
-  final bool updatable;
+  final bool? addable;
+  final String? dbName;
+  final String? dbType;
+  final String? defaultVal;
+  final bool? disablePointer;
+  final String? fk;
+  final String? goType;
+  final bool? isArray;
+  final int? max;
+  final int? min;
+  final String? name;
+  final String? nullable;
+  final bool? pk;
+  final bool? updatable;
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
 class MfdCustomTypes {
-  MfdCustomTypes({
-    required this.dbType,
-    required this.goImport,
-    required this.goType,
-  });
+  MfdCustomTypes({this.dbType, this.goImport, this.goType});
 
   factory MfdCustomTypes.fromJson(Map<String, dynamic> json) => _$MfdCustomTypesFromJson(json);
 
   Map<String, dynamic> toJson() => _$MfdCustomTypesToJson(this);
 
-  final String dbType;
-
-  final String goImport;
-
-  final String goType;
+  final String? dbType;
+  final String? goImport;
+  final String? goType;
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
 class MfdNSMapping {
-  MfdNSMapping({
-    required this.entity,
-    required this.namespace,
-  });
+  MfdNSMapping({this.entity, this.namespace});
 
   factory MfdNSMapping.fromJson(Map<String, dynamic> json) => _$MfdNSMappingFromJson(json);
 
   Map<String, dynamic> toJson() => _$MfdNSMappingToJson(this);
 
-  final String entity;
-
-  final String namespace;
+  final String? entity;
+  final String? namespace;
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
 class MfdSearches {
-  MfdSearches({
-    required this.attrName,
-    required this.goType,
-    required this.name,
-    required this.searchType,
-  });
+  MfdSearches({this.attrName, this.goType, this.name, this.searchType});
 
   factory MfdSearches.fromJson(Map<String, dynamic> json) => _$MfdSearchesFromJson(json);
 
   Map<String, dynamic> toJson() => _$MfdSearchesToJson(this);
 
-  final String attrName;
-
-  final String goType;
-
-  final String name;
-
-  final String searchType;
+  final String? attrName;
+  final String? goType;
+  final String? name;
+  final String? searchType;
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
 class MfdTmplAttributes {
-  MfdTmplAttributes({
-    required this.fkOpts,
-    required this.form,
-    required this.list,
-    required this.name,
-    required this.search,
-    required this.vtAttrName,
-  });
+  MfdTmplAttributes({this.fkOpts, this.form, this.list, this.name, this.search, this.vtAttrName});
 
   factory MfdTmplAttributes.fromJson(Map<String, dynamic> json) => _$MfdTmplAttributesFromJson(json);
 
   Map<String, dynamic> toJson() => _$MfdTmplAttributesToJson(this);
 
-  // how to show fks
-  final String fkOpts;
-  // show in object editor
-  final String form;
-  // show in list
-  final bool list;
-
-  final String name;
-  // input type in search
-  final String search;
-
-  final String vtAttrName;
+  final String? fkOpts;
+  final String? form;
+  final bool? list;
+  final String? name;
+  final String? search;
+  final String? vtAttrName;
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
 class MfdVTAttributes {
-  MfdVTAttributes({
-    required this.attrName,
-    required this.max,
-    required this.min,
-    required this.name,
-    required this.required,
-    required this.search,
-    required this.searchName,
-    required this.summary,
-    required this.validate,
-  });
+  MfdVTAttributes({this.attrName, this.max, this.min, this.name, this.required, this.search, this.searchName, this.summary, this.validate});
 
   factory MfdVTAttributes.fromJson(Map<String, dynamic> json) => _$MfdVTAttributesFromJson(json);
 
   Map<String, dynamic> toJson() => _$MfdVTAttributesToJson(this);
 
-  final String attrName;
-
-  final int max;
-
-  final int min;
-
-  final String name;
-
-  final bool required;
-
-  final bool search;
-
-  final String searchName;
-
-  final bool summary;
-
-  final String validate;
+  final String? attrName;
+  final int? max;
+  final int? min;
+  final String? name;
+  final bool? required;
+  final bool? search;
+  final String? searchName;
+  final bool? summary;
+  final String? validate;
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
 class Project {
-  Project({
-    required this.customTypes,
-    required this.goPGVer,
-    required this.languages,
-    required this.name,
-    required this.namespaces,
-  });
+  Project({this.customTypes, this.goPGVer, this.languages, this.name, this.namespaces});
 
   factory Project.fromJson(Map<String, dynamic> json) => _$ProjectFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProjectToJson(this);
 
-  final List<MfdCustomTypes?> customTypes;
-
-  final int goPGVer;
-
-  final List<String?> languages;
-
-  final String name;
-
-  final List<MfdNSMapping?> namespaces;
+  final List<MfdCustomTypes?>? customTypes;
+  final int? goPGVer;
+  final List<String?>? languages;
+  final String? name;
+  final List<MfdNSMapping?>? namespaces;
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
 class VTEntity {
-  VTEntity({
-    required this.attributes,
-    required this.mode,
-    required this.name,
-    required this.template,
-    required this.terminalPath,
-  });
+  VTEntity({this.attributes, this.mode, this.name, this.template, this.terminalPath});
 
   factory VTEntity.fromJson(Map<String, dynamic> json) => _$VTEntityFromJson(json);
 
   Map<String, dynamic> toJson() => _$VTEntityToJson(this);
 
-  final List<MfdVTAttributes?> attributes;
-
-  final String mode;
-
-  final String name;
-
-  final List<MfdTmplAttributes?> template;
-
-  final String terminalPath;
+  final List<MfdVTAttributes?>? attributes;
+  final String? mode;
+  final String? name;
+  final List<MfdTmplAttributes?>? template;
+  final String? terminalPath;
 }
