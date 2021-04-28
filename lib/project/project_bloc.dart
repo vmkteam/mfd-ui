@@ -9,7 +9,9 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
   Stream<ProjectState> mapEventToState(
     ProjectEvent event,
   ) async* {
-    if (event is ProjectLoadStarted) {
+    if (event is ProjectLoadCurrent) {
+      yield* _mapProjectLoadCurrentToState(event);
+    } else if (event is ProjectLoadStarted) {
       yield* _mapProjectLoadStartedToState(event);
     } else if (event is ProjectEntitySearchDeleted) {
       // yield* _mapProjectSearchDeletedToState(event);
@@ -18,6 +20,24 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
     } else if (event is ProjectSaveStarted) {
       yield* _mapProjectSaveStartedToState(event);
     }
+  }
+
+  Stream<ProjectState> _mapProjectLoadCurrentToState(ProjectLoadCurrent event) async* {
+    try {
+      final resp = await apiClient.project.current(api.ProjectCurrentArgs());
+      yield ProjectLoadSuccess(Project.fromApi(resp!));
+      return;
+    } on ApiRpcError catch (e) {
+      if (e.code != 400) {
+        rethrow;
+      }
+    }
+    final prefs = await SharedPreferences.getInstance();
+    final String? filepath = prefs.getString('filepath');
+    if (filepath == null) {
+      return;
+    }
+    yield* _mapProjectLoadStartedToState(ProjectLoadStarted(filepath));
   }
 
   Stream<ProjectState> _mapProjectLoadStartedToState(ProjectLoadStarted event) async* {
@@ -30,7 +50,7 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('filepath', event.filepath);
 
-      yield ProjectLoadSuccess(Project.fromApi(resp!), event.filepath);
+      yield ProjectLoadSuccess(Project.fromApi(resp!), filename: event.filepath);
     } catch (e) {
       yield ProjectLoadFailed(e.toString());
     }
@@ -54,7 +74,10 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
   Stream<ProjectState> _mapProjectSaveStartedToState(ProjectSaveStarted event) async* {
     final current = state;
     if (current is ProjectLoadSuccess) {
+      yield ProjectSaveInProgress(current);
+      await Future.delayed(Duration(seconds: 1));
       await apiClient.project.save(api.ProjectSaveArgs());
+      yield ProjectSaveSuccess(current);
     }
   }
 }

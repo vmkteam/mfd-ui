@@ -39,18 +39,19 @@ class _ServiceProject {
 
   final JSONRPCClient _client;
 
+  // Returns currently open project
+  Future<Project?> current(ProjectCurrentArgs args) {
+    return Future(() async {
+      final response = await _client.call('project.current', args) as Map<String, dynamic>;
+      return Project.fromJson(response);
+    });
+  }
+
   // Loads project from file
   Future<Project?> open(ProjectOpenArgs args) {
     return Future(() async {
       final response = await _client.call('project.open', args) as Map<String, dynamic>;
       return Project.fromJson(response);
-    });
-  }
-
-  Future<String?> ping(ProjectPingArgs args) {
-    return Future(() async {
-      final response = await _client.call('project.ping', args) as String?;
-      return response;
     });
   }
 
@@ -84,6 +85,15 @@ class _ServiceProject {
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
+class ProjectCurrentArgs {
+  ProjectCurrentArgs();
+
+  factory ProjectCurrentArgs.fromJson(Map<String, dynamic> json) => _$ProjectCurrentArgsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ProjectCurrentArgsToJson(this);
+}
+
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
 class ProjectOpenArgs {
   ProjectOpenArgs({this.connection, this.filePath});
 
@@ -93,15 +103,6 @@ class ProjectOpenArgs {
 
   final String? connection;
   final String? filePath;
-}
-
-@JsonSerializable(includeIfNull: false, explicitToJson: true)
-class ProjectPingArgs {
-  ProjectPingArgs();
-
-  factory ProjectPingArgs.fromJson(Map<String, dynamic> json) => _$ProjectPingArgsFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ProjectPingArgsToJson(this);
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
@@ -138,6 +139,20 @@ class _ServicePublic {
 
   final JSONRPCClient _client;
 
+  // Gets postgres types
+  Future<List<String?>?> dBTypes(PublicDBTypesArgs args) {
+    return Future(() async {
+      final response = await _client.call('public.dBTypes', args) as List?;
+      final responseList = response?.map((e) {
+        if (e == null) {
+          return null;
+        }
+        return e as String;
+      });
+      return responseList?.toList();
+    });
+  }
+
   // Gets all supported go-pg versions
   Future<List<int?>?> goPGVersions(PublicGoPGVersionsArgs args) {
     return Future(() async {
@@ -163,6 +178,13 @@ class _ServicePublic {
         return e as String;
       });
       return responseList?.toList();
+    });
+  }
+
+  Future<String?> ping(PublicPingArgs args) {
+    return Future(() async {
+      final response = await _client.call('public.ping', args) as String?;
+      return response;
     });
   }
 
@@ -196,6 +218,15 @@ class _ServicePublic {
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
+class PublicDBTypesArgs {
+  PublicDBTypesArgs();
+
+  factory PublicDBTypesArgs.fromJson(Map<String, dynamic> json) => _$PublicDBTypesArgsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PublicDBTypesArgsToJson(this);
+}
+
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
 class PublicGoPGVersionsArgs {
   PublicGoPGVersionsArgs();
 
@@ -211,6 +242,15 @@ class PublicModesArgs {
   factory PublicModesArgs.fromJson(Map<String, dynamic> json) => _$PublicModesArgsFromJson(json);
 
   Map<String, dynamic> toJson() => _$PublicModesArgsToJson(this);
+}
+
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
+class PublicPingArgs {
+  PublicPingArgs();
+
+  factory PublicPingArgs.fromJson(Map<String, dynamic> json) => _$PublicPingArgsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PublicPingArgsToJson(this);
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)

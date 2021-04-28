@@ -28,8 +28,8 @@ class CustomTable<RowType> extends StatelessWidget {
       ));
     }
     return DataTable(
-      columnSpacing: 30,
-      dataRowHeight: 56,
+      columnSpacing: 10,
+      dataRowHeight: 48,
       columns: columns.map((column) => DataColumn(label: Text(column.header.text))).toList(),
       rows: lines,
     );

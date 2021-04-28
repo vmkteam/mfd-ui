@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:mfdui/ui/autocomplete/autocomplete.dart';
+part of 'attributes_table.dart';
 
-class DBTypeAutocomplete extends StatelessWidget {
-  const DBTypeAutocomplete({
+class GoTypeAutocomplete extends StatelessWidget {
+  const GoTypeAutocomplete({
     Key? key,
     required this.value,
     required this.onChanged,
@@ -17,7 +16,8 @@ class DBTypeAutocomplete extends StatelessWidget {
       initialValue: value,
       loadOnTap: true,
       optionsLoader: (query) {
-        return Future(() => ['int4', 'timestamptz', 'text', 'varchar', 'date'].where((element) => element.contains(query)));
+        final precursor = query.selection.isValid ? query.text.substring(0, query.selection.end) : '';
+        return RepositoryProvider.of<PublicRepo>(context).goTypes(precursor);
       },
       onSubmitted: onChanged,
     );

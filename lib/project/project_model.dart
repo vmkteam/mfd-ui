@@ -148,7 +148,7 @@ class Entity extends Equatable {
 }
 
 class Attribute {
-  Attribute({
+  const Attribute({
     required this.addable,
     required this.dbName,
     required this.dbType,
@@ -176,10 +176,15 @@ class Attribute {
       max: attribute.max!,
       min: attribute.min!,
       name: attribute.name!,
-      nullable: attribute.nullable!,
+      nullable: attribute.nullable! == 'Yes',
       primaryKey: attribute.pk!,
       updatable: attribute.updatable!,
     );
+  }
+
+  @override
+  String toString() {
+    return 'Attribute{name: $name, dbName: $dbName, dbType: $dbType, goType: $goType, defaultValue: $defaultValue, primaryKey: $primaryKey, foreignKey: $foreignKey, isArray: $isArray, max: $max, min: $min, nullable: $nullable, addable: $addable, updatable: $updatable}';
   }
 
   api.MfdAttributes toApi() {
@@ -194,7 +199,7 @@ class Attribute {
       max: max,
       min: min,
       name: name,
-      nullable: nullable,
+      nullable: nullable ? 'Yes' : 'No',
       pk: primaryKey,
       updatable: updatable,
     );
@@ -211,7 +216,7 @@ class Attribute {
     bool? isArray,
     int? max,
     int? min,
-    String? nullable,
+    bool? nullable,
     bool? addable,
     bool? updatable,
   }) {
@@ -242,7 +247,7 @@ class Attribute {
   final bool isArray;
   final int max;
   final int min;
-  final String nullable;
+  final bool nullable;
   final bool addable;
   final bool updatable;
 }

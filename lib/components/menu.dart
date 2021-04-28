@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mfdui/blocs/work_area_bloc.dart';
 import 'package:mfdui/components/settings.dart';
+import 'package:mfdui/editor/editor_bloc.dart';
 import 'package:mfdui/project/project.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,13 +13,17 @@ class Menu extends StatelessWidget {
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
+              pinned: true,
               title: BlocBuilder<ProjectBloc, ProjectState>(
                 builder: (context, state) {
-                  String projectName = '';
                   if (state is ProjectLoadSuccess) {
-                    projectName = state.project.name;
+                    final text = Text(state.project.name);
+                    if (state.filename == null) {
+                      return text;
+                    }
+                    return Tooltip(message: state.filename!, child: text);
                   }
-                  return Text('MFDUI $projectName');
+                  return const Text('MFD UI');
                 },
               ),
               actions: [
@@ -37,7 +41,7 @@ class Menu extends StatelessWidget {
                       final bloc = BlocProvider.of<ProjectBloc>(context);
                       final state = bloc.state;
                       if (state is ProjectLoadSuccess) {
-                        bloc.add(ProjectLoadStarted(state.filename));
+                        bloc.add(ProjectLoadCurrent());
                       }
                     },
                   ),
@@ -62,35 +66,42 @@ class Menu extends StatelessWidget {
                         ),
                         SizedBox(
                           height: 38,
-                          child: Builder(
-                            builder: (context) => ElevatedButton(
-                              onPressed: () async {
-                                final prefs = await SharedPreferences.getInstance();
-                                String? filepath = prefs.getString('filepath');
-                                filepath = await showDialog<String?>(context: context, builder: (context) => _OpenProjectDialog(path: filepath));
-                                if (filepath != null) {
-                                  BlocProvider.of<ProjectBloc>(context).add(ProjectLoadStarted(filepath));
-                                }
-                              },
-                              child: const Text('Open project'),
-                            ),
-                          ),
-                        ),
-                        BlocBuilder<ProjectBloc, ProjectState>(
-                          builder: (context, state) {
-                            if (state is ProjectLoadSuccess) {
-                              return SizedBox(
-                                height: 38,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    BlocProvider.of<ProjectBloc>(context).add(ProjectSaveStarted());
-                                  },
-                                  child: const Text('Save'),
-                                ),
-                              );
+                          child: Builder(builder: (context) {
+                            final onPressed = () async {
+                              final prefs = await SharedPreferences.getInstance();
+                              String? filepath = prefs.getString('filepath');
+                              filepath = await showDialog<String?>(context: context, builder: (context) => _OpenProjectDialog(path: filepath));
+                              if (filepath != null) {
+                                BlocProvider.of<ProjectBloc>(context).add(ProjectLoadStarted(filepath));
+                              }
+                            };
+                            const btnChild = Text('Open');
+
+                            if (BlocProvider.of<ProjectBloc>(context).state is ProjectLoadSuccess) {
+                              return OutlinedButton(onPressed: onPressed, child: btnChild);
                             }
-                            return const SizedBox.shrink();
-                          },
+                            return ElevatedButton(onPressed: onPressed, child: btnChild);
+                          }),
+                        ),
+                        SizedBox(
+                          height: 38,
+                          child: BlocBuilder<ProjectBloc, ProjectState>(
+                            builder: (context, state) {
+                              if (state is ProjectSaveInProgress) {
+                                return const ElevatedButton(
+                                  onPressed: null,
+                                  child: SizedBox(height: 24, width: 24, child: CircularProgressIndicator()),
+                                );
+                              }
+                              if (state is ProjectLoadSuccess) {
+                                return ElevatedButton(
+                                  onPressed: () => BlocProvider.of<ProjectBloc>(context).add(ProjectSaveStarted()),
+                                  child: const Text('Save'),
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
                         ),
                       ],
                     ),
@@ -102,13 +113,14 @@ class Menu extends StatelessWidget {
               builder: (context, state) {
                 if (state is ProjectLoadSuccess) {
                   final namespaces = state.project.namespaces;
-                  return BlocBuilder<WorkAreaBloc, WorkAreaState>(
-                    builder: (context, workAreaState) {
+                  return BlocBuilder<EditorBloc, EditorState>(
+                    builder: (context, editorState) {
                       String? selectedEntityName;
-                      String? selectedNamespaceName;
-                      if (workAreaState is WorkAreaSelectSuccess) {
-                        selectedEntityName = workAreaState.entity.name;
-                        selectedNamespaceName = workAreaState.namespace.name;
+                      if (editorState is EditorEntityLoadSuccess) {
+                        selectedEntityName = editorState.entity.name;
+                      }
+                      if (editorState is EditorEntityLoadInProgress) {
+                        selectedEntityName = editorState.entityName;
                       }
 
                       return SliverList(
@@ -123,10 +135,11 @@ class Menu extends StatelessWidget {
                           final namespace = namespaces[itemIndex];
                           final Iterable<Widget> tiles = namespace.entities.map(
                             (e) => ListTile(
-                              selected: namespace.name == selectedNamespaceName && e == selectedEntityName,
+                              selected: e == selectedEntityName,
                               selectedTileColor: Colors.blueGrey.shade50,
+                              dense: true,
                               title: Text(e),
-                              onTap: () => BlocProvider.of<WorkAreaBloc>(context).add(EntitySelected(e, namespace.name)),
+                              onTap: () => BlocProvider.of<EditorBloc>(context).add(EditorEntitySelected(namespace.name, e)),
                             ),
                           );
                           return Column(
@@ -140,7 +153,7 @@ class Menu extends StatelessWidget {
                                   ),
                                   tooltip: 'Add entity',
                                   onPressed: () {
-                                    BlocProvider.of<WorkAreaBloc>(context).add(EntityAdded(namespace.name, 'NewEntity'));
+                                    //BlocProvider.of<WorkAreaBloc>(context).add(EntityAdded(namespace.name, 'NewEntity'));
                                   },
                                   splashRadius: 20,
                                 ),

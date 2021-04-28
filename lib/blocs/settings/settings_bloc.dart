@@ -30,7 +30,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       final oldUrl = rpcClient.url;
       try {
         rpcClient.url = event.url;
-        final resp = await rpcClient.call('project.ping', null);
+        final resp = await rpcClient.call('public.ping', null);
         if (resp is String && resp == 'pong') {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('apiurl', event.url);

@@ -6,6 +6,13 @@ part of 'api_client.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+ProjectCurrentArgs _$ProjectCurrentArgsFromJson(Map<String, dynamic> json) {
+  return ProjectCurrentArgs();
+}
+
+Map<String, dynamic> _$ProjectCurrentArgsToJson(ProjectCurrentArgs instance) =>
+    <String, dynamic>{};
+
 ProjectOpenArgs _$ProjectOpenArgsFromJson(Map<String, dynamic> json) {
   return ProjectOpenArgs(
     connection: json['connection'] as String?,
@@ -26,13 +33,6 @@ Map<String, dynamic> _$ProjectOpenArgsToJson(ProjectOpenArgs instance) {
   writeNotNull('filePath', instance.filePath);
   return val;
 }
-
-ProjectPingArgs _$ProjectPingArgsFromJson(Map<String, dynamic> json) {
-  return ProjectPingArgs();
-}
-
-Map<String, dynamic> _$ProjectPingArgsToJson(ProjectPingArgs instance) =>
-    <String, dynamic>{};
 
 ProjectSaveArgs _$ProjectSaveArgsFromJson(Map<String, dynamic> json) {
   return ProjectSaveArgs();
@@ -69,6 +69,13 @@ Map<String, dynamic> _$ProjectUpdateArgsToJson(ProjectUpdateArgs instance) {
   return val;
 }
 
+PublicDBTypesArgs _$PublicDBTypesArgsFromJson(Map<String, dynamic> json) {
+  return PublicDBTypesArgs();
+}
+
+Map<String, dynamic> _$PublicDBTypesArgsToJson(PublicDBTypesArgs instance) =>
+    <String, dynamic>{};
+
 PublicGoPGVersionsArgs _$PublicGoPGVersionsArgsFromJson(
     Map<String, dynamic> json) {
   return PublicGoPGVersionsArgs();
@@ -83,6 +90,13 @@ PublicModesArgs _$PublicModesArgsFromJson(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _$PublicModesArgsToJson(PublicModesArgs instance) =>
+    <String, dynamic>{};
+
+PublicPingArgs _$PublicPingArgsFromJson(Map<String, dynamic> json) {
+  return PublicPingArgs();
+}
+
+Map<String, dynamic> _$PublicPingArgsToJson(PublicPingArgs instance) =>
     <String, dynamic>{};
 
 PublicSearchTypesArgs _$PublicSearchTypesArgsFromJson(

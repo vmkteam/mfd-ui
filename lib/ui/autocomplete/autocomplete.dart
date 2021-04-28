@@ -15,14 +15,14 @@ class MFDAutocomplete extends StatefulWidget {
   final String initialValue;
   final bool preload;
   final bool loadOnTap;
-  final OptionsLoader optionsLoader;
+  final OptionsLoader? optionsLoader;
   final ValueChanged<String> onSubmitted;
 
   @override
   _MFDAutocompleteState createState() => _MFDAutocompleteState();
 }
 
-typedef OptionsLoader = Future<Iterable<String>> Function(String query);
+typedef OptionsLoader = Future<Iterable<String>> Function(TextEditingValue query);
 
 class _MFDAutocompleteState extends State<MFDAutocomplete> {
   late TextEditingController _controller;
@@ -78,10 +78,14 @@ class _MFDAutocompleteState extends State<MFDAutocomplete> {
   }
 
   Future<void> _loadOptions() async {
+    if (widget.optionsLoader == null) {
+      setState(() {}); // we want update border on focus
+      return;
+    }
     setState(() {
       isLoading = true;
     });
-    final res = await widget.optionsLoader(_controller.text);
+    final res = await widget.optionsLoader!(_controller.value);
     _options = res;
     setState(() {
       isLoading = false;
@@ -163,29 +167,35 @@ class _AutocompleteOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget? content;
+    if (isLoading) {
+      content = const LinearProgressIndicator();
+    } else if (options.isEmpty) {
+      content = const SizedBox.shrink();
+    } else {
+      content = ListView.builder(
+        padding: EdgeInsets.zero,
+        itemCount: options.length,
+        itemBuilder: (BuildContext context, int index) {
+          final option = options.elementAt(index);
+          return ListTile(
+            dense: true,
+            selected: index == 0,
+            onTap: () {
+              onSelected(option);
+            },
+            title: Text(option),
+          );
+        },
+      );
+    }
     return Align(
       alignment: Alignment.topLeft,
       child: Material(
         elevation: 4.0,
         child: Container(
           constraints: const BoxConstraints(maxHeight: 100, maxWidth: 200),
-          child: isLoading
-              ? const LinearProgressIndicator()
-              : ListView.builder(
-                  padding: EdgeInsets.zero,
-                  itemCount: options.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final option = options.elementAt(index);
-                    return ListTile(
-                      dense: true,
-                      selected: index == 0,
-                      onTap: () {
-                        onSelected(option);
-                      },
-                      title: Text(option),
-                    );
-                  },
-                ),
+          child: content,
         ),
       ),
     );

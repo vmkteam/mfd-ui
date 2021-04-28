@@ -1,30 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mfdui/blocs/work_area_bloc.dart';
-import 'package:mfdui/components/attributes/dbtype_autocomplete.dart';
-import 'package:mfdui/components/attributes/gotype_autocomplete.dart';
 import 'package:mfdui/components/checkbox.dart';
 import 'package:mfdui/components/table.dart';
+import 'package:mfdui/editor/editor_bloc.dart';
 import 'package:mfdui/project/project.dart';
+import 'package:mfdui/services/public_repo.dart';
+import 'package:mfdui/ui/autocomplete/autocomplete.dart';
 
-class AttributesTable extends StatefulWidget {
-  const AttributesTable({Key? key, required this.waBloc}) : super(key: key);
+part 'dbtype_autocomplete.dart';
+part 'gotype_autocomplete.dart';
 
-  final WorkAreaBloc waBloc;
+class AttributesTable extends StatelessWidget {
+  AttributesTable({Key? key, required this.editorBloc}) : super(key: key);
 
-  @override
-  _AttributesTableState createState() => _AttributesTableState();
-}
+  final EditorBloc editorBloc;
 
-class _AttributesTableState extends State<AttributesTable> {
   List<TableColumn<Attribute>> get columns {
     return [
       TableColumn(
         header: const Header('Name'),
         builder: (context, index, row) {
-          final name = TextField(
-            controller: TextEditingController(text: row.name),
-            onChanged: (value) => widget.waBloc.add(EntityAttributeChanged(index, row.copyWith(name: value))),
+          final name = MFDAutocomplete(
+            initialValue: row.name,
+            optionsLoader: null,
+            onSubmitted: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(name: value))),
           );
           if (row.primaryKey) {
             return Row(children: [
@@ -40,9 +39,10 @@ class _AttributesTableState extends State<AttributesTable> {
       TableColumn(
         header: const Header('DBName'),
         builder: (context, index, row) {
-          return TextField(
-            controller: TextEditingController(text: row.dbName),
-            onChanged: (value) => widget.waBloc.add(EntityAttributeChanged(index, row.copyWith(dbName: value))),
+          return MFDAutocomplete(
+            initialValue: row.dbName,
+            optionsLoader: null,
+            onSubmitted: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(dbName: value))),
           );
         },
       ),
@@ -50,12 +50,20 @@ class _AttributesTableState extends State<AttributesTable> {
         header: const Header('DB type'),
         builder: (context, index, row) {
           return DBTypeAutocomplete(
-              value: row.dbType,
-              onChanged: (value) {
-                widget.waBloc.add(
-                  EntityAttributeChanged(index, row.copyWith(dbType: value)),
-                );
-              });
+            value: row.dbType,
+            onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(dbType: value))),
+          );
+        },
+      ),
+      TableColumn(
+        header: const Header('Is array'),
+        builder: (context, index, row) {
+          return Center(
+            child: CheckboxStateful(
+              value: row.isArray,
+              onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(isArray: value))),
+            ),
+          );
         },
       ),
       TableColumn(
@@ -63,16 +71,18 @@ class _AttributesTableState extends State<AttributesTable> {
         builder: (context, index, row) {
           return GoTypeAutocomplete(
             value: row.goType,
-            onChanged: (value) => widget.waBloc.add(EntityAttributeChanged(index, row.copyWith(goType: value))),
+            onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(goType: value))),
           );
         },
       ),
       TableColumn(
         header: const Header('Nullable'),
         builder: (context, index, row) {
-          return TextField(
-            controller: TextEditingController(text: row.nullable),
-            onChanged: (value) => widget.waBloc.add(EntityAttributeChanged(index, row.copyWith(nullable: value))),
+          return Center(
+            child: CheckboxStateful(
+              value: row.nullable,
+              onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(nullable: value))),
+            ),
           );
         },
       ),
@@ -82,7 +92,7 @@ class _AttributesTableState extends State<AttributesTable> {
           return Center(
             child: CheckboxStateful(
               value: row.addable,
-              onChanged: (value) => widget.waBloc.add(EntityAttributeChanged(index, row.copyWith(addable: value))),
+              onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(addable: value))),
             ),
           );
         },
@@ -93,7 +103,7 @@ class _AttributesTableState extends State<AttributesTable> {
           return Center(
             child: CheckboxStateful(
               value: row.updatable,
-              onChanged: (value) => widget.waBloc.add(EntityAttributeChanged(index, row.copyWith(updatable: value))),
+              onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(updatable: value))),
             ),
           );
         },
@@ -106,9 +116,7 @@ class _AttributesTableState extends State<AttributesTable> {
               IconButton(
                 icon: Icon(Icons.close, color: Theme.of(context).errorColor),
                 tooltip: 'Remove attribute',
-                onPressed: () => setState(() {
-                  widget.waBloc.add(EntityAttributeDeleted(index));
-                }),
+                onPressed: () => editorBloc.add(EntityAttributeDeleted(index)),
                 splashRadius: 19,
               )
             ],
@@ -120,9 +128,7 @@ class _AttributesTableState extends State<AttributesTable> {
               IconButton(
                 icon: const Icon(Icons.add, color: Colors.green),
                 tooltip: 'Add attribute',
-                onPressed: () => setState(() {
-                  widget.waBloc.add(EntityAttributeAdded());
-                }),
+                onPressed: () => editorBloc.add(EntityAttributeAdded()),
                 splashRadius: 19,
               )
             ],
@@ -146,12 +152,12 @@ class _AttributesTableState extends State<AttributesTable> {
               child: SingleChildScrollView(
                 controller: scrollController1,
                 scrollDirection: Axis.horizontal,
-                child: BlocBuilder<WorkAreaBloc, WorkAreaState>(
+                child: BlocBuilder<EditorBloc, EditorState>(
                   builder: (context, state) {
-                    if (state is WorkAreaSelectSuccess) {
+                    if (state is EditorEntityLoadSuccess) {
                       return CustomTable(columns: columns, rows: state.entity.attributes);
                     }
-                    return const SizedBox();
+                    return Container();
                   },
                 ),
               ),
