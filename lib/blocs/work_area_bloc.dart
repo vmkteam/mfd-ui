@@ -70,6 +70,9 @@ class WorkAreaBloc extends Bloc<WorkAreaEvent, WorkAreaState> {
       final newAttributes = entity?.attributes;
       newAttributes?[event.attributeIndex] = event.newAttribute;
       entity = entity?.copyWith(attributes: newAttributes);
+      if (entity != null) {
+        await _apiClient.xml.updateEntity(api.XmlUpdateEntityArgs(entity: entity!.toApi()));
+      }
       return;
     }
     if (event is EntityAttributeDeleted) {
@@ -91,7 +94,7 @@ class WorkAreaBloc extends Bloc<WorkAreaEvent, WorkAreaState> {
         max: 0,
         min: 0,
         name: '...',
-        nullable: false,
+        nullable: '',
         primaryKey: false,
         updatable: false,
       ));

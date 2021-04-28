@@ -50,11 +50,12 @@ class _AttributesTableState extends State<AttributesTable> {
         header: const Header('DB type'),
         builder: (context, index, row) {
           return DBTypeAutocomplete(
-            value: row.dbType,
-            onChanged: (value) => widget.waBloc.add(
-              EntityAttributeChanged(index, row.copyWith(dbType: value)),
-            ),
-          );
+              value: row.dbType,
+              onChanged: (value) {
+                widget.waBloc.add(
+                  EntityAttributeChanged(index, row.copyWith(dbType: value)),
+                );
+              });
         },
       ),
       TableColumn(
@@ -69,11 +70,9 @@ class _AttributesTableState extends State<AttributesTable> {
       TableColumn(
         header: const Header('Nullable'),
         builder: (context, index, row) {
-          return Center(
-            child: CheckboxStateful(
-              value: row.nullable,
-              onChanged: (value) => widget.waBloc.add(EntityAttributeChanged(index, row.copyWith(nullable: value))),
-            ),
+          return TextField(
+            controller: TextEditingController(text: row.nullable),
+            onChanged: (value) => widget.waBloc.add(EntityAttributeChanged(index, row.copyWith(nullable: value))),
           );
         },
       ),

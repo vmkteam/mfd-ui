@@ -9,6 +9,8 @@ class ProjectLoadStarted extends ProjectEvent {
   final String filepath;
 }
 
+class ProjectSaveStarted extends ProjectEvent {}
+
 class ProjectEntitySearchDeleted extends ProjectEvent {
   ProjectEntitySearchDeleted(this.namespaceName, this.entityName, this.searchName);
 

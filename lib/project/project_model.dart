@@ -111,6 +111,16 @@ class Entity extends Equatable {
     );
   }
 
+  api.Entity toApi() {
+    return api.Entity(
+      table: table,
+      namespace: namespace,
+      name: name,
+      searches: searches.map((e) => e.toApi()).toList(),
+      attributes: attributes.map((e) => e.toApi()).toList(),
+    );
+  }
+
   Entity copyWith({
     String? name,
     String? namespace,
@@ -166,9 +176,27 @@ class Attribute {
       max: attribute.max!,
       min: attribute.min!,
       name: attribute.name!,
-      nullable: attribute.nullable! == 'Yes',
+      nullable: attribute.nullable!,
       primaryKey: attribute.pk!,
       updatable: attribute.updatable!,
+    );
+  }
+
+  api.MfdAttributes toApi() {
+    return api.MfdAttributes(
+      addable: addable,
+      dbName: dbName,
+      dbType: dbType,
+      defaultVal: defaultValue,
+      fk: foreignKey,
+      goType: goType,
+      isArray: isArray,
+      max: max,
+      min: min,
+      name: name,
+      nullable: nullable,
+      pk: primaryKey,
+      updatable: updatable,
     );
   }
 
@@ -183,7 +211,7 @@ class Attribute {
     bool? isArray,
     int? max,
     int? min,
-    bool? nullable,
+    String? nullable,
     bool? addable,
     bool? updatable,
   }) {
@@ -214,7 +242,7 @@ class Attribute {
   final bool isArray;
   final int max;
   final int min;
-  final bool nullable;
+  final String nullable;
   final bool addable;
   final bool updatable;
 }
@@ -231,6 +259,14 @@ class Search {
       attrName: search.attrName!,
       name: search.name!,
       searchType: search.searchType!,
+    );
+  }
+
+  api.MfdSearches toApi() {
+    return api.MfdSearches(
+      name: name,
+      attrName: attrName,
+      searchType: searchType,
     );
   }
 

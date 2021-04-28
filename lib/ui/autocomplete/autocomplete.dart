@@ -60,7 +60,7 @@ class _MFDAutocompleteState extends State<MFDAutocomplete> {
         onTap: widget.loadOnTap ? _onTap : null,
         focusNode: _focusNode,
         controller: _controller,
-        onSubmitted: _select,
+        //onSubmitted: _select,
         onEditingComplete: _onSubmitted,
         decoration: InputDecoration(
           contentPadding: EdgeInsets.all(6),
@@ -126,22 +126,24 @@ class _MFDAutocompleteState extends State<MFDAutocomplete> {
 
   void _select(String newSelect) {
     _focusNode.unfocus();
-    if (newSelect == _controller.text) {
-      return;
-    }
+    // if (newSelect == _controller.text) {
+    //   return;
+    // }
     setState(() {
       _controller.value = TextEditingValue(
         selection: TextSelection.collapsed(offset: newSelect.length),
         text: newSelect,
       );
     });
+    widget.onSubmitted(_controller.text);
   }
 
   void _onSubmitted() {
     if (_options.isEmpty) {
-      return;
+      _select(_controller.text);
+    } else {
+      _select(_options.first);
     }
-    _select(_options.first);
   }
 }
 

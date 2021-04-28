@@ -71,11 +71,26 @@ class Menu extends StatelessWidget {
                                 if (filepath != null) {
                                   BlocProvider.of<ProjectBloc>(context).add(ProjectLoadStarted(filepath));
                                 }
-                                Theme.of(context).copyWith();
                               },
                               child: const Text('Open project'),
                             ),
                           ),
+                        ),
+                        BlocBuilder<ProjectBloc, ProjectState>(
+                          builder: (context, state) {
+                            if (state is ProjectLoadSuccess) {
+                              return SizedBox(
+                                height: 38,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    BlocProvider.of<ProjectBloc>(context).add(ProjectSaveStarted());
+                                  },
+                                  child: const Text('Save'),
+                                ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
                         ),
                       ],
                     ),

@@ -15,12 +15,14 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
       // yield* _mapProjectSearchDeletedToState(event);
     } else if (event is ProjectEntitySearchAdded) {
       yield* _mapProjectSearchAddedToState(event);
+    } else if (event is ProjectSaveStarted) {
+      yield* _mapProjectSaveStartedToState(event);
     }
   }
 
   Stream<ProjectState> _mapProjectLoadStartedToState(ProjectLoadStarted event) async* {
     yield ProjectLoadInProgress();
-    // try {
+    try {
       final resp = await apiClient.project.open(api.ProjectOpenArgs(
         filePath: event.filepath,
         connection: 'postgres://postgres:postgres@localhost:5432/uteka?sslmode=disable', //todo
@@ -29,9 +31,9 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
       await prefs.setString('filepath', event.filepath);
 
       yield ProjectLoadSuccess(Project.fromApi(resp!), event.filepath);
-    // } catch (e) {
-    //   yield ProjectLoadFailed(e.toString());
-    // }
+    } catch (e) {
+      yield ProjectLoadFailed(e.toString());
+    }
   }
 
   // Stream<ProjectState> _mapProjectSearchDeletedToState(ProjectEntitySearchDeleted event) async* {
@@ -48,4 +50,11 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
   // }
 
   Stream<ProjectState> _mapProjectSearchAddedToState(ProjectEntitySearchAdded event) async* {}
+
+  Stream<ProjectState> _mapProjectSaveStartedToState(ProjectSaveStarted event) async* {
+    final current = state;
+    if (current is ProjectLoadSuccess) {
+      await apiClient.project.save(api.ProjectSaveArgs());
+    }
+  }
 }
