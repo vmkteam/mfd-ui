@@ -12,18 +12,3 @@ class ProjectLoadStarted extends ProjectEvent {
 }
 
 class ProjectSaveStarted extends ProjectEvent {}
-
-class ProjectEntitySearchDeleted extends ProjectEvent {
-  ProjectEntitySearchDeleted(this.namespaceName, this.entityName, this.searchName);
-
-  final String namespaceName;
-  final String entityName;
-  final String searchName;
-}
-
-class ProjectEntitySearchAdded extends ProjectEvent {
-  ProjectEntitySearchAdded(this.entityName, this.search);
-
-  final String entityName;
-  final api.MfdSearches search;
-}

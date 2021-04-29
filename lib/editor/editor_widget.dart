@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mfdui/editor/attributes/attributes_table.dart';
 import 'package:mfdui/editor/editor_bloc.dart';
 import 'package:mfdui/editor/searches/searches_table.dart';
+import 'package:mfdui/ui/unfocuser.dart';
 
 class EditorWidget extends StatefulWidget {
   @override
@@ -12,25 +13,27 @@ class EditorWidget extends StatefulWidget {
 class _EditorWidgetState extends State<EditorWidget> {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<EditorBloc, EditorState>(
-      builder: (context, state) {
-        if (state is EditorInitial) {
+    return Unfocuser(
+      child: BlocBuilder<EditorBloc, EditorState>(
+        builder: (context, state) {
+          if (state is EditorInitial) {
+            return Container();
+          }
+          if (state is EditorEntityLoadInProgress) {
+            return buildEntityLoader(context, state);
+          }
+          if (state is EditorEntityLoadFailed) {
+            return buildEntityLoadFailed(context, state);
+          }
+          if (state is EditorEntityLoadSuccess) {
+            return EntityView(
+              state: state,
+              editorBloc: BlocProvider.of<EditorBloc>(context),
+            );
+          }
           return Container();
-        }
-        if (state is EditorEntityLoadInProgress) {
-          return buildEntityLoader(context, state);
-        }
-        if (state is EditorEntityLoadFailed) {
-          return buildEntityLoadFailed(context, state);
-        }
-        if (state is EditorEntityLoadSuccess) {
-          return EntityView(
-            state: state,
-            editorBloc: BlocProvider.of<EditorBloc>(context),
-          );
-        }
-        return Container();
-      },
+        },
+      ),
     );
   }
 

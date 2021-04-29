@@ -13,16 +13,13 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
       yield* _mapProjectLoadCurrentToState(event);
     } else if (event is ProjectLoadStarted) {
       yield* _mapProjectLoadStartedToState(event);
-    } else if (event is ProjectEntitySearchDeleted) {
-      // yield* _mapProjectSearchDeletedToState(event);
-    } else if (event is ProjectEntitySearchAdded) {
-      yield* _mapProjectSearchAddedToState(event);
     } else if (event is ProjectSaveStarted) {
       yield* _mapProjectSaveStartedToState(event);
     }
   }
 
   Stream<ProjectState> _mapProjectLoadCurrentToState(ProjectLoadCurrent event) async* {
+    final prefs = await SharedPreferences.getInstance();
     try {
       final resp = await apiClient.project.current(api.ProjectCurrentArgs());
       yield ProjectLoadSuccess(Project.fromApi(resp!));
@@ -31,8 +28,14 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
       if (e.code != 400) {
         rethrow;
       }
+      // fixme: in Dart SDK version: 2.12.2 (stable) (Wed Mar 17 10:30:20 2021 +0100) on "macos_x64"
+      //        Flutter 2.0.4
+      //        Framework • revision b1395592de
+      //        Engine • revision 2dce47073a
+      //        If we do not yield any new state, stream and/or event loop breaks, and this function never returns;
+      yield state;
     }
-    final prefs = await SharedPreferences.getInstance();
+
     final String? filepath = prefs.getString('filepath');
     if (filepath == null) {
       return;
@@ -56,26 +59,10 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
     }
   }
 
-  // Stream<ProjectState> _mapProjectSearchDeletedToState(ProjectEntitySearchDeleted event) async* {
-  //   final localState = state;
-  //   if (localState is ProjectLoadSuccess) {
-  //     localState.project.namespaces
-  //         .firstWhere((namespace) => namespace.name == event.namespaceName)
-  //         .entities
-  //         .firstWhere((entity) => entity.name == event.entityName)
-  //         .searches
-  //         .removeWhere((search) => search.name == event.searchName);
-  //     yield ProjectLoadSuccess(localState.project, localState.filename);
-  //   }
-  // }
-
-  Stream<ProjectState> _mapProjectSearchAddedToState(ProjectEntitySearchAdded event) async* {}
-
   Stream<ProjectState> _mapProjectSaveStartedToState(ProjectSaveStarted event) async* {
     final current = state;
     if (current is ProjectLoadSuccess) {
       yield ProjectSaveInProgress(current);
-      await Future.delayed(Duration(seconds: 1));
       await apiClient.project.save(api.ProjectSaveArgs());
       yield ProjectSaveSuccess(current);
     }

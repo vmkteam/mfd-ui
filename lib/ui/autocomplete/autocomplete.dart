@@ -1,4 +1,5 @@
 import 'dart:html';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 
@@ -10,6 +11,7 @@ class MFDAutocomplete extends StatefulWidget {
     required this.onSubmitted,
     this.preload = false,
     this.loadOnTap = false,
+    this.decoration,
   }) : super(key: key);
 
   final String initialValue;
@@ -17,6 +19,7 @@ class MFDAutocomplete extends StatefulWidget {
   final bool loadOnTap;
   final OptionsLoader? optionsLoader;
   final ValueChanged<String> onSubmitted;
+  final InputDecoration? decoration;
 
   @override
   _MFDAutocompleteState createState() => _MFDAutocompleteState();
@@ -60,15 +63,15 @@ class _MFDAutocompleteState extends State<MFDAutocomplete> {
         onTap: widget.loadOnTap ? _onTap : null,
         focusNode: _focusNode,
         controller: _controller,
-        //onSubmitted: _select,
         onEditingComplete: _onSubmitted,
-        decoration: InputDecoration(
-          contentPadding: EdgeInsets.all(6),
-          border: OutlineInputBorder(
-            gapPadding: 1,
-            borderSide: _focusNode.hasFocus ? const BorderSide() : const BorderSide(style: BorderStyle.none, width: 0),
-          ),
-        ),
+        decoration: widget.decoration ??
+            InputDecoration(
+              contentPadding: EdgeInsets.all(6),
+              border: OutlineInputBorder(
+                gapPadding: 1,
+                borderSide: _focusNode.hasFocus ? const BorderSide() : const BorderSide(style: BorderStyle.none, width: 0),
+              ),
+            ),
       ),
     );
   }
@@ -87,9 +90,11 @@ class _MFDAutocompleteState extends State<MFDAutocomplete> {
     });
     final res = await widget.optionsLoader!(_controller.value);
     _options = res;
-    setState(() {
-      isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
     _updateOverlay();
   }
 
@@ -114,6 +119,7 @@ class _MFDAutocompleteState extends State<MFDAutocomplete> {
             onSelected: _select,
             options: _options,
             isLoading: isLoading,
+            size: _optionsLayerLink.leaderSize,
           ),
         ),
       );
@@ -157,13 +163,13 @@ class _AutocompleteOptions extends StatelessWidget {
     required this.onSelected,
     required this.options,
     required this.isLoading,
+    this.size,
   }) : super(key: key);
 
   final void Function(String) onSelected;
-
   final Iterable<String> options;
-
   final bool isLoading;
+  final Size? size;
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +200,12 @@ class _AutocompleteOptions extends StatelessWidget {
       child: Material(
         elevation: 4.0,
         child: Container(
-          constraints: const BoxConstraints(maxHeight: 100, maxWidth: 200),
+          constraints: BoxConstraints(
+            minHeight: 0,
+            minWidth: 200,
+            maxHeight: 100,
+            maxWidth: max(size?.width ?? 0, 200),
+          ),
           child: content,
         ),
       ),

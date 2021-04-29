@@ -43,3 +43,10 @@ class EntitySearchChanged extends EntitySearchEvent {
   final int index;
   final Search search;
 }
+
+class EditorEntityAdded extends EditorEvent {
+  EditorEntityAdded(this.namespaceName, this.tableName);
+
+  final String namespaceName;
+  final String tableName;
+}

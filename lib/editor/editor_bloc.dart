@@ -27,6 +27,8 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       yield* _mapEntityEntityAttributesEventToState(event);
     } else if (event is EntitySearchEvent) {
       yield* _mapEntityEntitySearchEventToState(event);
+    } else if (event is EditorEntityAdded) {
+      yield* _mapEditorEntityAddedToState(event);
     }
   }
 
@@ -164,5 +166,18 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
 
     await _apiClient.xml.updateEntity(api.XmlUpdateEntityArgs(entity: newEntity.toApi()));
     _entity = newEntity;
+  }
+
+  Stream<EditorState> _mapEditorEntityAddedToState(EditorEntityAdded event) async* {
+    yield EditorEntityLoadInProgress(event.tableName);
+
+    final newEntity = await _apiClient.xml.generateEntity(api.XmlGenerateEntityArgs(
+      namespace: event.namespaceName,
+      table: event.tableName,
+    ));
+
+    _entity = Entity.fromApi(newEntity!);
+
+    yield EditorEntityLoadSuccess(_entity!);
   }
 }

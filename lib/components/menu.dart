@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mfdui/components/settings.dart';
 import 'package:mfdui/editor/editor_bloc.dart';
 import 'package:mfdui/project/project.dart';
+import 'package:mfdui/services/api/api_client.dart' as api;
+import 'package:mfdui/ui/autocomplete/autocomplete.dart';
+import 'package:mfdui/ui/unfocuser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Menu extends StatelessWidget {
@@ -29,10 +32,7 @@ class Menu extends StatelessWidget {
               actions: [
                 Builder(
                   builder: (context) => TextButton(
-                    child: Text(
-                      'Settings',
-                      style: Theme.of(context).textTheme.button?.copyWith(color: Colors.white),
-                    ),
+                    child: const Icon(Icons.settings, color: Colors.white),
                     onPressed: () async {
                       await showDialog(
                         context: context,
@@ -46,7 +46,6 @@ class Menu extends StatelessWidget {
                     },
                   ),
                 ),
-                const SizedBox(width: 15),
               ],
             ),
             SliverList(
@@ -152,8 +151,26 @@ class Menu extends StatelessWidget {
                                     color: Colors.green,
                                   ),
                                   tooltip: 'Add entity',
-                                  onPressed: () {
-                                    //BlocProvider.of<WorkAreaBloc>(context).add(EntityAdded(namespace.name, 'NewEntity'));
+                                  onPressed: () async {
+                                    final projectBloc = BlocProvider.of<ProjectBloc>(context);
+                                    final apiClient = RepositoryProvider.of<api.ApiClient>(context);
+                                    final result = await showDialog<_AddEntityDialogResult?>(
+                                      context: context,
+                                      builder: (context) => _NewEntityDialog(
+                                        namespaceName: namespace.name,
+                                        projectBloc: projectBloc,
+                                        apiClient: apiClient,
+                                      ),
+                                    );
+                                    if (result == null) {
+                                      return;
+                                    }
+
+                                    BlocProvider.of<EditorBloc>(context).add(EditorEntityAdded(
+                                      result.namespace,
+                                      result.tableName,
+                                    ));
+                                    projectBloc.add(ProjectLoadCurrent());
                                   },
                                   splashRadius: 20,
                                 ),
@@ -239,4 +256,122 @@ class __OpenProjectDialogState extends State<_OpenProjectDialog> {
       ],
     );
   }
+}
+
+class _NewEntityDialog extends StatefulWidget {
+  const _NewEntityDialog({Key? key, this.namespaceName = '', required this.projectBloc, required this.apiClient}) : super(key: key);
+
+  final String namespaceName;
+  final ProjectBloc projectBloc;
+  final api.ApiClient apiClient;
+
+  @override
+  __NewEntityDialogState createState() => __NewEntityDialogState();
+}
+
+class __NewEntityDialogState extends State<_NewEntityDialog> {
+  late String resultNamespace;
+  String tableName = '';
+
+  List<String>? _cachedTables;
+
+  @override
+  void initState() {
+    resultNamespace = widget.namespaceName;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Unfocuser(
+      child: SimpleDialog(
+        contentPadding: const EdgeInsets.all(8.0),
+        title: const Text('New entity'),
+        children: [
+          const SizedBox(height: 30),
+          ListTile(
+            title: MFDAutocomplete(
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Namespace',
+              ),
+              initialValue: resultNamespace,
+              optionsLoader: (query) async {
+                final projectState = widget.projectBloc.state;
+                if (projectState is! ProjectLoadSuccess) {
+                  return List.empty();
+                }
+
+                final precursor = query.selection.isValid ? query.text.substring(0, query.selection.end) : '';
+                return projectState.project.namespaces.map((e) => e.name).where((element) => element.contains(precursor));
+              },
+              onSubmitted: (value) => resultNamespace = value,
+            ),
+          ),
+          ListTile(
+            title: MFDAutocomplete(
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Table',
+              ),
+              initialValue: tableName,
+              optionsLoader: (query) async {
+                final projectState = widget.projectBloc.state;
+                if (projectState is! ProjectLoadSuccess) {
+                  return List.empty();
+                }
+
+                final precursor = query.selection.isValid ? query.text.substring(0, query.selection.end) : '';
+                if (_cachedTables != null) {
+                  return _cachedTables!.where((element) => element.contains(precursor));
+                }
+
+                final result = await widget.apiClient.project.tables(api.ProjectTablesArgs()).then(
+                      (list) => list!.map((element) => element!),
+                    );
+                _cachedTables = result.toList();
+
+                // start cache invalidation
+                Future.delayed(const Duration(seconds: 10)).then((value) => _cachedTables = null);
+
+                return result.where((element) => element.contains(precursor));
+              },
+              onSubmitted: (value) => tableName = value,
+            ),
+          ),
+          const SizedBox(height: 90),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 36,
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: 36,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(_AddEntityDialogResult(resultNamespace, tableName)),
+                    child: const Text('Add entity'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AddEntityDialogResult {
+  _AddEntityDialogResult(this.namespace, this.tableName);
+
+  final String namespace;
+  final String tableName;
 }
