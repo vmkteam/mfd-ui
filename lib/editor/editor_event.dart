@@ -50,3 +50,9 @@ class EditorEntityAdded extends EditorEvent {
   final String namespaceName;
   final String tableName;
 }
+
+class EntityTableChanged extends EditorEvent {
+  EntityTableChanged(this.tableName);
+
+  final String tableName;
+}

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mfdui/components/settings.dart';
 import 'package:mfdui/editor/editor_bloc.dart';
+import 'package:mfdui/editor/table_autocomplete.dart';
 import 'package:mfdui/project/project.dart';
 import 'package:mfdui/services/api/api_client.dart' as api;
 import 'package:mfdui/ui/autocomplete/autocomplete.dart';
@@ -69,9 +70,14 @@ class Menu extends StatelessWidget {
                             final onPressed = () async {
                               final prefs = await SharedPreferences.getInstance();
                               String? filepath = prefs.getString('filepath');
-                              filepath = await showDialog<String?>(context: context, builder: (context) => _OpenProjectDialog(path: filepath));
-                              if (filepath != null) {
-                                BlocProvider.of<ProjectBloc>(context).add(ProjectLoadStarted(filepath));
+                              String? pgConnection = prefs.getString('pg-conn');
+                              final result = await showDialog<_OpenProjectDialogResult?>(
+                                  context: context, builder: (context) => _OpenProjectDialog(path: filepath, conn: pgConnection));
+                              if (result != null) {
+                                BlocProvider.of<ProjectBloc>(context).add(ProjectLoadStarted(
+                                  result.filepath,
+                                  result.pgConnection,
+                                ));
                               }
                             };
                             const btnChild = Text('Open');
@@ -196,21 +202,31 @@ class Menu extends StatelessWidget {
   }
 }
 
+class _OpenProjectDialogResult {
+  _OpenProjectDialogResult(this.filepath, this.pgConnection);
+
+  final String filepath;
+  final String pgConnection;
+}
+
 class _OpenProjectDialog extends StatefulWidget {
-  const _OpenProjectDialog({Key? key, this.path}) : super(key: key);
+  const _OpenProjectDialog({Key? key, this.path, this.conn}) : super(key: key);
 
   final String? path;
+  final String? conn;
 
   @override
   __OpenProjectDialogState createState() => __OpenProjectDialogState();
 }
 
 class __OpenProjectDialogState extends State<_OpenProjectDialog> {
-  late TextEditingController textEditingController;
+  late TextEditingController _pathTextController;
+  late TextEditingController _connTextController;
 
   @override
   void initState() {
-    textEditingController = TextEditingController(text: widget.path);
+    _pathTextController = TextEditingController(text: widget.path);
+    _connTextController = TextEditingController(text: widget.conn ?? DefaultPgConnection);
     super.initState();
   }
 
@@ -222,11 +238,20 @@ class __OpenProjectDialogState extends State<_OpenProjectDialog> {
       children: [
         const SizedBox(height: 30),
         TextField(
-          controller: textEditingController,
+          controller: _pathTextController,
           decoration: const InputDecoration(
             border: OutlineInputBorder(),
             labelText: 'Path',
             helperText: 'Absolute path to .mfd file',
+          ),
+        ),
+        const SizedBox(height: 30),
+        TextField(
+          controller: _connTextController,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Connection',
+            helperText: 'Connection string to PostgreSQL',
           ),
         ),
         const SizedBox(height: 30),
@@ -246,7 +271,10 @@ class __OpenProjectDialogState extends State<_OpenProjectDialog> {
               child: SizedBox(
                 height: 36,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(textEditingController.text),
+                  onPressed: () => Navigator.of(context).pop(_OpenProjectDialogResult(
+                    _pathTextController.text,
+                    _connTextController.text,
+                  )),
                   child: const Text('Open'),
                 ),
               ),
@@ -272,8 +300,6 @@ class _NewEntityDialog extends StatefulWidget {
 class __NewEntityDialogState extends State<_NewEntityDialog> {
   late String resultNamespace;
   String tableName = '';
-
-  List<String>? _cachedTables;
 
   @override
   void initState() {
@@ -309,33 +335,10 @@ class __NewEntityDialogState extends State<_NewEntityDialog> {
             ),
           ),
           ListTile(
-            title: MFDAutocomplete(
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Table',
-              ),
-              initialValue: tableName,
-              optionsLoader: (query) async {
-                final projectState = widget.projectBloc.state;
-                if (projectState is! ProjectLoadSuccess) {
-                  return List.empty();
-                }
-
-                final precursor = query.selection.isValid ? query.text.substring(0, query.selection.end) : '';
-                if (_cachedTables != null) {
-                  return _cachedTables!.where((element) => element.contains(precursor));
-                }
-
-                final result = await widget.apiClient.project.tables(api.ProjectTablesArgs()).then(
-                      (list) => list!.map((element) => element!),
-                    );
-                _cachedTables = result.toList();
-
-                // start cache invalidation
-                Future.delayed(const Duration(seconds: 10)).then((value) => _cachedTables = null);
-
-                return result.where((element) => element.contains(precursor));
-              },
+            title: TableAutocomplete(
+              tableName: tableName,
+              projectBloc: widget.projectBloc,
+              apiClient: widget.apiClient,
               onSubmitted: (value) => tableName = value,
             ),
           ),

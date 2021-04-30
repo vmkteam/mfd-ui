@@ -6,9 +6,10 @@ abstract class ProjectEvent {}
 class ProjectLoadCurrent extends ProjectEvent {}
 
 class ProjectLoadStarted extends ProjectEvent {
-  ProjectLoadStarted(this.filepath);
+  ProjectLoadStarted(this.filepath, this.pgConnection);
 
   final String filepath;
+  final String pgConnection;
 }
 
 class ProjectSaveStarted extends ProjectEvent {}

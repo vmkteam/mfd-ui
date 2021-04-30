@@ -91,7 +91,7 @@ class SearchesTable extends StatelessWidget {
                     if (state is EditorEntityLoadSuccess) {
                       return CustomTable(columns: columns, rows: state.entity.searches);
                     }
-                    return const SizedBox();
+                    return const SizedBox.shrink();
                   },
                 ),
               ),

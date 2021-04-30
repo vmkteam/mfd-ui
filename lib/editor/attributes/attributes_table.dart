@@ -157,7 +157,7 @@ class AttributesTable extends StatelessWidget {
                     if (state is EditorEntityLoadSuccess) {
                       return CustomTable(columns: columns, rows: state.entity.attributes);
                     }
-                    return Container();
+                    return const SizedBox.shrink();
                   },
                 ),
               ),

@@ -8,7 +8,7 @@ class MFDAutocomplete extends StatefulWidget {
     Key? key,
     required this.initialValue,
     required this.optionsLoader,
-    required this.onSubmitted,
+    this.onSubmitted,
     this.preload = false,
     this.loadOnTap = false,
     this.decoration,
@@ -18,7 +18,7 @@ class MFDAutocomplete extends StatefulWidget {
   final bool preload;
   final bool loadOnTap;
   final OptionsLoader? optionsLoader;
-  final ValueChanged<String> onSubmitted;
+  final ValueChanged<String>? onSubmitted;
   final InputDecoration? decoration;
 
   @override
@@ -145,7 +145,9 @@ class _MFDAutocompleteState extends State<MFDAutocomplete> {
         text: newSelect,
       );
     });
-    widget.onSubmitted(_controller.text);
+    if (widget.onSubmitted != null) {
+      widget.onSubmitted!(_controller.text);
+    }
   }
 
   void _onSubmitted() {
@@ -202,9 +204,9 @@ class _AutocompleteOptions extends StatelessWidget {
         child: Container(
           constraints: BoxConstraints(
             minHeight: 0,
-            minWidth: 200,
+            minWidth: isLoading ? 0 : 200,
             maxHeight: 100,
-            maxWidth: max(size?.width ?? 0, 200),
+            maxWidth: max(size?.width ?? 0, isLoading ? 0 : 200),
           ),
           child: content,
         ),

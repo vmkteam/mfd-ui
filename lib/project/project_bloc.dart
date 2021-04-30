@@ -1,5 +1,7 @@
 part of 'project.dart';
 
+const DefaultPgConnection = 'postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable';
+
 class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
   ProjectBloc(this.apiClient) : super(ProjectInitial());
 
@@ -19,7 +21,7 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
   }
 
   Stream<ProjectState> _mapProjectLoadCurrentToState(ProjectLoadCurrent event) async* {
-    final prefs = await SharedPreferences.getInstance();
+    yield ProjectLoadInProgress();
     try {
       final resp = await apiClient.project.current(api.ProjectCurrentArgs());
       yield ProjectLoadSuccess(Project.fromApi(resp!));
@@ -36,11 +38,14 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
       yield state;
     }
 
+    final prefs = await SharedPreferences.getInstance();
     final String? filepath = prefs.getString('filepath');
     if (filepath == null) {
+      yield ProjectInitial();
       return;
     }
-    yield* _mapProjectLoadStartedToState(ProjectLoadStarted(filepath));
+    final String conn = prefs.getString('pg-conn') ?? DefaultPgConnection;
+    yield* _mapProjectLoadStartedToState(ProjectLoadStarted(filepath, conn));
   }
 
   Stream<ProjectState> _mapProjectLoadStartedToState(ProjectLoadStarted event) async* {
@@ -48,10 +53,11 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
     try {
       final resp = await apiClient.project.open(api.ProjectOpenArgs(
         filePath: event.filepath,
-        connection: 'postgres://postgres:postgres@localhost:5432/uteka?sslmode=disable', //todo
+        connection: event.pgConnection,
       ));
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('filepath', event.filepath);
+      await prefs.setString('pg-conn', event.pgConnection);
 
       yield ProjectLoadSuccess(Project.fromApi(resp!), filename: event.filepath);
     } catch (e) {
