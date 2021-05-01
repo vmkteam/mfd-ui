@@ -36,6 +36,8 @@ class MyApp extends StatelessWidget {
                   //borderSide: BorderSide(style: BorderStyle.none, width: 0),
                   ),
             ),
+            cardTheme: const CardTheme(elevation: 0),
+            errorColor: Colors.deepOrange.shade200,
           ),
           routes: {
             '/': (context) => MainPage(),

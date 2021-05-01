@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mfdui/services/public_repo.dart';
-import 'package:mfdui/ui/autocomplete/autocomplete.dart';
+import 'package:mfdui/ui/ui.dart';
 
 class SearchTypeAutocomplete extends StatelessWidget {
   const SearchTypeAutocomplete({

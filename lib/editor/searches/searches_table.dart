@@ -4,7 +4,7 @@ import 'package:mfdui/components/table.dart';
 import 'package:mfdui/editor/editor_bloc.dart';
 import 'package:mfdui/editor/searches/searchtype_autocomplete.dart';
 import 'package:mfdui/project/project.dart';
-import 'package:mfdui/ui/autocomplete/autocomplete.dart';
+import 'package:mfdui/ui/ui.dart';
 
 class SearchesTable extends StatelessWidget {
   SearchesTable({Key? key, required this.editorBloc}) : super(key: key);

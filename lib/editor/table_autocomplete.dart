@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mfdui/project/project.dart';
 import 'package:mfdui/services/api/api_client.dart' as api;
-import 'package:mfdui/ui/autocomplete/autocomplete.dart';
+import 'package:mfdui/ui/ui.dart';
 
 class TableAutocomplete extends StatefulWidget {
   const TableAutocomplete({

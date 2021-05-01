@@ -5,7 +5,7 @@ import 'package:mfdui/components/table.dart';
 import 'package:mfdui/editor/editor_bloc.dart';
 import 'package:mfdui/project/project.dart';
 import 'package:mfdui/services/public_repo.dart';
-import 'package:mfdui/ui/autocomplete/autocomplete.dart';
+import 'package:mfdui/ui/ui.dart';
 
 part 'dbtype_autocomplete.dart';
 part 'gotype_autocomplete.dart';

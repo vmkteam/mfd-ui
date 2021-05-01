@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+part of 'ui.dart';
 
 // Unfocuser resolves https://github.com/flutter/flutter/issues/32433
 class Unfocuser extends StatelessWidget {

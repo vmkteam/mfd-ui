@@ -6,7 +6,7 @@ import 'package:mfdui/editor/searches/searches_table.dart';
 import 'package:mfdui/editor/table_autocomplete.dart';
 import 'package:mfdui/project/project.dart';
 import 'package:mfdui/services/api/api_client.dart';
-import 'package:mfdui/ui/unfocuser.dart';
+import 'package:mfdui/ui/ui.dart';
 
 class EditorWidget extends StatefulWidget {
   @override

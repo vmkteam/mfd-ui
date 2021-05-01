@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mfdui/components/settings.dart';
 import 'package:mfdui/editor/editor_bloc.dart';
+import 'package:mfdui/editor/open_project.dart';
 import 'package:mfdui/editor/table_autocomplete.dart';
 import 'package:mfdui/project/project.dart';
 import 'package:mfdui/services/api/api_client.dart' as api;
-import 'package:mfdui/ui/autocomplete/autocomplete.dart';
-import 'package:mfdui/ui/unfocuser.dart';
+import 'package:mfdui/ui/ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Menu extends StatelessWidget {
@@ -67,18 +67,18 @@ class Menu extends StatelessWidget {
                         SizedBox(
                           height: 38,
                           child: Builder(builder: (context) {
+                            final projectBloc = BlocProvider.of<ProjectBloc>(context);
                             final onPressed = () async {
                               final prefs = await SharedPreferences.getInstance();
                               String? filepath = prefs.getString('filepath');
                               String? pgConnection = prefs.getString('pg-conn');
-                              final result = await showDialog<_OpenProjectDialogResult?>(
-                                  context: context, builder: (context) => _OpenProjectDialog(path: filepath, conn: pgConnection));
-                              if (result != null) {
-                                BlocProvider.of<ProjectBloc>(context).add(ProjectLoadStarted(
-                                  result.filepath,
-                                  result.pgConnection,
-                                ));
-                              }
+                              await showDialog(
+                                  context: context,
+                                  builder: (context) => OpenProjectDialog(
+                                        path: filepath,
+                                        conn: pgConnection,
+                                        projectBloc: projectBloc,
+                                      ));
                             };
                             const btnChild = Text('Open');
 
