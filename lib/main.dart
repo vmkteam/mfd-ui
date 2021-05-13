@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
   const MyApp(this.rpcClient);
 
   final RPCClient rpcClient;
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -36,7 +37,13 @@ class MyApp extends StatelessWidget {
                   //borderSide: BorderSide(style: BorderStyle.none, width: 0),
                   ),
             ),
-            cardTheme: const CardTheme(elevation: 0),
+            cardTheme: CardTheme(
+              elevation: 0,
+              shape: ContinuousRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: BorderSide(width: 1, color: Colors.blueGrey.shade100),
+              ),
+            ),
             errorColor: Colors.deepOrange.shade200,
           ),
           routes: {

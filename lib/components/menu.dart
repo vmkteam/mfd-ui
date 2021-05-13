@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mfdui/components/settings.dart';
 import 'package:mfdui/editor/editor_bloc.dart';
 import 'package:mfdui/editor/namespace_autocomplete.dart';
-import 'package:mfdui/editor/open_project.dart';
 import 'package:mfdui/editor/table_autocomplete.dart';
 import 'package:mfdui/project/project.dart';
 import 'package:mfdui/services/api/api_client.dart' as api;
 import 'package:mfdui/ui/ui.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Menu extends StatelessWidget {
   @override
@@ -17,105 +14,6 @@ class Menu extends StatelessWidget {
       child: Scrollbar(
         child: CustomScrollView(
           slivers: [
-            SliverAppBar(
-              pinned: true,
-              title: BlocBuilder<ProjectBloc, ProjectState>(
-                builder: (context, state) {
-                  if (state is ProjectLoadSuccess) {
-                    final text = Text(state.project.name);
-                    if (state.filename == null) {
-                      return text;
-                    }
-                    return Tooltip(message: state.filename!, child: text);
-                  }
-                  return const Text('MFD UI');
-                },
-              ),
-              centerTitle: false,
-              actions: [
-                Builder(
-                  builder: (context) => TextButton(
-                    child: const Icon(Icons.settings, color: Colors.white),
-                    onPressed: () async {
-                      await showDialog(
-                        context: context,
-                        builder: (context) => Settings(),
-                      );
-                      final bloc = BlocProvider.of<ProjectBloc>(context);
-                      final state = bloc.state;
-                      if (state is ProjectLoadSuccess) {
-                        bloc.add(ProjectLoadCurrent());
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-            SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 15, bottom: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        SizedBox(
-                          height: 38,
-                          child: OutlinedButton(
-                            onPressed: () {},
-                            child: const Text('Create project'),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 38,
-                          child: Builder(builder: (context) {
-                            final projectBloc = BlocProvider.of<ProjectBloc>(context);
-                            final onPressed = () async {
-                              final prefs = await SharedPreferences.getInstance();
-                              String? filepath = prefs.getString('filepath');
-                              String? pgConnection = prefs.getString('pg-conn');
-                              await showDialog(
-                                  context: context,
-                                  builder: (context) => OpenProjectDialog(
-                                        path: filepath,
-                                        conn: pgConnection,
-                                        projectBloc: projectBloc,
-                                      ));
-                            };
-                            const btnChild = Text('Open');
-
-                            if (BlocProvider.of<ProjectBloc>(context).state is ProjectLoadSuccess) {
-                              return OutlinedButton(onPressed: onPressed, child: btnChild);
-                            }
-                            return ElevatedButton(onPressed: onPressed, child: btnChild);
-                          }),
-                        ),
-                        SizedBox(
-                          height: 38,
-                          child: BlocBuilder<ProjectBloc, ProjectState>(
-                            builder: (context, state) {
-                              if (state is ProjectSaveInProgress) {
-                                return const ElevatedButton(
-                                  onPressed: null,
-                                  child: SizedBox(height: 24, width: 24, child: CircularProgressIndicator()),
-                                );
-                              }
-                              if (state is ProjectLoadSuccess) {
-                                return ElevatedButton(
-                                  onPressed: () => BlocProvider.of<ProjectBloc>(context).add(ProjectSaveStarted()),
-                                  child: const Text('Save'),
-                                );
-                              }
-                              return const SizedBox.shrink();
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
             BlocBuilder<ProjectBloc, ProjectState>(
               builder: (context, state) {
                 if (state is ProjectLoadSuccess) {
