@@ -31,6 +31,8 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       yield* _mapEditorEntityAddedToState(event);
     } else if (event is EntityTableChanged) {
       yield* _mapEditorEntityTableChangedToState(event);
+    } else if (event is EntityNamespaceChanged) {
+      yield* _mapEditorEntityNamespaceChangedToState(event);
     }
   }
 
@@ -180,6 +182,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
 
     _entity = Entity.fromApi(newEntity!);
 
+    await _apiClient.xml.updateEntity(api.XmlUpdateEntityArgs(entity: _entity!.toApi()));
+
+    _projectBloc.add(ProjectLoadCurrent()); // reload menu
     yield EditorEntityLoadSuccess(_entity!);
   }
 
@@ -193,6 +198,20 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     await _apiClient.xml.updateEntity(api.XmlUpdateEntityArgs(entity: newEntity.toApi()));
     _entity = newEntity;
 
+    yield EditorEntityLoadSuccess(_entity!);
+  }
+
+  Stream<EditorState> _mapEditorEntityNamespaceChangedToState(EntityNamespaceChanged event) async* {
+    if (_entity == null) {
+      return;
+    }
+
+    final newEntity = _entity!.copyWith(namespace: event.newNamespace);
+
+    await _apiClient.xml.updateEntity(api.XmlUpdateEntityArgs(entity: newEntity.toApi()));
+    _entity = newEntity;
+
+    _projectBloc.add(ProjectLoadCurrent()); // reload menu
     yield EditorEntityLoadSuccess(_entity!);
   }
 }

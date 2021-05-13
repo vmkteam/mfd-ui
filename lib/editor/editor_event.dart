@@ -56,3 +56,9 @@ class EntityTableChanged extends EditorEvent {
 
   final String tableName;
 }
+
+class EntityNamespaceChanged extends EditorEvent {
+  EntityNamespaceChanged(this.newNamespace);
+
+  final String newNamespace;
+}

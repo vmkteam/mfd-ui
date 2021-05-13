@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mfdui/components/settings.dart';
 import 'package:mfdui/editor/editor_bloc.dart';
+import 'package:mfdui/editor/namespace_autocomplete.dart';
 import 'package:mfdui/editor/open_project.dart';
 import 'package:mfdui/editor/table_autocomplete.dart';
 import 'package:mfdui/project/project.dart';
@@ -30,6 +31,7 @@ class Menu extends StatelessWidget {
                   return const Text('MFD UI');
                 },
               ),
+              centerTitle: false,
               actions: [
                 Builder(
                   builder: (context) => TextButton(
@@ -309,64 +311,54 @@ class __NewEntityDialogState extends State<_NewEntityDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Unfocuser(
-      child: SimpleDialog(
-        contentPadding: const EdgeInsets.all(8.0),
-        title: const Text('New entity'),
-        children: [
-          const SizedBox(height: 30),
-          ListTile(
-            title: MFDAutocomplete(
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Namespace',
+    return BlocProvider.value(
+      value: widget.projectBloc,
+      child: Unfocuser(
+        child: SimpleDialog(
+          contentPadding: const EdgeInsets.all(8.0),
+          title: const Text('New entity'),
+          children: [
+            const SizedBox(height: 30),
+            ListTile(
+              title: NamespaceAutocomplete(
+                initialValue: resultNamespace,
+                onSubmitted: (value) => resultNamespace = value,
               ),
-              initialValue: resultNamespace,
-              optionsLoader: (query) async {
-                final projectState = widget.projectBloc.state;
-                if (projectState is! ProjectLoadSuccess) {
-                  return List.empty();
-                }
-
-                final precursor = query.selection.isValid ? query.text.substring(0, query.selection.end) : '';
-                return projectState.project.namespaces.map((e) => e.name).where((element) => element.contains(precursor));
-              },
-              onSubmitted: (value) => resultNamespace = value,
             ),
-          ),
-          ListTile(
-            title: TableAutocomplete(
-              tableName: tableName,
-              projectBloc: widget.projectBloc,
-              apiClient: widget.apiClient,
-              onSubmitted: (value) => tableName = value,
+            ListTile(
+              title: TableAutocomplete(
+                tableName: tableName,
+                projectBloc: widget.projectBloc,
+                apiClient: widget.apiClient,
+                onSubmitted: (value) => tableName = value,
+              ),
             ),
-          ),
-          const SizedBox(height: 90),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Expanded(
-                child: SizedBox(
-                  height: 36,
-                  child: TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
+            const SizedBox(height: 90),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 36,
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Cancel'),
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: SizedBox(
-                  height: 36,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(_AddEntityDialogResult(resultNamespace, tableName)),
-                    child: const Text('Add entity'),
+                Expanded(
+                  child: SizedBox(
+                    height: 36,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(_AddEntityDialogResult(resultNamespace, tableName)),
+                      child: const Text('Add entity'),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

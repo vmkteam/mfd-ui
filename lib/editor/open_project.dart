@@ -134,11 +134,16 @@ class OpenProjectResult {
   final String pgConnection;
 }
 
-class _ConnectionString extends StatelessWidget {
-  _ConnectionString({Key? key, required this.controller}) : super(key: key);
+class _ConnectionString extends StatefulWidget {
+  const _ConnectionString({Key? key, required this.controller}) : super(key: key);
 
   final TextEditingController controller;
 
+  @override
+  __ConnectionStringState createState() => __ConnectionStringState();
+}
+
+class __ConnectionStringState extends State<_ConnectionString> {
   final _hostController = TextEditingController(text: 'localhost');
   final _portController = TextEditingController(text: '5432');
   final _userController = TextEditingController(text: 'postgres');
@@ -149,49 +154,91 @@ class _ConnectionString extends StatelessWidget {
   Widget build(BuildContext context) {
     final hostWidget = TextFormField(
       controller: _hostController,
-      onChanged: (value) => _updateResultUrl(),
-      decoration: const InputDecoration(
-        border: OutlineInputBorder(),
+      onChanged: (value) => setState(() => _updateResultUrl()),
+      decoration: InputDecoration(
+        border: const OutlineInputBorder(),
         labelText: 'Host',
+        suffixIcon: _hostController.text.isNotEmpty
+            ? IconButton(
+                icon: const Icon(Icons.clear),
+                splashRadius: 20,
+                onPressed: () => setState(() => _hostController.clear()),
+              )
+            : null,
       ),
     );
     final portWidget = TextFormField(
       controller: _portController,
-      onChanged: (value) => _updateResultUrl(),
-      decoration: const InputDecoration(
-        border: OutlineInputBorder(),
+      onChanged: (value) => setState(() => _updateResultUrl()),
+      decoration: InputDecoration(
+        border: const OutlineInputBorder(),
         labelText: 'Port',
+        suffixIcon: _portController.text.isNotEmpty
+            ? IconButton(
+                icon: const Icon(Icons.clear),
+                splashRadius: 20,
+                onPressed: () => setState(() => _portController.clear()),
+              )
+            : null,
       ),
     );
     final userWidget = TextFormField(
       controller: _userController,
-      onChanged: (value) => _updateResultUrl(),
-      decoration: const InputDecoration(
-        border: OutlineInputBorder(),
+      onChanged: (value) => setState(() => _updateResultUrl()),
+      decoration: InputDecoration(
+        border: const OutlineInputBorder(),
         labelText: 'User',
+        suffixIcon: _userController.text.isNotEmpty
+            ? IconButton(
+                icon: const Icon(Icons.clear),
+                splashRadius: 20,
+                onPressed: () => setState(() => _userController.clear()),
+              )
+            : null,
       ),
     );
     final passwordWidget = TextFormField(
       controller: _passwordController,
-      onChanged: (value) => _updateResultUrl(),
-      decoration: const InputDecoration(
-        border: OutlineInputBorder(),
+      onChanged: (value) => setState(() => _updateResultUrl()),
+      decoration: InputDecoration(
+        border: const OutlineInputBorder(),
         labelText: 'Password',
+        suffixIcon: _passwordController.text.isNotEmpty
+            ? IconButton(
+                icon: const Icon(Icons.clear),
+                splashRadius: 20,
+                onPressed: () => setState(() => _passwordController.clear()),
+              )
+            : null,
       ),
     );
     final databaseWidget = TextFormField(
       controller: _databaseController,
-      onChanged: (value) => _updateResultUrl(),
-      decoration: const InputDecoration(
-        border: OutlineInputBorder(),
+      onChanged: (value) => setState(() => _updateResultUrl()),
+      decoration: InputDecoration(
+        border: const OutlineInputBorder(),
         labelText: 'Database',
+        suffixIcon: _databaseController.text.isNotEmpty
+            ? IconButton(
+                icon: const Icon(Icons.clear),
+                splashRadius: 20,
+                onPressed: () => setState(() => _databaseController.clear()),
+              )
+            : null,
       ),
     );
     final urlWidget = TextFormField(
-      controller: controller,
-      decoration: const InputDecoration(
-        border: OutlineInputBorder(),
+      controller: widget.controller,
+      decoration: InputDecoration(
+        border: const OutlineInputBorder(),
         labelText: 'URL',
+        suffixIcon: widget.controller.text.isNotEmpty
+            ? IconButton(
+                icon: const Icon(Icons.clear),
+                splashRadius: 20,
+                onPressed: () => setState(() => widget.controller.clear()),
+              )
+            : null,
       ),
     );
     const linesPadding = EdgeInsets.symmetric(vertical: 7);
@@ -267,6 +314,6 @@ class _ConnectionString extends StatelessWidget {
     final user = _userController.text;
     final password = _passwordController.text;
     final database = _databaseController.text;
-    controller.text = 'postgres://$user:$password@$host:$port/$database?sslmode=disable';
+    widget.controller.text = 'postgres://$user:$password@$host:$port/$database?sslmode=disable';
   }
 }

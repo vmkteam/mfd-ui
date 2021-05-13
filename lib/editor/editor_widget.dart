@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mfdui/editor/attributes/attributes_table.dart';
 import 'package:mfdui/editor/editor_bloc.dart';
+import 'package:mfdui/editor/namespace_autocomplete.dart';
 import 'package:mfdui/editor/searches/searches_table.dart';
 import 'package:mfdui/editor/table_autocomplete.dart';
 import 'package:mfdui/project/project.dart';
@@ -117,12 +118,22 @@ class _MainParameters extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 20, right: 4, top: 20, bottom: 38),
             child: SizedBox(
-              width: 125,
+              width: 250,
               child: TableAutocomplete(
                 tableName: state.entity.table,
                 projectBloc: BlocProvider.of<ProjectBloc>(context),
                 apiClient: RepositoryProvider.of<ApiClient>(context),
                 onSubmitted: (value) => editorBloc.add(EntityTableChanged(value)),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 20, right: 4, top: 20, bottom: 38),
+            child: SizedBox(
+              width: 250,
+              child: NamespaceAutocomplete(
+                initialValue: state.entity.namespace,
+                onSubmitted: (value) => editorBloc.add(EntityNamespaceChanged(value)),
               ),
             ),
           ),
