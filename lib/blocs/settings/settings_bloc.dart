@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 part 'settings_event.dart';
 part 'settings_state.dart';
 
-const defaultApiUrl = 'http://localhost:8080/';
+const defaultApiUrl = 'http://localhost:8080/api';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   SettingsBloc(this.rpcClient, String x) : super(SettingsInitial(x));
