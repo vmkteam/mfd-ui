@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:mfdui/blocs/settings/settings_bloc.dart';
 import 'package:mfdui/components/main_page.dart';
+import 'package:mfdui/editor/xmlpage/xml_page.dart';
+import 'package:mfdui/editor/xmlvtpage/xmlvt_page.dart';
+import 'package:mfdui/project/project.dart';
 import 'package:mfdui/services/api/api_client.dart';
 import 'package:mfdui/services/api/jsonrpc_client.dart';
 import 'package:mfdui/services/public_repo.dart';
@@ -26,9 +29,19 @@ class MyApp extends StatelessWidget {
         RepositoryProvider(create: (context) => apiClient),
         RepositoryProvider.value(value: PublicRepo(apiClient)),
       ],
-      child: BlocProvider<SettingsBloc>(
-        create: (context) => SettingsBloc(rpcClient, defaultApiUrl)..add(SettingsStarted()),
-        lazy: false,
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) {
+              return ProjectBloc(RepositoryProvider.of<ApiClient>(context))..add(ProjectLoadCurrent());
+            },
+            lazy: false,
+          ),
+          BlocProvider<SettingsBloc>(
+            create: (context) => SettingsBloc(rpcClient, defaultApiUrl)..add(SettingsStarted()),
+            lazy: false,
+          ),
+        ],
         child: MaterialApp(
           title: 'MFDUI',
           theme: ThemeData(
@@ -45,9 +58,25 @@ class MyApp extends StatelessWidget {
               ),
             ),
             errorColor: Colors.deepOrange.shade200,
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                shape: ContinuousRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+            outlinedButtonTheme: OutlinedButtonThemeData(
+              style: OutlinedButton.styleFrom(
+                shape: ContinuousRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
           ),
           routes: {
             '/': (context) => MainPage(),
+            '/xml': (context) => XMLPage(),
+            '/xmlvt': (context) => XMLVTPage(),
           },
         ),
       ),

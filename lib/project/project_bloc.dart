@@ -36,6 +36,9 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
       //        Engine • revision 2dce47073a
       //        If we do not yield any new state, stream and/or event loop breaks, and this function never returns;
       yield state;
+    } catch (e) {
+      yield ProjectInitial();
+      rethrow;
     }
 
     final prefs = await SharedPreferences.getInstance();

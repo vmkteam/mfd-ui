@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mfdui/editor/attributes/attributes_table.dart';
-import 'package:mfdui/editor/editor_bloc.dart';
 import 'package:mfdui/editor/namespace_autocomplete.dart';
 import 'package:mfdui/editor/searches/searches_table.dart';
 import 'package:mfdui/editor/table_autocomplete.dart';
+import 'package:mfdui/editor/xmlpage/editor_bloc.dart';
 import 'package:mfdui/project/project.dart';
 import 'package:mfdui/services/api/api_client.dart';
 import 'package:mfdui/ui/ui.dart';
 
-class EditorWidget extends StatefulWidget {
+class XMLEditorWidget extends StatefulWidget {
   @override
-  _EditorWidgetState createState() => _EditorWidgetState();
+  _XMLEditorWidgetState createState() => _XMLEditorWidgetState();
 }
 
-class _EditorWidgetState extends State<EditorWidget> {
+class _XMLEditorWidgetState extends State<XMLEditorWidget> {
   @override
   Widget build(BuildContext context) {
     return Unfocuser(

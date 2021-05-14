@@ -7,96 +7,96 @@ import 'package:mfdui/project/project.dart';
 import 'package:mfdui/services/api/api_client.dart' as api;
 import 'package:mfdui/ui/ui.dart';
 
-class Menu extends StatelessWidget {
+class XMLMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: Scrollbar(
-        child: CustomScrollView(
-          slivers: [
-            BlocBuilder<ProjectBloc, ProjectState>(
-              builder: (context, state) {
-                if (state is ProjectLoadSuccess) {
-                  final namespaces = state.project.namespaces;
-                  return BlocBuilder<EditorBloc, EditorState>(
-                    builder: (context, editorState) {
-                      String? selectedEntityName;
-                      if (editorState is EditorEntityLoadSuccess) {
-                        selectedEntityName = editorState.entity.name;
-                      }
-                      if (editorState is EditorEntityLoadInProgress) {
-                        selectedEntityName = editorState.entityName;
-                      }
+      child: BlocBuilder<ProjectBloc, ProjectState>(
+        builder: (context, state) {
+          if (state is! ProjectLoadSuccess) {
+            return Container();
+          }
+          final namespaces = state.project.namespaces;
+          return BlocBuilder<EditorBloc, EditorState>(
+            builder: (context, editorState) {
+              String? selectedEntityName;
+              if (editorState is EditorEntityLoadSuccess) {
+                selectedEntityName = editorState.entity.name;
+              }
+              if (editorState is EditorEntityLoadInProgress) {
+                selectedEntityName = editorState.entityName;
+              }
 
-                      return SliverList(
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          final int itemIndex = index ~/ 2;
-                          if (namespaces.length <= itemIndex) {
-                            return null;
-                          }
-                          if (index.isOdd) {
-                            return const Divider();
-                          }
-                          final namespace = namespaces[itemIndex];
-                          final Iterable<Widget> tiles = namespace.entities.map(
-                            (e) => ListTile(
-                              selected: e == selectedEntityName,
-                              selectedTileColor: Colors.blueGrey.shade50,
-                              dense: true,
-                              title: Text(e),
-                              onTap: () => BlocProvider.of<EditorBloc>(context).add(EditorEntitySelected(namespace.name, e)),
-                            ),
-                          );
-                          return Column(
-                            children: [
-                              ListTile(
-                                title: Text(namespace.name, style: Theme.of(context).textTheme.headline6),
-                                trailing: IconButton(
-                                  icon: const Icon(
-                                    Icons.add,
-                                    color: Colors.green,
-                                  ),
-                                  tooltip: 'Add entity',
-                                  onPressed: () async {
-                                    final projectBloc = BlocProvider.of<ProjectBloc>(context);
-                                    final apiClient = RepositoryProvider.of<api.ApiClient>(context);
-                                    final result = await showDialog<_AddEntityDialogResult?>(
-                                      context: context,
-                                      builder: (context) => _NewEntityDialog(
-                                        namespaceName: namespace.name,
-                                        projectBloc: projectBloc,
-                                        apiClient: apiClient,
-                                      ),
-                                    );
-                                    if (result == null) {
-                                      return;
-                                    }
-
-                                    BlocProvider.of<EditorBloc>(context).add(EditorEntityAdded(
-                                      result.namespace,
-                                      result.tableName,
-                                    ));
-                                    projectBloc.add(ProjectLoadCurrent());
-                                  },
-                                  splashRadius: 20,
+              return Scrollbar(
+                child: CustomScrollView(
+                  slivers: [
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final int itemIndex = index ~/ 2;
+                        if (namespaces.length <= itemIndex) {
+                          return null;
+                        }
+                        if (index.isOdd) {
+                          return const Divider();
+                        }
+                        final namespace = namespaces[itemIndex];
+                        final Iterable<Widget> tiles = namespace.entities.map(
+                          (e) => ListTile(
+                            selected: e == selectedEntityName,
+                            selectedTileColor: Colors.blueGrey.shade50,
+                            dense: true,
+                            title: Text(e),
+                            onTap: () => BlocProvider.of<EditorBloc>(context).add(EditorEntitySelected(namespace.name, e)),
+                          ),
+                        );
+                        return Column(
+                          children: [
+                            ListTile(
+                              title: Text(namespace.name, style: Theme.of(context).textTheme.headline6),
+                              trailing: IconButton(
+                                icon: const Icon(
+                                  Icons.add,
+                                  color: Colors.green,
                                 ),
+                                tooltip: 'Add entity',
+                                onPressed: () async {
+                                  final projectBloc = BlocProvider.of<ProjectBloc>(context);
+                                  final apiClient = RepositoryProvider.of<api.ApiClient>(context);
+                                  final result = await showDialog<_AddEntityDialogResult?>(
+                                    context: context,
+                                    builder: (context) => _NewEntityDialog(
+                                      namespaceName: namespace.name,
+                                      projectBloc: projectBloc,
+                                      apiClient: apiClient,
+                                    ),
+                                  );
+                                  if (result == null) {
+                                    return;
+                                  }
+
+                                  BlocProvider.of<EditorBloc>(context).add(EditorEntityAdded(
+                                    result.namespace,
+                                    result.tableName,
+                                  ));
+                                  projectBloc.add(ProjectLoadCurrent());
+                                },
+                                splashRadius: 20,
                               ),
-                              ...ListTile.divideTiles(
-                                context: context,
-                                tiles: tiles,
-                              ),
-                            ],
-                          );
-                        }),
-                      );
-                    },
-                  );
-                }
-                return const SliverFillRemaining();
-              },
-            ),
-          ],
-        ),
+                            ),
+                            ...ListTile.divideTiles(
+                              context: context,
+                              tiles: tiles,
+                            ),
+                          ],
+                        );
+                      }),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }

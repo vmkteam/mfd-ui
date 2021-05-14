@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mfdui/components/checkbox.dart';
 import 'package:mfdui/components/table.dart';
-import 'package:mfdui/editor/editor_bloc.dart';
+import 'package:mfdui/editor/xmlpage/editor_bloc.dart';
 import 'package:mfdui/project/project.dart';
 import 'package:mfdui/services/public_repo.dart';
 import 'package:mfdui/ui/ui.dart';

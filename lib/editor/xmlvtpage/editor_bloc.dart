@@ -14,7 +14,6 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
   final api.ApiClient _apiClient;
   final ProjectBloc _projectBloc;
 
-  Namespace? _namespace;
   Entity? _entity;
 
   @override
@@ -42,9 +41,6 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       yield EditorEntityLoadFailed(event.entityName, 'project is not opened');
       return;
     }
-    _namespace = (_projectBloc.state as ProjectLoadSuccess).project.namespaces.firstWhere(
-          (namespace) => namespace.name == event.namespaceName,
-        );
 
     final resp = await _apiClient.xml.loadEntity(api.XmlLoadEntityArgs(
       entity: event.entityName,

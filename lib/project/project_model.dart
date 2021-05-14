@@ -291,3 +291,5 @@ class Search {
   final String attrName;
   final String searchType;
 }
+
+class VTEntity {}
