@@ -53,35 +53,6 @@ class XMLVTMenu extends StatelessWidget {
                           children: [
                             ListTile(
                               title: Text(namespace.name, style: Theme.of(context).textTheme.headline6),
-                              trailing: IconButton(
-                                icon: const Icon(
-                                  Icons.add,
-                                  color: Colors.green,
-                                ),
-                                tooltip: 'Add entity',
-                                onPressed: () async {
-                                  final projectBloc = BlocProvider.of<ProjectBloc>(context);
-                                  final apiClient = RepositoryProvider.of<api.ApiClient>(context);
-                                  final result = await showDialog<_AddEntityDialogResult?>(
-                                    context: context,
-                                    builder: (context) => _NewEntityDialog(
-                                      namespaceName: namespace.name,
-                                      projectBloc: projectBloc,
-                                      apiClient: apiClient,
-                                    ),
-                                  );
-                                  if (result == null) {
-                                    return;
-                                  }
-
-                                  BlocProvider.of<EditorBloc>(context).add(EditorEntityAdded(
-                                    result.namespace,
-                                    result.tableName,
-                                  ));
-                                  projectBloc.add(ProjectLoadCurrent());
-                                },
-                                splashRadius: 20,
-                              ),
                             ),
                             ...ListTile.divideTiles(
                               context: context,

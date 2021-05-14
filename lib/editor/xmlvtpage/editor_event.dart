@@ -16,7 +16,7 @@ class EntityAttributeChanged extends EntityAttributesEvent {
   EntityAttributeChanged(this.index, this.attribute);
 
   final int index;
-  final Attribute attribute;
+  final VTAttribute attribute;
 }
 
 class EntityAttributeDeleted extends EntityAttributesEvent {
@@ -27,38 +27,31 @@ class EntityAttributeDeleted extends EntityAttributesEvent {
 
 class EntityAttributeAdded extends EntityAttributesEvent {}
 
-abstract class EntitySearchEvent extends EditorEvent {}
+abstract class EntityTemplateEvent extends EditorEvent {}
 
-class EntitySearchAdded extends EntitySearchEvent {}
+class EntityTemplateAdded extends EntityTemplateEvent {}
 
-class EntitySearchDeleted extends EntitySearchEvent {
-  EntitySearchDeleted(this.index);
-
-  final int index;
-}
-
-class EntitySearchChanged extends EntitySearchEvent {
-  EntitySearchChanged(this.index, this.search);
+class EntityTemplateDeleted extends EntityTemplateEvent {
+  EntityTemplateDeleted(this.index);
 
   final int index;
-  final Search search;
 }
 
-class EditorEntityAdded extends EditorEvent {
-  EditorEntityAdded(this.namespaceName, this.tableName);
+class EntityTemplateChanged extends EntityTemplateEvent {
+  EntityTemplateChanged(this.index, this.template);
 
-  final String namespaceName;
-  final String tableName;
+  final int index;
+  final VTTemplateAttribute template;
 }
 
-class EntityTableChanged extends EditorEvent {
-  EntityTableChanged(this.tableName);
+class EntityModeChanged extends EditorEvent {
+  EntityModeChanged(this.mode);
 
-  final String tableName;
+  final String mode;
 }
 
-class EntityNamespaceChanged extends EditorEvent {
-  EntityNamespaceChanged(this.newNamespace);
+class EntityTerminalPathChanged extends EditorEvent {
+  EntityTerminalPathChanged(this.terminalPath);
 
-  final String newNamespace;
+  final String terminalPath;
 }

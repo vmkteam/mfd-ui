@@ -14,7 +14,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
   final api.ApiClient _apiClient;
   final ProjectBloc _projectBloc;
 
-  Entity? _entity;
+  VTEntity? _entity;
 
   @override
   Stream<EditorState> mapEventToState(
@@ -24,14 +24,12 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       yield* _mapEntitySelectedToState(event);
     } else if (event is EntityAttributesEvent) {
       yield* _mapEntityEntityAttributesEventToState(event);
-    } else if (event is EntitySearchEvent) {
-      yield* _mapEntityEntitySearchEventToState(event);
-    } else if (event is EditorEntityAdded) {
-      yield* _mapEditorEntityAddedToState(event);
-    } else if (event is EntityTableChanged) {
-      yield* _mapEditorEntityTableChangedToState(event);
-    } else if (event is EntityNamespaceChanged) {
-      yield* _mapEditorEntityNamespaceChangedToState(event);
+    } else if (event is EntityTemplateEvent) {
+      yield* _mapEntityEntityTemplateEventToState(event);
+    } else if (event is EntityModeChanged) {
+      yield* _mapEntityModeChangedToState(event);
+    } else if (event is EntityTerminalPathChanged) {
+      yield* _mapEntityTerminalPathChangedToState(event);
     }
   }
 
@@ -42,12 +40,12 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       return;
     }
 
-    final resp = await _apiClient.xml.loadEntity(api.XmlLoadEntityArgs(
+    final resp = await _apiClient.xmlvt.loadEntity(api.XmlvtLoadEntityArgs(
       entity: event.entityName,
       namespace: event.namespaceName,
     ));
 
-    _entity = Entity.fromApi(resp!);
+    _entity = VTEntity.fromApi(resp!);
 
     yield EditorEntityLoadSuccess(_entity!);
   }
@@ -68,11 +66,11 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       return;
     }
 
-    final newAttrs = List<Attribute>.from(_entity!.attributes);
+    final newAttrs = List<VTAttribute>.from(_entity!.attributes);
     newAttrs[event.index] = event.attribute;
     final newEntity = _entity!.copyWith(attributes: newAttrs);
 
-    await _apiClient.xml.updateEntity(api.XmlUpdateEntityArgs(entity: newEntity.toApi()));
+    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newEntity.toApi()));
     _entity = newEntity;
   }
 
@@ -80,11 +78,11 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     if (_entity == null) {
       return;
     }
-    final newAttrs = List<Attribute>.from(_entity!.attributes);
+    final newAttrs = List<VTAttribute>.from(_entity!.attributes);
     newAttrs.removeAt(event.index);
     final newEntity = _entity!.copyWith(attributes: newAttrs);
 
-    await _apiClient.xml.updateEntity(api.XmlUpdateEntityArgs(entity: newEntity.toApi()));
+    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newEntity.toApi()));
     _entity = newEntity;
   }
 
@@ -92,122 +90,104 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     if (_entity == null) {
       return;
     }
-    final newAttrs = List<Attribute>.from(_entity!.attributes);
-    const newAttr = Attribute(
-      name: 'Name',
-      dbName: 'Column',
-      primaryKey: false,
-      addable: true,
-      dbType: '',
-      defaultValue: '',
-      foreignKey: '',
-      goType: '',
-      isArray: false,
-      max: 0,
-      min: 0,
-      nullable: true,
-      updatable: true,
+    final newAttrs = List<VTAttribute>.from(_entity!.attributes);
+    const newAttr = VTAttribute(
+      name: 'Attribute',
+      attrName: '',
+      required: false,
+      summary: false,
+      search: false,
+      searchName: '',
+      validate: '',
+      max: null,
+      min: null,
     );
     newAttrs.add(newAttr);
     final newEntity = _entity!.copyWith(attributes: newAttrs);
 
-    await _apiClient.xml.updateEntity(api.XmlUpdateEntityArgs(entity: newEntity.toApi()));
+    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newEntity.toApi()));
     _entity = newEntity;
   }
 
-  Stream<EditorState> _mapEntityEntitySearchEventToState(EntitySearchEvent event) async* {
-    if (event is EntitySearchChanged) {
-      yield* _mapEntitySearchChangedToState(event);
-    } else if (event is EntitySearchDeleted) {
-      yield* _mapEntitySearchDeletedToState(event);
-    } else if (event is EntitySearchAdded) {
-      yield* _mapEntitySearchAddedToState(event);
+  Stream<EditorState> _mapEntityEntityTemplateEventToState(EntityTemplateEvent event) async* {
+    if (event is EntityTemplateChanged) {
+      yield* _mapEntityTemplateChangedToState(event);
+    } else if (event is EntityTemplateDeleted) {
+      yield* _mapEntityTemplateDeletedToState(event);
+    } else if (event is EntityTemplateAdded) {
+      yield* _mapEntityTemplateAddedToState(event);
     }
     yield EditorEntityLoadSuccess(_entity!);
   }
 
-  Stream<EditorState> _mapEntitySearchChangedToState(EntitySearchChanged event) async* {
+  Stream<EditorState> _mapEntityTemplateChangedToState(EntityTemplateChanged event) async* {
     if (_entity == null) {
       return;
     }
 
-    final newSearches = List<Search>.from(_entity!.searches);
-    newSearches[event.index] = event.search;
-    final newEntity = _entity!.copyWith(searches: newSearches);
+    final newTemplates = List<VTTemplateAttribute>.from(_entity!.templates);
+    newTemplates[event.index] = event.template;
+    final newEntity = _entity!.copyWith(templates: newTemplates);
 
-    await _apiClient.xml.updateEntity(api.XmlUpdateEntityArgs(entity: newEntity.toApi()));
+    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newEntity.toApi()));
     _entity = newEntity;
   }
 
-  Stream<EditorState> _mapEntitySearchDeletedToState(EntitySearchDeleted event) async* {
+  Stream<EditorState> _mapEntityTemplateDeletedToState(EntityTemplateDeleted event) async* {
     if (_entity == null) {
       return;
     }
-    final newSearches = List<Search>.from(_entity!.searches);
-    newSearches.removeAt(event.index);
-    final newEntity = _entity!.copyWith(searches: newSearches);
+    final newTemplates = List<VTTemplateAttribute>.from(_entity!.templates);
+    newTemplates.removeAt(event.index);
+    final newEntity = _entity!.copyWith(templates: newTemplates);
 
-    await _apiClient.xml.updateEntity(api.XmlUpdateEntityArgs(entity: newEntity.toApi()));
+    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newEntity.toApi()));
     _entity = newEntity;
   }
 
-  Stream<EditorState> _mapEntitySearchAddedToState(EntitySearchAdded event) async* {
+  Stream<EditorState> _mapEntityTemplateAddedToState(EntityTemplateAdded event) async* {
     if (_entity == null) {
       return;
     }
-    final newSearches = List<Search>.from(_entity!.searches);
-    const newSearch = Search(
-      name: 'NewSearch',
-      attrName: '',
-      searchType: '',
+    final newTemplates = List<VTTemplateAttribute>.from(_entity!.templates);
+    const newTemplate = VTTemplateAttribute(
+      name: 'NewTemplate',
+      fkOpts: '',
+      form: '',
+      list: false,
+      search: '',
+      vtAttrName: '',
     );
-    newSearches.add(newSearch);
-    final newEntity = _entity!.copyWith(searches: newSearches);
+    newTemplates.add(newTemplate);
+    final newEntity = _entity!.copyWith(templates: newTemplates);
 
-    await _apiClient.xml.updateEntity(api.XmlUpdateEntityArgs(entity: newEntity.toApi()));
+    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newEntity.toApi()));
     _entity = newEntity;
   }
 
-  Stream<EditorState> _mapEditorEntityAddedToState(EditorEntityAdded event) async* {
-    yield EditorEntityLoadInProgress(event.tableName);
-
-    final newEntity = await _apiClient.xml.generateEntity(api.XmlGenerateEntityArgs(
-      namespace: event.namespaceName,
-      table: event.tableName,
-    ));
-
-    _entity = Entity.fromApi(newEntity!);
-
-    await _apiClient.xml.updateEntity(api.XmlUpdateEntityArgs(entity: _entity!.toApi()));
-
-    _projectBloc.add(ProjectLoadCurrent()); // reload menu
-    yield EditorEntityLoadSuccess(_entity!);
-  }
-
-  Stream<EditorState> _mapEditorEntityTableChangedToState(EntityTableChanged event) async* {
+  Stream<EditorState> _mapEntityModeChangedToState(EntityModeChanged event) async* {
     if (_entity == null) {
       return;
     }
 
-    final newEntity = _entity!.copyWith(table: event.tableName);
+    final newEntity = _entity!.copyWith(mode: event.mode);
 
-    await _apiClient.xml.updateEntity(api.XmlUpdateEntityArgs(entity: newEntity.toApi()));
+    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newEntity.toApi()));
     _entity = newEntity;
 
     yield EditorEntityLoadSuccess(_entity!);
   }
 
-  Stream<EditorState> _mapEditorEntityNamespaceChangedToState(EntityNamespaceChanged event) async* {
+  Stream<EditorState> _mapEntityTerminalPathChangedToState(EntityTerminalPathChanged event) async* {
     if (_entity == null) {
       return;
     }
 
-    final newEntity = _entity!.copyWith(namespace: event.newNamespace);
+    final newEntity = _entity!.copyWith(terminalPath: event.terminalPath);
 
-    await _apiClient.xml.updateEntity(api.XmlUpdateEntityArgs(entity: newEntity.toApi()));
+    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newEntity.toApi()));
     _entity = newEntity;
 
-    _projectBloc.add(ProjectLoadCurrent()); // reload menu
     yield EditorEntityLoadSuccess(_entity!);
   }
 }

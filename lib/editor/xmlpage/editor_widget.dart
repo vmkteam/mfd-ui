@@ -127,6 +127,7 @@ class _MainParameters extends StatelessWidget {
               ),
             ),
           ),
+          // when updating namespace mfd duplicates records
           Padding(
             padding: const EdgeInsets.only(left: 20, right: 4, top: 20, bottom: 38),
             child: SizedBox(

@@ -14,7 +14,7 @@ class EditorEntityLoadInProgress extends EditorState {
 class EditorEntityLoadSuccess extends EditorState {
   EditorEntityLoadSuccess(this.entity);
 
-  final Entity entity;
+  final VTEntity entity;
 }
 
 class EditorEntityLoadFailed extends EditorState {

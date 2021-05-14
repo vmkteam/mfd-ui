@@ -292,4 +292,196 @@ class Search {
   final String searchType;
 }
 
-class VTEntity {}
+class VTEntity {
+  VTEntity({
+    required this.name,
+    required this.mode,
+    required this.terminalPath,
+    required this.attributes,
+    required this.templates,
+  });
+
+  factory VTEntity.fromApi(api.VTEntity entity) {
+    return VTEntity(
+      name: entity.name!,
+      mode: entity.mode!,
+      terminalPath: entity.terminalPath!,
+      attributes: entity.attributes!
+          .map(
+            (e) => VTAttribute.fromApi(e!),
+          )
+          .toList(),
+      templates: entity.template!
+          .map(
+            (e) => VTTemplateAttribute.fromApi(e!),
+          )
+          .toList(),
+    );
+  }
+
+  api.VTEntity toApi() {
+    return api.VTEntity(
+      name: name,
+      mode: mode,
+      terminalPath: terminalPath,
+      attributes: attributes.map((e) => e.toApi()).toList(),
+      template: templates.map((e) => e.toApi()).toList(),
+    );
+  }
+
+  final String name;
+  final String mode;
+  final String terminalPath;
+  final List<VTAttribute> attributes;
+  final List<VTTemplateAttribute> templates;
+
+  VTEntity copyWith({
+    String? name,
+    String? mode,
+    String? terminalPath,
+    List<VTAttribute>? attributes,
+    List<VTTemplateAttribute>? templates,
+  }) {
+    return VTEntity(
+      name: name ?? this.name,
+      mode: mode ?? this.mode,
+      terminalPath: terminalPath ?? this.terminalPath,
+      attributes: attributes ?? this.attributes,
+      templates: templates ?? this.templates,
+    );
+  }
+}
+
+class VTAttribute {
+  const VTAttribute({
+    required this.name,
+    required this.attrName,
+    required this.required,
+    required this.summary,
+    required this.search,
+    required this.searchName,
+    required this.validate,
+    required this.max,
+    required this.min,
+  });
+
+  factory VTAttribute.fromApi(api.MfdVTAttributes attribute) {
+    return VTAttribute(
+      name: attribute.name!,
+      attrName: attribute.attrName!,
+      required: attribute.required!,
+      summary: attribute.summary!,
+      search: attribute.search!,
+      searchName: attribute.searchName!,
+      validate: attribute.validate!,
+      max: attribute.max!,
+      min: attribute.min!,
+    );
+  }
+
+  api.MfdVTAttributes toApi() {
+    return api.MfdVTAttributes(
+      name: name,
+      attrName: attrName,
+      required: required,
+      summary: summary,
+      search: search,
+      searchName: searchName,
+      validate: validate,
+      max: max,
+      min: min,
+    );
+  }
+
+  final String name;
+  final String attrName;
+  final bool required;
+  final bool summary;
+  final bool search;
+  final String searchName;
+  final String validate;
+  final int? max;
+  final int? min;
+
+  VTAttribute copyWith({
+    String? name,
+    String? attrName,
+    bool? required,
+    bool? summary,
+    bool? search,
+    String? searchName,
+    String? validate,
+    int? max,
+    int? min,
+  }) {
+    return VTAttribute(
+      name: name ?? this.name,
+      attrName: attrName ?? this.attrName,
+      required: required ?? this.required,
+      summary: summary ?? this.summary,
+      search: search ?? this.search,
+      searchName: searchName ?? this.searchName,
+      validate: validate ?? this.validate,
+      max: max ?? this.max,
+      min: min ?? this.min,
+    );
+  }
+}
+
+class VTTemplateAttribute {
+  const VTTemplateAttribute({
+    required this.name,
+    required this.vtAttrName,
+    required this.search,
+    required this.fkOpts,
+    required this.form,
+    required this.list,
+  });
+
+  factory VTTemplateAttribute.fromApi(api.MfdTmplAttributes attribute) {
+    return VTTemplateAttribute(
+      name: attribute.name!,
+      vtAttrName: attribute.vtAttrName!,
+      search: attribute.search!,
+      fkOpts: attribute.fkOpts!,
+      form: attribute.form!,
+      list: attribute.list!,
+    );
+  }
+
+  api.MfdTmplAttributes toApi() {
+    return api.MfdTmplAttributes(
+      name: name,
+      vtAttrName: vtAttrName,
+      search: search,
+      fkOpts: fkOpts,
+      form: form,
+      list: list,
+    );
+  }
+
+  final String name;
+  final String vtAttrName;
+  final String search;
+  final String fkOpts;
+  final String form;
+  final bool list;
+
+  VTTemplateAttribute copyWith({
+    String? name,
+    String? vtAttrName,
+    String? search,
+    String? fkOpts,
+    String? form,
+    bool? list,
+  }) {
+    return VTTemplateAttribute(
+      name: name ?? this.name,
+      vtAttrName: vtAttrName ?? this.vtAttrName,
+      search: search ?? this.search,
+      fkOpts: fkOpts ?? this.fkOpts,
+      form: form ?? this.form,
+      list: list ?? this.list,
+    );
+  }
+}
