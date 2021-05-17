@@ -180,6 +180,12 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
 
     await _apiClient.xml.updateEntity(api.XmlUpdateEntityArgs(entity: _entity!.toApi()));
 
+    final newVtEntity = await _apiClient.xmlvt.generateEntity(api.XmlvtGenerateEntityArgs(
+      namespace: event.namespaceName,
+      entity: newEntity.name,
+    ));
+    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newVtEntity, namespace: event.namespaceName));
+
     _projectBloc.add(ProjectLoadCurrent()); // reload menu
     yield EditorEntityLoadSuccess(_entity!);
   }

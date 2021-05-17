@@ -19,7 +19,8 @@ class PublicRepo {
 
   Future<Iterable<String>> dbTypes(String query) async {
     final resp = await _dbTypes.call();
-    return resp.where((element) => element.contains(query));
+    return resp;
+    //return resp.where((element) => element.contains(query));
   }
 
   Future<Iterable<String>> searchTypes(String query) async {

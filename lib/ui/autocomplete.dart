@@ -184,7 +184,6 @@ class _AutocompleteOptions extends StatelessWidget {
         itemBuilder: (BuildContext context, int index) {
           final option = options.elementAt(index);
           return ListTile(
-            dense: true,
             selected: index == 0,
             onTap: () {
               onSelected(option);
@@ -201,9 +200,9 @@ class _AutocompleteOptions extends StatelessWidget {
         child: Container(
           constraints: BoxConstraints(
             minHeight: 0,
-            minWidth: isLoading ? 0 : 200,
-            maxHeight: 100,
-            maxWidth: max(size?.width ?? 0, isLoading ? 0 : 200),
+            minWidth: isLoading ? 0 : 300,
+            maxHeight: 300,
+            maxWidth: max(size?.width ?? 0, isLoading ? 0 : 300),
           ),
           child: content,
         ),

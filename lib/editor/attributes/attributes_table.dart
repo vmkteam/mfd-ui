@@ -5,6 +5,7 @@ import 'package:mfdui/components/table.dart';
 import 'package:mfdui/editor/xmlpage/editor_bloc.dart';
 import 'package:mfdui/project/project.dart';
 import 'package:mfdui/services/public_repo.dart';
+import 'package:mfdui/ui/go_code.dart';
 import 'package:mfdui/ui/ui.dart';
 
 part 'dbtype_autocomplete.dart';
@@ -18,26 +19,33 @@ class AttributesTable extends StatelessWidget {
   List<TableColumn<Attribute>> get columns {
     return [
       TableColumn(
-        header: const Header('Name'),
+        header: Header(
+          tooltip: 'Primary key',
+          child: Builder(
+            builder: (context) => Icon(Icons.vpn_key, color: Theme.of(context).accentColor),
+          ),
+        ),
         builder: (context, index, row) {
-          final name = MFDAutocomplete(
+          return Center(
+            child: CheckboxStateful(
+              value: row.primaryKey,
+              onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(primaryKey: value))),
+            ),
+          );
+        },
+      ),
+      TableColumn(
+        header: const Header(label: 'Name'),
+        builder: (context, index, row) {
+          return MFDAutocomplete(
             initialValue: row.name,
             optionsLoader: null,
             onSubmitted: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(name: value))),
           );
-          if (row.primaryKey) {
-            return Row(children: [
-              Expanded(child: name),
-              if (row.primaryKey) ...[
-                Tooltip(message: 'Primary key', child: Icon(Icons.vpn_key, color: Theme.of(context).accentColor)),
-              ],
-            ]);
-          }
-          return name;
         },
       ),
       TableColumn(
-        header: const Header('DBName'),
+        header: const Header(label: 'DB column'),
         builder: (context, index, row) {
           return MFDAutocomplete(
             initialValue: row.dbName,
@@ -47,7 +55,11 @@ class AttributesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('DB type'),
+        header: const Header(),
+        builder: (context, rowIndex, row) => const SizedBox(width: 45),
+      ),
+      TableColumn(
+        header: const Header(label: 'DB type'),
         builder: (context, index, row) {
           return DBTypeAutocomplete(
             value: row.dbType,
@@ -56,7 +68,7 @@ class AttributesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('Is array'),
+        header: const Header(label: 'Is array'),
         builder: (context, index, row) {
           return Center(
             child: CheckboxStateful(
@@ -67,16 +79,7 @@ class AttributesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('go type'),
-        builder: (context, index, row) {
-          return GoTypeAutocomplete(
-            value: row.goType,
-            onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(goType: value))),
-          );
-        },
-      ),
-      TableColumn(
-        header: const Header('Nullable'),
+        header: const Header(label: 'Nullable'),
         builder: (context, index, row) {
           return Center(
             child: CheckboxStateful(
@@ -87,7 +90,27 @@ class AttributesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('Addable'),
+        header: const Header(),
+        builder: (context, rowIndex, row) => const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 5),
+          child: Icon(Icons.arrow_forward, color: Colors.black26),
+        ),
+      ),
+      TableColumn(
+        header: const Header(label: 'go type'),
+        builder: (context, index, row) {
+          return GoTypeAutocomplete(
+            value: row.goType,
+            onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(goType: value))),
+          );
+        },
+      ),
+      TableColumn(
+        header: const Header(),
+        builder: (context, rowIndex, row) => const SizedBox(width: 45),
+      ),
+      TableColumn(
+        header: const Header(label: 'Addable'),
         builder: (context, index, row) {
           return Center(
             child: CheckboxStateful(
@@ -98,7 +121,7 @@ class AttributesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('Updatable'),
+        header: const Header(label: 'Updatable'),
         builder: (context, index, row) {
           return Center(
             child: CheckboxStateful(
@@ -109,7 +132,7 @@ class AttributesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header(''),
+        header: const Header(),
         builder: (context, index, row) {
           return Row(
             children: [
@@ -152,13 +175,28 @@ class AttributesTable extends StatelessWidget {
               child: SingleChildScrollView(
                 controller: scrollController1,
                 scrollDirection: Axis.horizontal,
-                child: BlocBuilder<EditorBloc, EditorState>(
-                  builder: (context, state) {
-                    if (state is EditorEntityLoadSuccess) {
-                      return CustomTable(columns: columns, rows: state.entity.attributes);
-                    }
-                    return const SizedBox.shrink();
-                  },
+                child: Row(
+                  children: [
+                    BlocBuilder<EditorBloc, EditorState>(
+                      builder: (context, state) {
+                        if (state is EditorEntityLoadSuccess) {
+                          return CustomTable(columns: columns, rows: state.entity.attributes);
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                    // todo: add on click and regenerate?
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 30),
+                      child: Icon(Icons.double_arrow, color: Colors.black26),
+                    ),
+                    const SizedBox(
+                      width: 400,
+                      child: GoCodeField(
+                        code: _gocodeex,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -168,3 +206,8 @@ class AttributesTable extends StatelessWidget {
     );
   }
 }
+
+const _gocodeex = '''
+type Model struct {
+  Field1 string `json:"field1"`
+}''';

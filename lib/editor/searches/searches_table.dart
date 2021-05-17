@@ -14,7 +14,7 @@ class SearchesTable extends StatelessWidget {
   List<TableColumn<Search>> get columns {
     return [
       TableColumn(
-        header: const Header('Name'),
+        header: const Header(label: 'Name'),
         builder: (context, index, row) {
           return MFDAutocomplete(
             initialValue: row.name,
@@ -24,7 +24,7 @@ class SearchesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('Attribute'),
+        header: const Header(label: 'Attribute'),
         builder: (context, index, row) {
           return MFDAutocomplete(
             initialValue: row.attrName,
@@ -34,16 +34,17 @@ class SearchesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('Type'),
+        header: const Header(label: 'Type'),
         builder: (context, index, row) {
           return SearchTypeAutocomplete(
             value: row.searchType,
+            columnName: row.attrName,
             onSubmitted: (value) => editorBloc.add(EntitySearchChanged(index, row.copyWith(searchType: value))),
           );
         },
       ),
       TableColumn(
-        header: const Header(''),
+        header: const Header(),
         builder: (context, index, row) {
           return Row(
             children: [

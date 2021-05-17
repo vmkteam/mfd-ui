@@ -7,12 +7,14 @@ class MFDActionCard extends StatelessWidget {
     this.actions,
     this.children,
     this.contentPadding,
+    this.disallowCloseButton = false,
   }) : super(key: key);
 
   final Widget? title;
   final List<Widget>? children;
   final List<Widget>? actions;
   final EdgeInsets? contentPadding;
+  final bool disallowCloseButton;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,7 @@ class MFDActionCard extends StatelessWidget {
           style: Theme.of(context).textTheme.headline6!,
           child: title!,
         ),
-        trailing: Navigator.of(context).canPop() ? const MFDCloseButton() : null,
+        trailing: !disallowCloseButton && Navigator.of(context).canPop() ? const MFDCloseButton() : null,
       );
     }
 

@@ -214,7 +214,7 @@ class AttributesTable extends StatelessWidget {
   List<TableColumn<VTAttribute>> get columns {
     return [
       TableColumn(
-        header: const Header('Name'),
+        header: const Header(label: 'Name'),
         builder: (context, index, row) {
           final name = MFDAutocomplete(
             initialValue: row.name,
@@ -225,7 +225,7 @@ class AttributesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('AttrName'),
+        header: const Header(label: 'AttrName'),
         builder: (context, index, row) {
           final name = MFDAutocomplete(
             initialValue: row.attrName,
@@ -236,7 +236,7 @@ class AttributesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('Required'),
+        header: const Header(label: 'Required'),
         builder: (context, index, row) {
           return Center(
             child: CheckboxStateful(
@@ -247,7 +247,7 @@ class AttributesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('Summary'),
+        header: const Header(label: 'Summary'),
         builder: (context, index, row) {
           return Center(
             child: CheckboxStateful(
@@ -258,7 +258,7 @@ class AttributesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('Search'),
+        header: const Header(label: 'Search'),
         builder: (context, index, row) {
           return Center(
             child: CheckboxStateful(
@@ -269,7 +269,7 @@ class AttributesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('Search Name'),
+        header: const Header(label: 'Search Name'),
         builder: (context, index, row) {
           return MFDAutocomplete(
             initialValue: row.searchName,
@@ -279,7 +279,7 @@ class AttributesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('Validate'),
+        header: const Header(label: 'Validate'),
         builder: (context, index, row) {
           return MFDAutocomplete(
             initialValue: row.validate,
@@ -289,7 +289,7 @@ class AttributesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header(''),
+        header: const Header(),
         builder: (context, index, row) {
           return Row(
             children: [
@@ -357,7 +357,7 @@ class VTTemplateTable extends StatelessWidget {
   List<TableColumn<VTTemplateAttribute>> get columns {
     return [
       TableColumn(
-        header: const Header('Name'),
+        header: const Header(label: 'Name'),
         builder: (context, index, row) {
           final name = MFDAutocomplete(
             initialValue: row.name,
@@ -368,7 +368,7 @@ class VTTemplateTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('AttrName'),
+        header: const Header(label: 'AttrName'),
         builder: (context, index, row) {
           final name = MFDAutocomplete(
             initialValue: row.vtAttrName,
@@ -379,7 +379,7 @@ class VTTemplateTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('Search'),
+        header: const Header(label: 'Search'),
         builder: (context, index, row) {
           final name = MFDAutocomplete(
             initialValue: row.search,
@@ -390,7 +390,7 @@ class VTTemplateTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('Form'),
+        header: const Header(label: 'Form'),
         builder: (context, index, row) {
           final name = MFDAutocomplete(
             initialValue: row.form,
@@ -401,7 +401,7 @@ class VTTemplateTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('List'),
+        header: const Header(label: 'List'),
         builder: (context, index, row) {
           return Center(
             child: CheckboxStateful(
@@ -412,7 +412,7 @@ class VTTemplateTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header('FK Opts'),
+        header: const Header(label: 'FK Opts'),
         builder: (context, index, row) {
           final name = MFDAutocomplete(
             initialValue: row.fkOpts,
@@ -423,7 +423,7 @@ class VTTemplateTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header(''),
+        header: const Header(),
         builder: (context, index, row) {
           return Row(
             children: [

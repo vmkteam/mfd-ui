@@ -88,6 +88,7 @@ class HomePage extends StatelessWidget {
                         }),
                       ),
                     ],
+                    disallowCloseButton: true,
                   ),
                   const MFDActionCard(
                     title: Text('Shortcuts'),

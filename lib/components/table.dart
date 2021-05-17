@@ -30,7 +30,14 @@ class CustomTable<RowType> extends StatelessWidget {
     return DataTable(
       columnSpacing: 10,
       dataRowHeight: 48,
-      columns: columns.map((column) => DataColumn(label: Text(column.header.text))).toList(),
+      columns: columns
+          .map(
+            (column) => DataColumn(
+              label: column.header.child ?? Text(column.header.label ?? ''),
+              tooltip: column.header.tooltip,
+            ),
+          )
+          .toList(growable: false),
       rows: lines,
     );
   }
@@ -40,9 +47,12 @@ class CustomTable<RowType> extends StatelessWidget {
 
 @immutable
 class Header {
-  const Header(this.text);
+  const Header({this.label, this.tooltip, this.child, this.help});
 
-  final String text;
+  final String? label;
+  final String? tooltip;
+  final Widget? child;
+  final String? help;
 }
 
 @immutable
