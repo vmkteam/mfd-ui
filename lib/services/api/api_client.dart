@@ -284,6 +284,22 @@ class _ServiceXml {
     });
   }
 
+  // Generates model go code, that represents this entity.
+  Future<String?> generateModelCode(XmlGenerateModelCodeArgs args) {
+    return Future(() async {
+      final response = await _client.call('xml.generateModelCode', args) as String?;
+      return response;
+    });
+  }
+
+  // Generates search go code, that represents this entity.
+  Future<String?> generateSearchModelCode(XmlGenerateSearchModelCodeArgs args) {
+    return Future(() async {
+      final response = await _client.call('xml.generateSearchModelCode', args) as String?;
+      return response;
+    });
+  }
+
   // Gets selected entity from project
   Future<Entity?> loadEntity(XmlLoadEntityArgs args) {
     return Future(() async {
@@ -310,6 +326,28 @@ class XmlGenerateEntityArgs {
 
   final String? namespace;
   final String? table;
+}
+
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
+class XmlGenerateModelCodeArgs {
+  XmlGenerateModelCodeArgs({this.entity});
+
+  factory XmlGenerateModelCodeArgs.fromJson(Map<String, dynamic> json) => _$XmlGenerateModelCodeArgsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$XmlGenerateModelCodeArgsToJson(this);
+
+  final Entity? entity;
+}
+
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
+class XmlGenerateSearchModelCodeArgs {
+  XmlGenerateSearchModelCodeArgs({this.entity});
+
+  factory XmlGenerateSearchModelCodeArgs.fromJson(Map<String, dynamic> json) => _$XmlGenerateSearchModelCodeArgsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$XmlGenerateSearchModelCodeArgsToJson(this);
+
+  final Entity? entity;
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)

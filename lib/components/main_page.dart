@@ -66,28 +66,6 @@ class ClosedProjectHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('MFD UI'),
-        centerTitle: false,
-        actions: [
-          Builder(
-            builder: (context) => TextButton(
-              child: const Icon(Icons.settings, color: Colors.white),
-              onPressed: () async {
-                await showDialog(
-                  context: context,
-                  builder: (context) => Settings(),
-                );
-                final bloc = BlocProvider.of<ProjectBloc>(context);
-                final state = bloc.state;
-                if (state is ProjectLoadSuccess) {
-                  bloc.add(ProjectLoadCurrent());
-                }
-              },
-            ),
-          ),
-        ],
-      ),
       body: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

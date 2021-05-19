@@ -138,6 +138,52 @@ Map<String, dynamic> _$XmlGenerateEntityArgsToJson(
   return val;
 }
 
+XmlGenerateModelCodeArgs _$XmlGenerateModelCodeArgsFromJson(
+    Map<String, dynamic> json) {
+  return XmlGenerateModelCodeArgs(
+    entity: json['entity'] == null
+        ? null
+        : Entity.fromJson(json['entity'] as Map<String, dynamic>),
+  );
+}
+
+Map<String, dynamic> _$XmlGenerateModelCodeArgsToJson(
+    XmlGenerateModelCodeArgs instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('entity', instance.entity?.toJson());
+  return val;
+}
+
+XmlGenerateSearchModelCodeArgs _$XmlGenerateSearchModelCodeArgsFromJson(
+    Map<String, dynamic> json) {
+  return XmlGenerateSearchModelCodeArgs(
+    entity: json['entity'] == null
+        ? null
+        : Entity.fromJson(json['entity'] as Map<String, dynamic>),
+  );
+}
+
+Map<String, dynamic> _$XmlGenerateSearchModelCodeArgsToJson(
+    XmlGenerateSearchModelCodeArgs instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('entity', instance.entity?.toJson());
+  return val;
+}
+
 XmlLoadEntityArgs _$XmlLoadEntityArgsFromJson(Map<String, dynamic> json) {
   return XmlLoadEntityArgs(
     entity: json['entity'] as String?,

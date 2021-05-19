@@ -11,7 +11,7 @@ import 'package:mfdui/services/api/jsonrpc_client.dart';
 import 'package:mfdui/services/public_repo.dart';
 
 void main() {
-  runApp(MyApp(RPCClient('http://localhost:8080/', http.Client())));
+  runApp(MyApp(RPCClient('http://localhost:8880/', http.Client())));
 }
 
 class MyApp extends StatelessWidget {

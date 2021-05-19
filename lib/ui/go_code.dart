@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -21,25 +23,23 @@ class _GoCodeEditState extends State<GoCodeField> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        TextField(
-          controller: _controller,
-          decoration: InputDecoration(
-            border: const OutlineInputBorder(),
-            labelText: 'Go',
-            suffixIcon: IconButton(
-              splashRadius: 20,
-              icon: const Icon(Icons.copy),
-              tooltip: 'Copy to clipboard',
-              onPressed: () => Clipboard.setData(ClipboardData(text: _controller.text)),
-            ),
-          ),
-          maxLines: null,
-          readOnly: true,
+    return TextField(
+      controller: _controller,
+      onTap: () => _controller.selection = TextSelection(baseOffset: 0, extentOffset: _controller.text.length),
+      enableSuggestions: false,
+      decoration: InputDecoration(
+        border: const OutlineInputBorder(),
+        labelText: 'Go',
+        suffixIcon: IconButton(
+          splashRadius: 20,
+          icon: const Icon(Icons.copy),
+          tooltip: 'Copy to clipboard',
+          onPressed: () => Clipboard.setData(ClipboardData(text: _controller.text)),
         ),
-      ],
+      ),
+      style: const TextStyle(fontFamily: 'FiraCode', fontSize: 13),
+      maxLines: null,
+      readOnly: true,
     );
   }
 }

@@ -68,7 +68,7 @@ class __AddrTextFieldState extends State<_AddrTextField> {
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
             labelText: 'Connection address',
-            hintText: 'default: http//localhost:8080',
+            hintText: 'default: http//localhost:8880',
             errorText: errText,
           ),
         ),

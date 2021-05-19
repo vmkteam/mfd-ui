@@ -4,6 +4,8 @@ import 'package:mfdui/components/table.dart';
 import 'package:mfdui/editor/searches/searchtype_autocomplete.dart';
 import 'package:mfdui/editor/xmlpage/editor_bloc.dart';
 import 'package:mfdui/project/project.dart';
+import 'package:mfdui/services/api/api_client.dart';
+import 'package:mfdui/ui/go_code.dart';
 import 'package:mfdui/ui/ui.dart';
 
 class SearchesTable extends StatelessWidget {
@@ -36,9 +38,16 @@ class SearchesTable extends StatelessWidget {
       TableColumn(
         header: const Header(label: 'Type'),
         builder: (context, index, row) {
+          final state = editorBloc.state;
+          late final String columnName;
+          if (state is EditorEntityLoadSuccess) {
+            columnName = state.entity.attributes.firstWhere((element) => element.name == row.attrName).dbName;
+          } else {
+            columnName = row.attrName;
+          }
           return SearchTypeAutocomplete(
             value: row.searchType,
-            columnName: row.attrName,
+            columnName: columnName,
             onSubmitted: (value) => editorBloc.add(EntitySearchChanged(index, row.copyWith(searchType: value))),
           );
         },
@@ -87,13 +96,49 @@ class SearchesTable extends StatelessWidget {
               child: SingleChildScrollView(
                 controller: scrollController1,
                 scrollDirection: Axis.horizontal,
-                child: BlocBuilder<EditorBloc, EditorState>(
-                  builder: (context, state) {
-                    if (state is EditorEntityLoadSuccess) {
-                      return CustomTable(columns: columns, rows: state.entity.searches);
-                    }
-                    return const SizedBox.shrink();
-                  },
+                child: Row(
+                  children: [
+                    BlocBuilder<EditorBloc, EditorState>(
+                      builder: (context, state) {
+                        if (state is EditorEntityLoadSuccess) {
+                          return CustomTable(columns: columns, rows: state.entity.searches);
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                    // todo: add on click and regenerate?
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 30),
+                      child: Icon(Icons.double_arrow, color: Colors.black26),
+                    ),
+                    SizedBox(
+                      width: 400,
+                      child: BlocBuilder<EditorBloc, EditorState>(
+                        builder: (context, state) {
+                          if (state is! EditorEntityLoadSuccess) {
+                            return const SizedBox.shrink();
+                          }
+                          return FutureBuilder<String>(
+                            initialData: '',
+                            future: RepositoryProvider.of<ApiClient>(context)
+                                .xml
+                                .generateSearchModelCode(XmlGenerateSearchModelCodeArgs(
+                                  entity: state.entity.toApi(),
+                                ))
+                                .then((value) => value ?? ''),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState != ConnectionState.done) {
+                                return const SizedBox(width: 50, height: 50, child: Center(child: CircularProgressIndicator()));
+                              }
+                              return GoCodeField(
+                                code: snapshot.data!,
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -103,3 +148,9 @@ class SearchesTable extends StatelessWidget {
     );
   }
 }
+
+const _gocodeex = '''
+type ModelSearch struct {
+  SearchField1 *string `json:"field1"`
+  SearchField2 *int    `json:"field1"`
+}''';

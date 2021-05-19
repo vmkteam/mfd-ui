@@ -17,7 +17,7 @@ class SearchTypeAutocomplete extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final subtitleStyle = Theme.of(context).textTheme.caption;
+    final subtitleStyle = Theme.of(context).textTheme.caption!.copyWith(fontFamily: 'FiraCode');
     return _DropdownBuilder<String>(
       value: value,
       onChanged: (value) => onSubmitted(value!),
@@ -27,19 +27,26 @@ class SearchTypeAutocomplete extends StatelessWidget {
       itemBuilder: (value) {
         final enumVal = SearchType.values.firstWhere((element) => describeEnum(element) == value, orElse: () => SearchType.SEARCHTYPE_UNKNOWN);
         final enumText = _searchTypeDisplayText(enumVal);
-        final mainText = enumText != null ? 'WHERE $columnName $enumText' : '$value (unknown)';
+        String mainText = value;
+        if (mainText.startsWith('SEARCHTYPE_')) {
+          mainText = mainText.substring('SEARCHTYPE_'.length);
+        }
+        final helpText = enumText != null ? 'where "$columnName" $enumText' : '$value (unknown)';
         return DropdownMenuItem<String>(
           value: value,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(mainText),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 3.0),
-                child: Text(value, style: subtitleStyle),
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(mainText),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 3.0),
+                  child: Text(helpText, style: subtitleStyle),
+                ),
+              ],
+            ),
           ),
         );
       },

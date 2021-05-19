@@ -4,6 +4,7 @@ import 'package:mfdui/components/checkbox.dart';
 import 'package:mfdui/components/table.dart';
 import 'package:mfdui/editor/xmlpage/editor_bloc.dart';
 import 'package:mfdui/project/project.dart';
+import 'package:mfdui/services/api/api_client.dart' as api;
 import 'package:mfdui/services/public_repo.dart';
 import 'package:mfdui/ui/go_code.dart';
 import 'package:mfdui/ui/ui.dart';
@@ -190,10 +191,31 @@ class AttributesTable extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: 50, vertical: 30),
                       child: Icon(Icons.double_arrow, color: Colors.black26),
                     ),
-                    const SizedBox(
+                    SizedBox(
                       width: 400,
-                      child: GoCodeField(
-                        code: _gocodeex,
+                      child: BlocBuilder<EditorBloc, EditorState>(
+                        builder: (context, state) {
+                          if (state is! EditorEntityLoadSuccess) {
+                            return const SizedBox.shrink();
+                          }
+                          return FutureBuilder<String>(
+                            initialData: '',
+                            future: RepositoryProvider.of<api.ApiClient>(context)
+                                .xml
+                                .generateModelCode(api.XmlGenerateModelCodeArgs(
+                                  entity: state.entity.toApi(),
+                                ))
+                                .then((value) => value ?? ''),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState != ConnectionState.done) {
+                                return const SizedBox(width: 50, height: 50, child: Center(child: CircularProgressIndicator()));
+                              }
+                              return GoCodeField(
+                                code: snapshot.data!,
+                              );
+                            },
+                          );
+                        },
                       ),
                     ),
                   ],
