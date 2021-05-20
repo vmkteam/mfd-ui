@@ -85,6 +85,14 @@ Map<String, dynamic> _$PublicGoPGVersionsArgsToJson(
         PublicGoPGVersionsArgs instance) =>
     <String, dynamic>{};
 
+PublicHTMLTypesArgs _$PublicHTMLTypesArgsFromJson(Map<String, dynamic> json) {
+  return PublicHTMLTypesArgs();
+}
+
+Map<String, dynamic> _$PublicHTMLTypesArgsToJson(
+        PublicHTMLTypesArgs instance) =>
+    <String, dynamic>{};
+
 PublicModesArgs _$PublicModesArgsFromJson(Map<String, dynamic> json) {
   return PublicModesArgs();
 }

@@ -12,9 +12,10 @@ class EditorEntityLoadInProgress extends EditorState {
 }
 
 class EditorEntityLoadSuccess extends EditorState {
-  EditorEntityLoadSuccess(this.entity);
+  EditorEntityLoadSuccess(this.vtentity, this.entity);
 
-  final VTEntity entity;
+  final VTEntity vtentity;
+  final Entity entity;
 }
 
 class EditorEntityLoadFailed extends EditorState {

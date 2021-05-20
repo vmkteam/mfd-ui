@@ -21,7 +21,7 @@ class XMLVTMenu extends StatelessWidget {
             builder: (context, editorState) {
               String? selectedEntityName;
               if (editorState is EditorEntityLoadSuccess) {
-                selectedEntityName = editorState.entity.name;
+                selectedEntityName = editorState.vtentity.name;
               }
               if (editorState is EditorEntityLoadInProgress) {
                 selectedEntityName = editorState.entityName;

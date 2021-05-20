@@ -299,9 +299,10 @@ class VTEntity {
     required this.terminalPath,
     required this.attributes,
     required this.templates,
+    required this.namespace,
   });
 
-  factory VTEntity.fromApi(api.VTEntity entity) {
+  factory VTEntity.fromApi(api.VTEntity entity, String namespace) {
     return VTEntity(
       name: entity.name!,
       mode: entity.mode!,
@@ -316,6 +317,7 @@ class VTEntity {
             (e) => VTTemplateAttribute.fromApi(e!),
           )
           .toList(),
+      namespace: namespace,
     );
   }
 
@@ -334,6 +336,7 @@ class VTEntity {
   final String terminalPath;
   final List<VTAttribute> attributes;
   final List<VTTemplateAttribute> templates;
+  final String namespace;
 
   VTEntity copyWith({
     String? name,
@@ -348,6 +351,7 @@ class VTEntity {
       terminalPath: terminalPath ?? this.terminalPath,
       attributes: attributes ?? this.attributes,
       templates: templates ?? this.templates,
+      namespace: namespace,
     );
   }
 }

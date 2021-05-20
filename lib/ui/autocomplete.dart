@@ -9,6 +9,7 @@ class MFDAutocomplete extends StatefulWidget {
     this.preload = false,
     this.loadOnTap = false,
     this.decoration,
+    this.inputFormatters,
   }) : super(key: key);
 
   final String initialValue;
@@ -17,6 +18,7 @@ class MFDAutocomplete extends StatefulWidget {
   final OptionsLoader? optionsLoader;
   final ValueChanged<String>? onSubmitted;
   final InputDecoration? decoration;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   _MFDAutocompleteState createState() => _MFDAutocompleteState();
@@ -60,10 +62,11 @@ class _MFDAutocompleteState extends State<MFDAutocomplete> {
         onTap: widget.loadOnTap ? _onTap : null,
         focusNode: _focusNode,
         controller: _controller,
+        inputFormatters: widget.inputFormatters,
         onEditingComplete: _onSubmitted,
         decoration: widget.decoration ??
             InputDecoration(
-              contentPadding: EdgeInsets.all(6),
+              contentPadding: const EdgeInsets.all(6),
               border: OutlineInputBorder(
                 gapPadding: 1,
                 borderSide: _focusNode.hasFocus ? const BorderSide() : const BorderSide(style: BorderStyle.none, width: 0),
@@ -97,6 +100,9 @@ class _MFDAutocompleteState extends State<MFDAutocomplete> {
 
   void _onChangeFocus() {
     _updateOverlay();
+    if (!_focusNode.hasFocus) {
+      _select(_controller.text);
+    }
   }
 
   void _onChangeText() {

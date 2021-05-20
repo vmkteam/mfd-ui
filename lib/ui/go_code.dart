@@ -17,7 +17,8 @@ class _GoCodeEditState extends State<GoCodeField> {
 
   @override
   void initState() {
-    _controller = TextEditingController(text: widget.code);
+    // replace all tabs because Text or TextFiled renders leading tabs wrong.
+    _controller = TextEditingController(text: widget.code.replaceAll(RegExp(r'\t'), '  '));
     super.initState();
   }
 

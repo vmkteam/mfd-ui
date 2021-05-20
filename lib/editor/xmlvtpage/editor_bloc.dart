@@ -14,7 +14,8 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
   final api.ApiClient _apiClient;
   final ProjectBloc _projectBloc;
 
-  VTEntity? _entity;
+  VTEntity? _vtentity;
+  Entity? _entity;
 
   @override
   Stream<EditorState> mapEventToState(
@@ -45,9 +46,16 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       namespace: event.namespaceName,
     ));
 
-    _entity = VTEntity.fromApi(resp!);
+    _vtentity = VTEntity.fromApi(resp!, event.namespaceName);
 
-    yield EditorEntityLoadSuccess(_entity!);
+    final entityResp = await _apiClient.xml.loadEntity(api.XmlLoadEntityArgs(
+      entity: event.entityName,
+      namespace: event.namespaceName,
+    ));
+
+    _entity = Entity.fromApi(entityResp!);
+
+    yield EditorEntityLoadSuccess(_vtentity!, _entity!);
   }
 
   Stream<EditorState> _mapEntityEntityAttributesEventToState(EntityAttributesEvent event) async* {
@@ -58,39 +66,39 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     } else if (event is EntityAttributeAdded) {
       yield* _mapEntityAttributeAddedToState(event);
     }
-    yield EditorEntityLoadSuccess(_entity!);
+    yield EditorEntityLoadSuccess(_vtentity!, _entity!);
   }
 
   Stream<EditorState> _mapEntityAttributeChangedToState(EntityAttributeChanged event) async* {
-    if (_entity == null) {
+    if (_vtentity == null) {
       return;
     }
 
-    final newAttrs = List<VTAttribute>.from(_entity!.attributes);
+    final newAttrs = List<VTAttribute>.from(_vtentity!.attributes);
     newAttrs[event.index] = event.attribute;
-    final newEntity = _entity!.copyWith(attributes: newAttrs);
+    final newEntity = _vtentity!.copyWith(attributes: newAttrs);
 
-    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newEntity.toApi()));
-    _entity = newEntity;
+    await updateEntity(newEntity);
+    _vtentity = newEntity;
   }
 
   Stream<EditorState> _mapEntityAttributeDeletedToState(EntityAttributeDeleted event) async* {
-    if (_entity == null) {
+    if (_vtentity == null) {
       return;
     }
-    final newAttrs = List<VTAttribute>.from(_entity!.attributes);
+    final newAttrs = List<VTAttribute>.from(_vtentity!.attributes);
     newAttrs.removeAt(event.index);
-    final newEntity = _entity!.copyWith(attributes: newAttrs);
+    final newEntity = _vtentity!.copyWith(attributes: newAttrs);
 
-    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newEntity.toApi()));
-    _entity = newEntity;
+    await updateEntity(newEntity);
+    _vtentity = newEntity;
   }
 
   Stream<EditorState> _mapEntityAttributeAddedToState(EntityAttributeAdded event) async* {
-    if (_entity == null) {
+    if (_vtentity == null) {
       return;
     }
-    final newAttrs = List<VTAttribute>.from(_entity!.attributes);
+    final newAttrs = List<VTAttribute>.from(_vtentity!.attributes);
     const newAttr = VTAttribute(
       name: 'Attribute',
       attrName: '',
@@ -103,10 +111,10 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       min: null,
     );
     newAttrs.add(newAttr);
-    final newEntity = _entity!.copyWith(attributes: newAttrs);
+    final newEntity = _vtentity!.copyWith(attributes: newAttrs);
 
-    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newEntity.toApi()));
-    _entity = newEntity;
+    await updateEntity(newEntity);
+    _vtentity = newEntity;
   }
 
   Stream<EditorState> _mapEntityEntityTemplateEventToState(EntityTemplateEvent event) async* {
@@ -117,39 +125,39 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     } else if (event is EntityTemplateAdded) {
       yield* _mapEntityTemplateAddedToState(event);
     }
-    yield EditorEntityLoadSuccess(_entity!);
+    yield EditorEntityLoadSuccess(_vtentity!, _entity!);
   }
 
   Stream<EditorState> _mapEntityTemplateChangedToState(EntityTemplateChanged event) async* {
-    if (_entity == null) {
+    if (_vtentity == null) {
       return;
     }
 
-    final newTemplates = List<VTTemplateAttribute>.from(_entity!.templates);
+    final newTemplates = List<VTTemplateAttribute>.from(_vtentity!.templates);
     newTemplates[event.index] = event.template;
-    final newEntity = _entity!.copyWith(templates: newTemplates);
+    final newEntity = _vtentity!.copyWith(templates: newTemplates);
 
-    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newEntity.toApi()));
-    _entity = newEntity;
+    await updateEntity(newEntity);
+    _vtentity = newEntity;
   }
 
   Stream<EditorState> _mapEntityTemplateDeletedToState(EntityTemplateDeleted event) async* {
-    if (_entity == null) {
+    if (_vtentity == null) {
       return;
     }
-    final newTemplates = List<VTTemplateAttribute>.from(_entity!.templates);
+    final newTemplates = List<VTTemplateAttribute>.from(_vtentity!.templates);
     newTemplates.removeAt(event.index);
-    final newEntity = _entity!.copyWith(templates: newTemplates);
+    final newEntity = _vtentity!.copyWith(templates: newTemplates);
 
-    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newEntity.toApi()));
-    _entity = newEntity;
+    await updateEntity(newEntity);
+    _vtentity = newEntity;
   }
 
   Stream<EditorState> _mapEntityTemplateAddedToState(EntityTemplateAdded event) async* {
-    if (_entity == null) {
+    if (_vtentity == null) {
       return;
     }
-    final newTemplates = List<VTTemplateAttribute>.from(_entity!.templates);
+    final newTemplates = List<VTTemplateAttribute>.from(_vtentity!.templates);
     const newTemplate = VTTemplateAttribute(
       name: 'NewTemplate',
       fkOpts: '',
@@ -159,35 +167,42 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       vtAttrName: '',
     );
     newTemplates.add(newTemplate);
-    final newEntity = _entity!.copyWith(templates: newTemplates);
+    final newEntity = _vtentity!.copyWith(templates: newTemplates);
 
-    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newEntity.toApi()));
-    _entity = newEntity;
+    await updateEntity(newEntity);
+    _vtentity = newEntity;
   }
 
   Stream<EditorState> _mapEntityModeChangedToState(EntityModeChanged event) async* {
-    if (_entity == null) {
+    if (_vtentity == null) {
       return;
     }
 
-    final newEntity = _entity!.copyWith(mode: event.mode);
+    final newEntity = _vtentity!.copyWith(mode: event.mode);
 
-    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newEntity.toApi()));
-    _entity = newEntity;
+    await updateEntity(newEntity);
+    _vtentity = newEntity;
 
-    yield EditorEntityLoadSuccess(_entity!);
+    yield EditorEntityLoadSuccess(_vtentity!, _entity!);
   }
 
   Stream<EditorState> _mapEntityTerminalPathChangedToState(EntityTerminalPathChanged event) async* {
-    if (_entity == null) {
+    if (_vtentity == null) {
       return;
     }
 
-    final newEntity = _entity!.copyWith(terminalPath: event.terminalPath);
+    final newEntity = _vtentity!.copyWith(terminalPath: event.terminalPath);
 
-    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newEntity.toApi()));
-    _entity = newEntity;
+    await updateEntity(newEntity);
+    _vtentity = newEntity;
 
-    yield EditorEntityLoadSuccess(_entity!);
+    yield EditorEntityLoadSuccess(_vtentity!, _entity!);
+  }
+
+  Future<void> updateEntity(VTEntity newEntity) async {
+    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(
+      entity: newEntity.toApi(),
+      namespace: newEntity.namespace,
+    ));
   }
 }

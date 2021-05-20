@@ -167,6 +167,19 @@ class _ServicePublic {
     });
   }
 
+  Future<List<String?>?> hTMLTypes(PublicHTMLTypesArgs args) {
+    return Future(() async {
+      final response = await _client.call('public.hTMLTypes', args) as List?;
+      final responseList = response?.map((e) {
+        if (e == null) {
+          return null;
+        }
+        return e as String;
+      });
+      return responseList?.toList();
+    });
+  }
+
   // Gets all available entity modes
   Future<List<String?>?> modes(PublicModesArgs args) {
     return Future(() async {
@@ -233,6 +246,15 @@ class PublicGoPGVersionsArgs {
   factory PublicGoPGVersionsArgs.fromJson(Map<String, dynamic> json) => _$PublicGoPGVersionsArgsFromJson(json);
 
   Map<String, dynamic> toJson() => _$PublicGoPGVersionsArgsToJson(this);
+}
+
+@JsonSerializable(includeIfNull: false, explicitToJson: true)
+class PublicHTMLTypesArgs {
+  PublicHTMLTypesArgs();
+
+  factory PublicHTMLTypesArgs.fromJson(Map<String, dynamic> json) => _$PublicHTMLTypesArgsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PublicHTMLTypesArgsToJson(this);
 }
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
