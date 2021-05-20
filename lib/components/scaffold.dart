@@ -137,3 +137,17 @@ class _MenuButton extends StatelessWidget {
     );
   }
 }
+
+class MFDDrawer extends StatelessWidget {
+  const MFDDrawer({Key? key, required this.child}) : super(key: key);
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      elevation: 8,
+      child: child,
+    );
+  }
+}

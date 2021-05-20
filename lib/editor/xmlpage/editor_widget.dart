@@ -98,7 +98,7 @@ class EntityView extends StatelessWidget {
           _MainParameters(editorBloc: editorBloc, state: state),
           AttributesTable(editorBloc: editorBloc),
           const SliverToBoxAdapter(child: SizedBox(height: 56)),
-          SearchesTable(editorBloc: editorBloc),
+          SearchesTable(editorBloc: editorBloc, attributes: state.entity.attributes),
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),

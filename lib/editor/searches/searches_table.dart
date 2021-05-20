@@ -9,9 +9,10 @@ import 'package:mfdui/ui/go_code.dart';
 import 'package:mfdui/ui/ui.dart';
 
 class SearchesTable extends StatelessWidget {
-  SearchesTable({Key? key, required this.editorBloc}) : super(key: key);
+  SearchesTable({Key? key, required this.editorBloc, this.attributes}) : super(key: key);
 
   final EditorBloc editorBloc;
+  final List<Attribute>? attributes;
 
   List<TableColumn<Search>> get columns {
     return [
@@ -30,7 +31,9 @@ class SearchesTable extends StatelessWidget {
         builder: (context, index, row) {
           return MFDAutocomplete(
             initialValue: row.attrName,
-            optionsLoader: null,
+            optionsLoader: (query) {
+              return Future.value(attributes?.map((e) => e.name) ?? []);
+            },
             onSubmitted: (value) => editorBloc.add(EntitySearchChanged(index, row.copyWith(attrName: value))),
           );
         },

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mfdui/components/scaffold.dart';
 import 'package:mfdui/editor/namespace_autocomplete.dart';
 import 'package:mfdui/editor/table_autocomplete.dart';
 import 'package:mfdui/editor/xmlpage/editor_bloc.dart';
@@ -10,7 +11,7 @@ import 'package:mfdui/ui/ui.dart';
 class XMLMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Drawer(
+    return MFDDrawer(
       child: BlocBuilder<ProjectBloc, ProjectState>(
         builder: (context, state) {
           if (state is! ProjectLoadSuccess) {

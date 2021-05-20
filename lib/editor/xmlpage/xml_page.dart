@@ -29,8 +29,8 @@ class XMLPage extends StatelessWidget {
       child: MFDScaffold(
         body: Row(
           children: [
-            XMLMenu(),
-            Expanded(child: XMLEditorWidget()),
+            Flexible(flex: 1, child: XMLMenu()),
+            Expanded(flex: 5, child: XMLEditorWidget()),
           ],
         ),
       ),
