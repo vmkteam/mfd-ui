@@ -31,11 +31,15 @@ class _GoCodeEditState extends State<GoCodeField> {
       decoration: InputDecoration(
         border: const OutlineInputBorder(),
         labelText: 'Go',
+        labelStyle: const TextStyle(fontSize: 20),
         suffixIcon: IconButton(
           splashRadius: 20,
           icon: const Icon(Icons.copy),
           tooltip: 'Copy to clipboard',
-          onPressed: () => Clipboard.setData(ClipboardData(text: _controller.text)),
+          onPressed: () {
+            Clipboard.setData(ClipboardData(text: _controller.text));
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied!')));
+          },
         ),
       ),
       style: const TextStyle(fontFamily: 'FiraCode', fontSize: 13),

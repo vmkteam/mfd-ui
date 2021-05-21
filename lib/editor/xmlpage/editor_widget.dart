@@ -8,7 +8,6 @@ import 'package:mfdui/editor/table_autocomplete.dart';
 import 'package:mfdui/editor/xmlpage/editor_bloc.dart';
 import 'package:mfdui/project/project.dart';
 import 'package:mfdui/services/api/api_client.dart';
-import 'package:mfdui/ui/ui.dart';
 
 class XMLEditorWidget extends StatefulWidget {
   @override
@@ -18,27 +17,25 @@ class XMLEditorWidget extends StatefulWidget {
 class _XMLEditorWidgetState extends State<XMLEditorWidget> {
   @override
   Widget build(BuildContext context) {
-    return Unfocuser(
-      child: BlocBuilder<EditorBloc, EditorState>(
-        builder: (context, state) {
-          if (state is EditorInitial) {
-            return Container();
-          }
-          if (state is EditorEntityLoadInProgress) {
-            return buildEntityLoader(context, state);
-          }
-          if (state is EditorEntityLoadFailed) {
-            return buildEntityLoadFailed(context, state);
-          }
-          if (state is EditorEntityLoadSuccess) {
-            return EntityView(
-              state: state,
-              editorBloc: BlocProvider.of<EditorBloc>(context),
-            );
-          }
+    return BlocBuilder<EditorBloc, EditorState>(
+      builder: (context, state) {
+        if (state is EditorInitial) {
           return Container();
-        },
-      ),
+        }
+        if (state is EditorEntityLoadInProgress) {
+          return buildEntityLoader(context, state);
+        }
+        if (state is EditorEntityLoadFailed) {
+          return buildEntityLoadFailed(context, state);
+        }
+        if (state is EditorEntityLoadSuccess) {
+          return EntityView(
+            state: state,
+            editorBloc: BlocProvider.of<EditorBloc>(context),
+          );
+        }
+        return Container();
+      },
     );
   }
 
@@ -99,7 +96,7 @@ class EntityView extends StatelessWidget {
           AttributesTable(editorBloc: editorBloc),
           const SliverToBoxAdapter(child: SizedBox(height: 56)),
           SearchesTable(editorBloc: editorBloc, attributes: state.entity.attributes),
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          const SliverFillRemaining(),
         ],
       ),
     );

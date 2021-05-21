@@ -12,11 +12,16 @@ import 'package:mfdui/ui/ui.dart';
 part 'dbtype_autocomplete.dart';
 part 'gotype_autocomplete.dart';
 
-class AttributesTable extends StatelessWidget {
-  AttributesTable({Key? key, required this.editorBloc}) : super(key: key);
+class AttributesTable extends StatefulWidget {
+  const AttributesTable({Key? key, required this.editorBloc}) : super(key: key);
 
   final EditorBloc editorBloc;
 
+  @override
+  _AttributesTableState createState() => _AttributesTableState();
+}
+
+class _AttributesTableState extends State<AttributesTable> {
   List<TableColumn<Attribute>> get columns {
     return [
       TableColumn(
@@ -30,7 +35,7 @@ class AttributesTable extends StatelessWidget {
           return Center(
             child: CheckboxStateful(
               value: row.primaryKey,
-              onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(primaryKey: value))),
+              onChanged: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(primaryKey: value))),
             ),
           );
         },
@@ -41,7 +46,7 @@ class AttributesTable extends StatelessWidget {
           return MFDAutocomplete(
             initialValue: row.name,
             optionsLoader: null,
-            onSubmitted: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(name: value))),
+            onSubmitted: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(name: value))),
           );
         },
       ),
@@ -51,20 +56,20 @@ class AttributesTable extends StatelessWidget {
           return MFDAutocomplete(
             initialValue: row.dbName,
             optionsLoader: null,
-            onSubmitted: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(dbName: value))),
+            onSubmitted: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(dbName: value))),
           );
         },
       ),
       TableColumn(
-        header: const Header(),
-        builder: (context, rowIndex, row) => const SizedBox(width: 45),
+        header: Header(child: Container(width: 1, color: Colors.grey.shade300)),
+        builder: (context, rowIndex, row) => Container(width: 1, color: Colors.grey.shade300),
       ),
       TableColumn(
         header: const Header(label: 'DB type'),
         builder: (context, index, row) {
           return DBTypeAutocomplete(
             value: row.dbType,
-            onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(dbType: value))),
+            onChanged: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(dbType: value))),
           );
         },
       ),
@@ -74,7 +79,7 @@ class AttributesTable extends StatelessWidget {
           return Center(
             child: CheckboxStateful(
               value: row.isArray,
-              onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(isArray: value))),
+              onChanged: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(isArray: value))),
             ),
           );
         },
@@ -85,16 +90,23 @@ class AttributesTable extends StatelessWidget {
           return Center(
             child: CheckboxStateful(
               value: row.nullable,
-              onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(nullable: value))),
+              onChanged: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(nullable: value))),
             ),
           );
         },
       ),
       TableColumn(
         header: const Header(),
-        builder: (context, rowIndex, row) => const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 5),
-          child: Icon(Icons.arrow_forward, color: Colors.black26),
+        builder: (context, rowIndex, row) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 3),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_forward, color: Colors.black26, size: 14),
+            tooltip: 'Complete go type',
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('not implemented')));
+            },
+            splashRadius: 20,
+          ),
         ),
       ),
       TableColumn(
@@ -102,13 +114,13 @@ class AttributesTable extends StatelessWidget {
         builder: (context, index, row) {
           return GoTypeAutocomplete(
             value: row.goType,
-            onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(goType: value))),
+            onChanged: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(goType: value))),
           );
         },
       ),
       TableColumn(
-        header: const Header(),
-        builder: (context, rowIndex, row) => const SizedBox(width: 45),
+        header: Header(child: Container(width: 1, color: Colors.grey.shade300)),
+        builder: (context, rowIndex, row) => Container(width: 1, color: Colors.grey.shade300),
       ),
       TableColumn(
         header: const Header(label: 'Addable'),
@@ -116,7 +128,7 @@ class AttributesTable extends StatelessWidget {
           return Center(
             child: CheckboxStateful(
               value: row.addable,
-              onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(addable: value))),
+              onChanged: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(addable: value))),
             ),
           );
         },
@@ -127,7 +139,7 @@ class AttributesTable extends StatelessWidget {
           return Center(
             child: CheckboxStateful(
               value: row.updatable,
-              onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(updatable: value))),
+              onChanged: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(updatable: value))),
             ),
           );
         },
@@ -140,7 +152,7 @@ class AttributesTable extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.close, color: Theme.of(context).errorColor),
                 tooltip: 'Remove attribute',
-                onPressed: () => editorBloc.add(EntityAttributeDeleted(index)),
+                onPressed: () => widget.editorBloc.add(EntityAttributeDeleted(index)),
                 splashRadius: 19,
               )
             ],
@@ -152,7 +164,7 @@ class AttributesTable extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.add, color: Colors.green),
                 tooltip: 'Add attribute',
-                onPressed: () => editorBloc.add(EntityAttributeAdded()),
+                onPressed: () => widget.editorBloc.add(EntityAttributeAdded()),
                 splashRadius: 19,
               )
             ],
@@ -163,6 +175,7 @@ class AttributesTable extends StatelessWidget {
   }
 
   final ScrollController scrollController1 = ScrollController();
+  bool previewCode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -186,50 +199,56 @@ class AttributesTable extends StatelessWidget {
                         return const SizedBox.shrink();
                       },
                     ),
-                    // todo: add on click and regenerate?
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 30),
-                      child: Icon(Icons.double_arrow, color: Colors.black26),
-                    ),
-                    SizedBox(
-                      width: 400,
-                      child: BlocBuilder<EditorBloc, EditorState>(
-                        builder: (context, state) {
-                          if (state is! EditorEntityLoadSuccess) {
-                            return const SizedBox.shrink();
-                          }
-                          return FutureBuilder<String>(
-                            initialData: '',
-                            future: RepositoryProvider.of<api.ApiClient>(context)
-                                .xml
-                                .generateModelCode(api.XmlGenerateModelCodeArgs(
-                                  entity: state.entity.toApi(),
-                                ))
-                                .then((value) => value ?? ''),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState != ConnectionState.done) {
-                                return const SizedBox(width: 50, height: 50, child: Center(child: CircularProgressIndicator()));
-                              }
-                              return GoCodeField(
-                                code: snapshot.data!,
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ),
                   ],
                 ),
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: TextButton.icon(
+              icon: const Icon(Icons.preview),
+              label: const Text('Preview code'),
+              onPressed: () {
+                setState(() {
+                  previewCode = true;
+                });
+              },
+            ),
+          ),
+          if (previewCode)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: SizedBox(
+                width: 400,
+                child: BlocBuilder<EditorBloc, EditorState>(
+                  builder: (context, state) {
+                    if (state is! EditorEntityLoadSuccess) {
+                      return const SizedBox.shrink();
+                    }
+                    return FutureBuilder<String>(
+                      initialData: '',
+                      future: RepositoryProvider.of<api.ApiClient>(context)
+                          .xml
+                          .generateModelCode(api.XmlGenerateModelCodeArgs(
+                            entity: state.entity.toApi(),
+                          ))
+                          .then((value) => value ?? ''),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState != ConnectionState.done) {
+                          return const SizedBox(width: 50, height: 50, child: Center(child: CircularProgressIndicator()));
+                        }
+                        return GoCodeField(
+                          code: snapshot.data!,
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
 }
-
-const _gocodeex = '''
-type Model struct {
-  Field1 string `json:"field1"`
-}''';

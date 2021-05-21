@@ -29,7 +29,7 @@ typedef OptionsLoader = Future<Iterable<String>> Function(TextEditingValue query
 class _MFDAutocompleteState extends State<MFDAutocomplete> {
   late TextEditingController _controller;
   final LayerLink _optionsLayerLink = LayerLink();
-  final FocusNode _focusNode = FocusNode();
+  final FocusNode _focusNode = FocusNode(onKey: _onKey);
 
   bool isLoading = false;
   OverlayEntry? _optionsOverlay;
@@ -64,7 +64,13 @@ class _MFDAutocompleteState extends State<MFDAutocomplete> {
         controller: _controller,
         inputFormatters: widget.inputFormatters,
         onEditingComplete: _onSubmitted,
-        decoration: widget.decoration ??
+        decoration: widget.decoration?.copyWith(
+              contentPadding: const EdgeInsets.all(6),
+              border: OutlineInputBorder(
+                gapPadding: 1,
+                borderSide: _focusNode.hasFocus ? const BorderSide() : const BorderSide(style: BorderStyle.none, width: 0),
+              ),
+            ) ??
             InputDecoration(
               contentPadding: const EdgeInsets.all(6),
               border: OutlineInputBorder(
@@ -160,6 +166,14 @@ class _MFDAutocompleteState extends State<MFDAutocomplete> {
       _select(_options.first);
     }
   }
+
+  static KeyEventResult _onKey(FocusNode node, RawKeyEvent event) {
+    if (event.isKeyPressed(LogicalKeyboardKey.escape)) {
+      node.unfocus();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
 }
 
 class _AutocompleteOptions extends StatelessWidget {
@@ -184,33 +198,37 @@ class _AutocompleteOptions extends StatelessWidget {
     } else if (options.isEmpty) {
       content = const SizedBox.shrink();
     } else {
-      content = ListView.builder(
-        padding: EdgeInsets.zero,
-        itemCount: options.length,
-        itemBuilder: (BuildContext context, int index) {
-          final option = options.elementAt(index);
-          return ListTile(
-            selected: index == 0,
-            onTap: () {
-              onSelected(option);
-            },
-            title: Text(option),
-          );
-        },
+      content = Scrollbar(
+        child: ListView.builder(
+          padding: EdgeInsets.zero,
+          itemCount: options.length,
+          itemBuilder: (BuildContext context, int index) {
+            final option = options.elementAt(index);
+            return ListTile(
+              selected: index == 0,
+              onTap: () {
+                onSelected(option);
+              },
+              title: Text(option),
+            );
+          },
+        ),
       );
     }
-    return Align(
-      alignment: Alignment.topLeft,
-      child: Material(
-        elevation: 4.0,
-        child: Container(
-          constraints: BoxConstraints(
-            minHeight: 0,
-            minWidth: isLoading ? 0 : 300,
-            maxHeight: 300,
-            maxWidth: max(size?.width ?? 0, isLoading ? 0 : 300),
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: Material(
+          elevation: 4.0,
+          child: Container(
+            constraints: BoxConstraints(
+              minHeight: 0,
+              minWidth: isLoading ? 0 : 300,
+              maxHeight: 300,
+              maxWidth: max(size?.width ?? 0, isLoading ? 0 : 300),
+            ),
+            child: content,
           ),
-          child: content,
         ),
       ),
     );

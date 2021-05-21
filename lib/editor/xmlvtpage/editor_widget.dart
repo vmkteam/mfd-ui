@@ -94,10 +94,10 @@ class EntityView extends StatelessWidget {
             namespaceName: state.vtentity.namespace,
           ),
           _MainParameters(editorBloc: editorBloc, state: state),
-          AttributesTable(editorBloc: editorBloc),
+          AttributesTable(editorBloc: editorBloc, state: state),
           const SliverToBoxAdapter(child: SizedBox(height: 56)),
-          VTTemplateTable(editorBloc: editorBloc),
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          VTTemplateTable(editorBloc: editorBloc, state: state),
+          const SliverFillRemaining(),
         ],
       ),
     );
@@ -279,9 +279,10 @@ class VTModeDropdown extends StatelessWidget {
 enum VTEntityMode { None, ReadOnly, ReadOnlyWithTemplates, Full }
 
 class AttributesTable extends StatelessWidget {
-  AttributesTable({Key? key, required this.editorBloc}) : super(key: key);
+  AttributesTable({Key? key, required this.editorBloc, required this.state}) : super(key: key);
 
   final EditorBloc editorBloc;
+  final EditorEntityLoadSuccess state;
 
   List<TableColumn<VTAttribute>> get columns {
     return [
@@ -297,18 +298,26 @@ class AttributesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header(label: 'AttrName'),
+        header: const Header(
+          label: 'AttrName',
+          tooltip: 'One of model attributes',
+        ),
         builder: (context, index, row) {
           final name = MFDAutocomplete(
             initialValue: row.attrName,
-            optionsLoader: null,
+            optionsLoader: (query) {
+              return Future.value(state.entity.attributes.map((e) => e.name));
+            },
             onSubmitted: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(attrName: value))),
           );
           return name;
         },
       ),
       TableColumn(
-        header: const Header(label: 'Required'),
+        header: const Header(
+          label: 'Required',
+          tooltip: 'Indicates that this parameter should not be null in add or update methods.',
+        ),
         builder: (context, index, row) {
           return Center(
             child: CheckboxStateful(
@@ -319,7 +328,10 @@ class AttributesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header(label: 'Summary'),
+        header: const Header(
+          label: 'Summary',
+          tooltip: 'Parameter would be represented in Summary model, that is used in lists.',
+        ),
         builder: (context, index, row) {
           return Center(
             child: CheckboxStateful(
@@ -330,7 +342,10 @@ class AttributesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header(label: 'Search'),
+        header: const Header(
+          label: 'Search',
+          tooltip: 'Parameter would be represented in Search model.',
+        ),
         builder: (context, index, row) {
           return Center(
             child: CheckboxStateful(
@@ -341,17 +356,24 @@ class AttributesTable extends StatelessWidget {
         },
       ),
       TableColumn(
-        header: const Header(label: 'Search Name'),
+        header: const Header(
+          label: 'Search Name',
+          tooltip: 'Linked Search from xml model.',
+        ),
         builder: (context, index, row) {
           return MFDAutocomplete(
             initialValue: row.searchName,
-            optionsLoader: null,
+            optionsLoader: (query) {
+              final attrs = state.entity.attributes.map((e) => e.name);
+              final searches = state.entity.searches.map((e) => e.name);
+              return Future.value([...attrs, ...searches]);
+            },
             onSubmitted: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(searchName: value))),
           );
         },
       ),
       TableColumn(
-        header: const Header(label: 'Validate'),
+        header: const Header(label: 'Validate rule'),
         builder: (context, index, row) {
           return MFDAutocomplete(
             initialValue: row.validate,
@@ -397,7 +419,9 @@ class AttributesTable extends StatelessWidget {
     return SliverList(
       delegate: SliverChildListDelegate(
         [
-          ListTile(title: Text('Attributes', style: Theme.of(context).textTheme.headline5)),
+          ListTile(
+            title: Text('VT Attributes', style: Theme.of(context).textTheme.headline5),
+          ),
           Center(
             child: Scrollbar(
               controller: scrollController1,
@@ -422,9 +446,10 @@ class AttributesTable extends StatelessWidget {
 }
 
 class VTTemplateTable extends StatelessWidget {
-  VTTemplateTable({Key? key, required this.editorBloc}) : super(key: key);
+  VTTemplateTable({Key? key, required this.editorBloc, required this.state}) : super(key: key);
 
   final EditorBloc editorBloc;
+  final EditorEntityLoadSuccess state;
 
   List<TableColumn<VTTemplateAttribute>> get columns {
     return [
@@ -444,7 +469,7 @@ class VTTemplateTable extends StatelessWidget {
         builder: (context, index, row) {
           final name = MFDAutocomplete(
             initialValue: row.vtAttrName,
-            optionsLoader: null,
+            optionsLoader: (query) => Future.value(state.vtentity.attributes.map((e) => e.name)),
             onSubmitted: (value) => editorBloc.add(EntityTemplateChanged(index, row.copyWith(vtAttrName: value))),
           );
           return name;
@@ -471,11 +496,23 @@ class VTTemplateTable extends StatelessWidget {
       TableColumn(
         header: const Header(label: 'List'),
         builder: (context, index, row) {
+          bool hasSummary = false;
+          try {
+            final connectedAttr = state.vtentity.attributes.firstWhere((element) => element.name == row.vtAttrName);
+            hasSummary = connectedAttr.summary;
+          } on StateError {
+            // ignore
+          }
+          Widget checkbox = CheckboxStateful(
+            value: row.list,
+            activeColor: !hasSummary && row.list ? Colors.orange : null,
+            onChanged: (value) => editorBloc.add(EntityTemplateChanged(index, row.copyWith(list: value))),
+          );
+          if (!hasSummary && row.list) {
+            checkbox = Tooltip(message: 'Attribute not in Summary model', child: checkbox);
+          }
           return Center(
-            child: CheckboxStateful(
-              value: row.list,
-              onChanged: (value) => editorBloc.add(EntityTemplateChanged(index, row.copyWith(list: value))),
-            ),
+            child: checkbox,
           );
         },
       ),
@@ -571,7 +608,7 @@ class HTMLTypeAutocomplete extends StatelessWidget {
         return RepositoryProvider.of<PublicRepo>(context).htmlTypes('').then((value) => value.toList());
       },
       itemBuilder: (value) {
-        final enumVal = HTMLType.values.firstWhere((element) => describeEnum(element) == value, orElse: () => HTMLType.HTML_NONE);
+        final enumVal = HTMLType.values.firstWhere((element) => describeEnum(element) == value, orElse: () => HTMLType.HTML_UNKNOWN);
         final enumText = _htmlTypeDisplayText(enumVal);
         String mainText = value;
         if (mainText.startsWith('HTML_')) {
@@ -601,6 +638,8 @@ class HTMLTypeAutocomplete extends StatelessWidget {
 
   String? _htmlTypeDisplayText(HTMLType enumVal) {
     switch (enumVal) {
+      case HTMLType.HTML_UNKNOWN:
+        return '';
       case HTMLType.HTML_NONE:
         return 'hidden';
       case HTMLType.HTML_INPUT:
@@ -631,6 +670,7 @@ class HTMLTypeAutocomplete extends StatelessWidget {
 }
 
 enum HTMLType {
+  HTML_UNKNOWN,
   HTML_NONE,
   HTML_INPUT,
   HTML_TEXT,

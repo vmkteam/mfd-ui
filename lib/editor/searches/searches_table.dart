@@ -8,12 +8,17 @@ import 'package:mfdui/services/api/api_client.dart';
 import 'package:mfdui/ui/go_code.dart';
 import 'package:mfdui/ui/ui.dart';
 
-class SearchesTable extends StatelessWidget {
-  SearchesTable({Key? key, required this.editorBloc, this.attributes}) : super(key: key);
+class SearchesTable extends StatefulWidget {
+  const SearchesTable({Key? key, required this.editorBloc, this.attributes}) : super(key: key);
 
   final EditorBloc editorBloc;
   final List<Attribute>? attributes;
 
+  @override
+  _SearchesTableState createState() => _SearchesTableState();
+}
+
+class _SearchesTableState extends State<SearchesTable> {
   List<TableColumn<Search>> get columns {
     return [
       TableColumn(
@@ -22,7 +27,7 @@ class SearchesTable extends StatelessWidget {
           return MFDAutocomplete(
             initialValue: row.name,
             optionsLoader: null,
-            onSubmitted: (value) => editorBloc.add(EntitySearchChanged(index, row.copyWith(name: value))),
+            onSubmitted: (value) => widget.editorBloc.add(EntitySearchChanged(index, row.copyWith(name: value))),
           );
         },
       ),
@@ -32,26 +37,30 @@ class SearchesTable extends StatelessWidget {
           return MFDAutocomplete(
             initialValue: row.attrName,
             optionsLoader: (query) {
-              return Future.value(attributes?.map((e) => e.name) ?? []);
+              return Future.value(widget.attributes?.map((e) => e.name) ?? []);
             },
-            onSubmitted: (value) => editorBloc.add(EntitySearchChanged(index, row.copyWith(attrName: value))),
+            onSubmitted: (value) => widget.editorBloc.add(EntitySearchChanged(index, row.copyWith(attrName: value))),
           );
         },
       ),
       TableColumn(
         header: const Header(label: 'Type'),
         builder: (context, index, row) {
-          final state = editorBloc.state;
+          final state = widget.editorBloc.state;
           late final String columnName;
           if (state is EditorEntityLoadSuccess) {
-            columnName = state.entity.attributes.firstWhere((element) => element.name == row.attrName).dbName;
+            try {
+              columnName = state.entity.attributes.firstWhere((element) => element.name == row.attrName).dbName;
+            } on StateError catch (e) {
+              columnName = '';
+            }
           } else {
             columnName = row.attrName;
           }
           return SearchTypeAutocomplete(
             value: row.searchType,
             columnName: columnName,
-            onSubmitted: (value) => editorBloc.add(EntitySearchChanged(index, row.copyWith(searchType: value))),
+            onSubmitted: (value) => widget.editorBloc.add(EntitySearchChanged(index, row.copyWith(searchType: value))),
           );
         },
       ),
@@ -63,7 +72,7 @@ class SearchesTable extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.close, color: Theme.of(context).errorColor),
                 tooltip: 'Remove search',
-                onPressed: () => editorBloc.add(EntitySearchDeleted(index)),
+                onPressed: () => widget.editorBloc.add(EntitySearchDeleted(index)),
                 splashRadius: 19,
               )
             ],
@@ -75,7 +84,7 @@ class SearchesTable extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.add, color: Colors.green),
                 tooltip: 'Add search',
-                onPressed: () => editorBloc.add(EntitySearchAdded()),
+                onPressed: () => widget.editorBloc.add(EntitySearchAdded()),
                 splashRadius: 19,
               )
             ],
@@ -86,6 +95,7 @@ class SearchesTable extends StatelessWidget {
   }
 
   final ScrollController scrollController1 = ScrollController();
+  bool previewCode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -114,46 +124,53 @@ class SearchesTable extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: 50, vertical: 30),
                       child: Icon(Icons.double_arrow, color: Colors.black26),
                     ),
-                    SizedBox(
-                      width: 400,
-                      child: BlocBuilder<EditorBloc, EditorState>(
-                        builder: (context, state) {
-                          if (state is! EditorEntityLoadSuccess) {
-                            return const SizedBox.shrink();
-                          }
-                          return FutureBuilder<String>(
-                            initialData: '',
-                            future: RepositoryProvider.of<ApiClient>(context)
-                                .xml
-                                .generateSearchModelCode(XmlGenerateSearchModelCodeArgs(
-                                  entity: state.entity.toApi(),
-                                ))
-                                .then((value) => value ?? ''),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState != ConnectionState.done) {
-                                return const SizedBox(width: 50, height: 50, child: Center(child: CircularProgressIndicator()));
-                              }
-                              return GoCodeField(
-                                code: snapshot.data!,
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ),
                   ],
                 ),
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: TextButton.icon(
+              icon: const Icon(Icons.preview),
+              label: const Text('Preview code'),
+              onPressed: () {
+                setState(() {
+                  previewCode = true;
+                });
+              },
+            ),
+          ),
+          if (previewCode)
+            SizedBox(
+              width: 400,
+              child: BlocBuilder<EditorBloc, EditorState>(
+                builder: (context, state) {
+                  if (state is! EditorEntityLoadSuccess) {
+                    return const SizedBox.shrink();
+                  }
+                  return FutureBuilder<String>(
+                    initialData: '',
+                    future: RepositoryProvider.of<ApiClient>(context)
+                        .xml
+                        .generateSearchModelCode(XmlGenerateSearchModelCodeArgs(
+                          entity: state.entity.toApi(),
+                        ))
+                        .then((value) => value ?? ''),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState != ConnectionState.done) {
+                        return const SizedBox(width: 50, height: 50, child: Center(child: CircularProgressIndicator()));
+                      }
+                      return GoCodeField(
+                        code: snapshot.data!,
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
         ],
       ),
     );
   }
 }
-
-const _gocodeex = '''
-type ModelSearch struct {
-  SearchField1 *string `json:"field1"`
-  SearchField2 *int    `json:"field1"`
-}''';

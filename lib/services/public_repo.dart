@@ -5,7 +5,7 @@ class PublicRepo {
     _goTypes = _Cached(() => _apiClient.public.types(PublicTypesArgs()).then((value) => value!.map((e) => e!).toList()));
     _dbTypes = _Cached(() => _apiClient.public.dBTypes(PublicDBTypesArgs()).then((value) => value!.map((e) => e!).toList()));
     _searchTypes = _Cached(() => _apiClient.public.searchTypes(PublicSearchTypesArgs()).then((value) => value!.map((e) => e!).toList()));
-    _htmlTypes = _Cached(() => _apiClient.public.hTMLTypes(PublicHTMLTypesArgs()).then((value) => value!.map((e) => e!).toList()));
+    _htmlTypes = _Cached(() => _apiClient.public.hTMLTypes(PublicHTMLTypesArgs()).then((value) => value!.map((e) => e!).toList()..insert(0, '')));
   }
 
   final ApiClient _apiClient;

@@ -34,6 +34,7 @@ dependencies:
   flutter_bloc: ^7.0.0
   shared_preferences: ^2.0.5
   equatable: ^2.0.0
+  editable: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -87,4 +88,4 @@ flutter:
   fonts:
     - family: 'FiraCode'
       fonts:
-        - asset: assets/FiraCode-Regular.woff2
+        - asset: fonts/FiraCode-Regular.woff2

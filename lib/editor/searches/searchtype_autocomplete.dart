@@ -163,9 +163,11 @@ class __DropdownBuilderState<T> extends State<_DropdownBuilder<T>> {
 
   Future<void> loadItems() async {
     final result = await widget.itemsLoader();
-    setState(() {
-      items = result;
-    });
+    if (mounted) {
+      setState(() {
+        items = result;
+      });
+    }
   }
 }
 

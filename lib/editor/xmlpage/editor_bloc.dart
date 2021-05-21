@@ -155,11 +155,14 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     if (_entity == null) {
       return;
     }
+    if (_entity!.attributes.isEmpty) {
+      return;
+    }
     final newSearches = List<Search>.from(_entity!.searches);
-    const newSearch = Search(
+    final newSearch = Search(
       name: 'NewSearch',
-      attrName: '',
-      searchType: '',
+      attrName: _entity!.attributes[0].name,
+      searchType: 'SEARCHTYPE_EQUALS',
     );
     newSearches.add(newSearch);
     final newEntity = _entity!.copyWith(searches: newSearches);
