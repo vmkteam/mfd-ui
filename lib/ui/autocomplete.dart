@@ -12,7 +12,7 @@ class MFDAutocomplete extends StatefulWidget {
     this.inputFormatters,
   }) : super(key: key);
 
-  final String initialValue;
+  final String? initialValue;
   final bool preload;
   final bool loadOnTap;
   final OptionsLoader? optionsLoader;
@@ -225,7 +225,7 @@ class _AutocompleteOptions extends StatelessWidget {
               minHeight: 0,
               minWidth: isLoading ? 0 : 300,
               maxHeight: 300,
-              maxWidth: max(size?.width ?? 0, isLoading ? 0 : 300),
+              maxWidth: math.max(size?.width ?? 0, isLoading ? 0 : 300),
             ),
             child: content,
           ),

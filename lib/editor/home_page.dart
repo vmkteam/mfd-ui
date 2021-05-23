@@ -20,7 +20,7 @@ class HomePage extends StatelessWidget {
                   MFDActionCard(
                     title: Row(
                       children: [
-                        const Text('Welcome to MFD UI'),
+                        const Text('Welcome to MFD Edit'),
                         const Spacer(),
                         SizedBox(
                           height: 38,

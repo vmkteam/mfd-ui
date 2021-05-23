@@ -257,6 +257,7 @@ class Search {
     required this.attrName,
     required this.name,
     required this.searchType,
+    this.goType,
   });
 
   factory Search.fromApi(api.MfdSearches search) {
@@ -264,6 +265,7 @@ class Search {
       attrName: search.attrName!,
       name: search.name!,
       searchType: search.searchType!,
+      goType: search.goType,
     );
   }
 
@@ -272,6 +274,7 @@ class Search {
       name: name,
       attrName: attrName,
       searchType: searchType,
+      goType: goType,
     );
   }
 
@@ -279,17 +282,20 @@ class Search {
     String? name,
     String? attrName,
     String? searchType,
+    String? goType,
   }) {
     return Search(
       name: name ?? this.name,
       attrName: attrName ?? this.attrName,
       searchType: searchType ?? this.searchType,
+      goType: goType ?? this.goType,
     );
   }
 
   final String name;
   final String attrName;
   final String searchType;
+  final String? goType;
 }
 
 class VTEntity {

@@ -65,6 +65,21 @@ class _SearchesTableState extends State<SearchesTable> {
         },
       ),
       TableColumn(
+        header: const Header(
+          label: 'Go type',
+          tooltip: 'Type search that is used for search. Available only with JSONB_PATH search.',
+        ),
+        builder: (context, rowIndex, row) {
+          return MFDAutocomplete(
+            // decoration: InputDecoration(),
+            initialValue: row.goType,
+            optionsLoader: (query) {
+              return Future.value(_searchAvailableGoTypes);
+            },
+          );
+        },
+      ),
+      TableColumn(
         header: const Header(),
         builder: (context, index, row) {
           return Row(
@@ -142,31 +157,34 @@ class _SearchesTableState extends State<SearchesTable> {
             ),
           ),
           if (previewCode)
-            SizedBox(
-              width: 400,
-              child: BlocBuilder<EditorBloc, EditorState>(
-                builder: (context, state) {
-                  if (state is! EditorEntityLoadSuccess) {
-                    return const SizedBox.shrink();
-                  }
-                  return FutureBuilder<String>(
-                    initialData: '',
-                    future: RepositoryProvider.of<ApiClient>(context)
-                        .xml
-                        .generateSearchModelCode(XmlGenerateSearchModelCodeArgs(
-                          entity: state.entity.toApi(),
-                        ))
-                        .then((value) => value ?? ''),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState != ConnectionState.done) {
-                        return const SizedBox(width: 50, height: 50, child: Center(child: CircularProgressIndicator()));
-                      }
-                      return GoCodeField(
-                        code: snapshot.data!,
-                      );
-                    },
-                  );
-                },
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: SizedBox(
+                width: 400,
+                child: BlocBuilder<EditorBloc, EditorState>(
+                  builder: (context, state) {
+                    if (state is! EditorEntityLoadSuccess) {
+                      return const SizedBox.shrink();
+                    }
+                    return FutureBuilder<String>(
+                      initialData: '',
+                      future: RepositoryProvider.of<ApiClient>(context)
+                          .xml
+                          .generateSearchModelCode(XmlGenerateSearchModelCodeArgs(
+                            entity: state.entity.toApi(),
+                          ))
+                          .then((value) => value ?? ''),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState != ConnectionState.done) {
+                          return const SizedBox(width: 50, height: 50, child: Center(child: CircularProgressIndicator()));
+                        }
+                        return GoCodeField(
+                          code: snapshot.data!,
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
             ),
         ],
@@ -174,3 +192,21 @@ class _SearchesTableState extends State<SearchesTable> {
     );
   }
 }
+
+final _searchAvailableGoTypes = [
+  'string',
+  'int',
+  'bool',
+  'float64',
+  'uint',
+  'int64',
+  'uint64',
+  'float32',
+].expand((element) => [element, '[]$element']);
+
+const _attributeHelper = '''
+Attribute - applies to attribute
+FKEntity.Attribute - applies to foreign entity attribute
+AttributeJson->path->to->json->field - uses search for jsonb field''';
+
+final _attributesHelperLines = '\n'.allMatches(_attributeHelper).length + 1;

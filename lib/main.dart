@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
           ),
         ],
         child: MaterialApp(
-          title: 'MFDUI',
+          title: 'MFD Edit',
           theme: ThemeData(
             inputDecorationTheme: const InputDecorationTheme(
               border: OutlineInputBorder(

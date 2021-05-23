@@ -20,6 +20,35 @@ class _XMLEditorWidgetState extends State<XMLEditorWidget> {
     return BlocBuilder<EditorBloc, EditorState>(
       builder: (context, state) {
         if (state is EditorInitial) {
+          // return Column(
+          //   children: const [
+          //     SizedBox(width: 150, child: MFDTextEdit()),
+          //     MFDTextEdit(
+          //       maxItemsShow: 1,
+          //       items: [
+          //         DropdownMenuItem(
+          //           value: 'aaa',
+          //           child: ListTile(
+          //             title: Text('aaa'),
+          //           ),
+          //         ),
+          //         DropdownMenuItem(
+          //           value: 'bbb',
+          //           child: ListTile(
+          //             title: Text('bbb'),
+          //           ),
+          //         ),
+          //         DropdownMenuItem(
+          //           value: 'ccc',
+          //           child: ListTile(
+          //             title: Text('ccc'),
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //     SizedBox(width: 250, child: MFDTextEdit()),
+          //   ],
+          // );
           return Container();
         }
         if (state is EditorEntityLoadInProgress) {
@@ -96,7 +125,10 @@ class EntityView extends StatelessWidget {
           AttributesTable(editorBloc: editorBloc),
           const SliverToBoxAdapter(child: SizedBox(height: 56)),
           SearchesTable(editorBloc: editorBloc, attributes: state.entity.attributes),
-          const SliverFillRemaining(),
+          const SliverFillRemaining(
+            hasScrollBody: false,
+            child: SizedBox(height: 250),
+          ),
         ],
       ),
     );
