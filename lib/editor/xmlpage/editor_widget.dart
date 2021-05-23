@@ -8,6 +8,7 @@ import 'package:mfdui/editor/table_autocomplete.dart';
 import 'package:mfdui/editor/xmlpage/editor_bloc.dart';
 import 'package:mfdui/project/project.dart';
 import 'package:mfdui/services/api/api_client.dart';
+import 'package:mfdui/ui/ui.dart';
 
 class XMLEditorWidget extends StatefulWidget {
   @override
@@ -24,7 +25,7 @@ class _XMLEditorWidgetState extends State<XMLEditorWidget> {
           //   children: const [
           //     SizedBox(width: 150, child: MFDTextEdit()),
           //     MFDTextEdit(
-          //       maxItemsShow: 1,
+          //       maxItemsShow: 2,
           //       items: [
           //         DropdownMenuItem(
           //           value: 'aaa',

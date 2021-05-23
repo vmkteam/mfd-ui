@@ -8,6 +8,7 @@ class MFDTextEdit extends StatefulWidget {
     this.focusNode,
     this.items,
     this.maxItemsShow = 5,
+    this.itemHeight = 56,
   }) : super(key: key);
 
   final TextEditingController? controller;
@@ -15,7 +16,8 @@ class MFDTextEdit extends StatefulWidget {
   final FocusNode? focusNode;
 
   final List<DropdownMenuItem<String>>? items;
-  final int maxItemsShow;
+  final int? maxItemsShow;
+  final double? itemHeight;
 
   @override
   _MFDTextEditState createState() => _MFDTextEditState();
@@ -63,6 +65,7 @@ class _MFDTextEditState extends State<MFDTextEdit> {
           from: context,
           to: navigator.context,
         ),
+        itemsSize: widget.itemHeight == null || widget.maxItemsShow == null ? null : widget.itemHeight! * widget.maxItemsShow!,
       ),
     )
         .then(
@@ -84,11 +87,13 @@ class _MFDTextEditRoute extends PopupRoute<MFDTextEditPopupResult> {
     required this.delegate,
     required this.buttonRect,
     required this.themes,
+    this.itemsSize,
   });
 
   final _MFDTextEditDelegate delegate;
   final Rect buttonRect;
   final CapturedThemes themes;
+  final double? itemsSize;
 
   @override
   Color? get barrierColor => null;
@@ -107,6 +112,7 @@ class _MFDTextEditRoute extends PopupRoute<MFDTextEditPopupResult> {
           return CustomSingleChildLayout(
             delegate: _MFDTextEditRouteLayout(
               buttonRect,
+              itemsSize,
             ),
             child: themes.wrap(delegate),
           );
@@ -193,12 +199,14 @@ class _MFDTextEditDelegateState extends State<_MFDTextEditDelegate> {
       child: Column(
         children: [
           textField,
-          Scrollbar(
-            controller: _scrollController,
-            child: SingleChildScrollView(
+          Expanded(
+            child: Scrollbar(
               controller: _scrollController,
-              child: Column(
-                children: children,
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                child: Column(
+                  children: children,
+                ),
               ),
             ),
           ),
@@ -209,16 +217,20 @@ class _MFDTextEditDelegateState extends State<_MFDTextEditDelegate> {
 }
 
 class _MFDTextEditRouteLayout extends SingleChildLayoutDelegate {
-  _MFDTextEditRouteLayout(this.editRect);
+  _MFDTextEditRouteLayout(this.editRect, this.itemsSize);
 
   final Rect editRect;
+  final double? itemsSize;
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-    final maxHeight = constraints.maxHeight - _textEditBottomGap;
+    final maxHeight = constraints.maxHeight - editRect.top - _textEditBottomGap - editRect.height;
+    final itemsHeight = itemsSize ?? constraints.maxHeight;
     return BoxConstraints(
+      minWidth: editRect.width,
       maxWidth: editRect.width,
-      maxHeight: editRect.height + math.min(maxHeight - editRect.height, constraints.maxHeight),
+      minHeight: editRect.height,
+      maxHeight: editRect.height + math.min(maxHeight, itemsHeight + _textEditBottomGap),
     );
   }
 
@@ -229,7 +241,7 @@ class _MFDTextEditRouteLayout extends SingleChildLayoutDelegate {
 
   @override
   bool shouldRelayout(_MFDTextEditRouteLayout oldDelegate) {
-    return editRect != oldDelegate.editRect;
+    return editRect != oldDelegate.editRect || itemsSize != oldDelegate.itemsSize;
   }
 }
 
