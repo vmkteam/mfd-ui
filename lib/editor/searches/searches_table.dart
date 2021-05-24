@@ -134,11 +134,6 @@ class _SearchesTableState extends State<SearchesTable> {
                         return const SizedBox.shrink();
                       },
                     ),
-                    // todo: add on click and regenerate?
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 30),
-                      child: Icon(Icons.double_arrow, color: Colors.black26),
-                    ),
                   ],
                 ),
               ),
