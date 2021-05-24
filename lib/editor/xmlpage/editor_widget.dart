@@ -68,9 +68,38 @@ class _XMLEditorWidgetState extends State<XMLEditorWidget> {
                     itemBuilder: (context, value) => DropdownMenuItem(value: value, child: Text(value)),
                   )),
               SizedBox(
-                  width: 250,
+                  width: 245,
                   child: MFDTextEdit(
+                    decoration: InputDecoration(labelText: 'default (submit)'),
                     decorationOptions: const TextEditDecorationOptions(showDoneButton: true),
+                    itemsLoader: (value) => Future.value(
+                      List.generate(10, (index) => (index * 10000).toString()),
+                    ),
+                    preload: true,
+                    itemBuilder: (context, value) => DropdownMenuItem(value: value, child: Text(value)),
+                  )),
+              SizedBox(
+                  width: 240,
+                  child: MFDTextEdit(
+                    decoration: InputDecoration(labelText: 'replate'),
+                    decorationOptions: const TextEditDecorationOptions(
+                      showDoneButton: true,
+                      selectBehavior: MFDTextEditItemSelectBehavior.replace,
+                    ),
+                    itemsLoader: (value) => Future.value(
+                      List.generate(10, (index) => (index * 10000).toString()),
+                    ),
+                    preload: true,
+                    itemBuilder: (context, value) => DropdownMenuItem(value: value, child: Text(value)),
+                  )),
+              SizedBox(
+                  width: 260,
+                  child: MFDTextEdit(
+                    decoration: InputDecoration(labelText: 'complete'),
+                    decorationOptions: const TextEditDecorationOptions(
+                      showDoneButton: true,
+                      selectBehavior: MFDTextEditItemSelectBehavior.complete,
+                    ),
                     itemsLoader: (value) => Future.value(
                       List.generate(10, (index) => (index * 10000).toString()),
                     ),

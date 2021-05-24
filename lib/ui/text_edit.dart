@@ -38,23 +38,6 @@ class MFDTextEdit extends StatefulWidget {
   _MFDTextEditState createState() => _MFDTextEditState();
 }
 
-class TextEditDecorationOptions {
-  const TextEditDecorationOptions({
-    this.showEditButton = false,
-    this.showDoneButton = true,
-    this.maxItemsShow = 5,
-    this.itemHeight = 56,
-  });
-
-  final bool showEditButton;
-  final bool showDoneButton;
-  final int? maxItemsShow;
-  final double? itemHeight;
-}
-
-typedef ItemsLoader<T> = Future<Iterable<T>?> Function(TextEditingValue? value);
-typedef MFDTextEditItemBuilder<T> = DropdownMenuItem<T> Function(BuildContext context, T value);
-
 class _MFDTextEditState extends State<MFDTextEdit> {
   late final TextEditingController _controller;
   late final FocusNode _focusNode;
@@ -126,6 +109,37 @@ class _MFDTextEditState extends State<MFDTextEdit> {
     );
     _focusNode.unfocus();
   }
+}
+
+typedef ItemsLoader<T> = Future<Iterable<T>?> Function(TextEditingValue? value);
+typedef MFDTextEditItemBuilder<T> = DropdownMenuItem<T> Function(BuildContext context, T value);
+
+class TextEditDecorationOptions {
+  const TextEditDecorationOptions({
+    this.showEditButton = false,
+    this.showDoneButton = true,
+    this.maxItemsShow = 5,
+    this.itemHeight = 56,
+    this.selectBehavior = MFDTextEditItemSelectBehavior.submit,
+  });
+
+  final bool showEditButton;
+  final bool showDoneButton;
+  final int? maxItemsShow;
+  final double? itemHeight;
+  // [selectBehavior] определяет поведение оверлея по нажатию на одну из опций.
+  final MFDTextEditItemSelectBehavior selectBehavior;
+}
+
+enum MFDTextEditItemSelectBehavior {
+  // Делает submit и закрывает оверлей.
+  submit,
+  // Изменяет текущее значение в поле ввода и фокусируется на вводе, но не закрывает оверлей.
+  // Для закрытия нужно использовать кнопку Submit или Enter на клавиатуре.
+  replace,
+  // Добавляет выбранное значение в поле ввода и фокусируется на вводе, но не закрывает оверлей.
+  // Для закрытия нужно использовать кнопку Submit или Enter на клавиатуре.
+  complete,
 }
 
 class _MFDTextEditRoute extends PopupRoute<MFDTextEditPopupResult> {
@@ -254,7 +268,7 @@ class _MFDTextEditDelegateState extends State<_MFDTextEditDelegate> {
               if (item.onTap != null) {
                 item.onTap!();
               }
-              _submitResult(context, item.value);
+              _selectResult(context, item.value);
             },
           )
       ];
@@ -322,8 +336,8 @@ class _MFDTextEditDelegateState extends State<_MFDTextEditDelegate> {
         suffixIcon: IconButton(
           focusNode: FocusNode(canRequestFocus: false, descendantsAreFocusable: false, skipTraversal: true),
           onPressed: () => _submitResult(context, _controller.text),
-          icon: const Icon(Icons.check_circle),
-          tooltip: 'OK',
+          icon: const Icon(Icons.done),
+          tooltip: 'Submit',
           splashRadius: 20,
         ),
       );
@@ -333,6 +347,24 @@ class _MFDTextEditDelegateState extends State<_MFDTextEditDelegate> {
 
   void _submitResult(BuildContext context, String? value) {
     Navigator.of(context).pop(MFDTextEditPopupResult(value));
+  }
+
+  void _selectResult(BuildContext context, String? value) {
+    switch (widget.decorationOptions.selectBehavior) {
+      case MFDTextEditItemSelectBehavior.submit:
+        Navigator.of(context).pop(MFDTextEditPopupResult(value));
+        return;
+      case MFDTextEditItemSelectBehavior.replace:
+        _controller.text = value ?? '';
+        _focusNode.requestFocus();
+        return;
+      case MFDTextEditItemSelectBehavior.complete:
+        if (value != null) {
+          _controller.text += value;
+          _focusNode.requestFocus();
+        }
+        break;
+    }
   }
 
   static dynamic _handleNavigation(FocusNode node, RawKeyEvent event) {
