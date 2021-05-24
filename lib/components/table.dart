@@ -11,13 +11,15 @@ class CustomTable<RowType> extends StatelessWidget {
     final lines = List.generate(
       rows.length,
       (lineNumber) => DataRow(
-          cells: List.generate(
-              columns.length,
-              (columnIdx) => DataCell(columns[columnIdx].builder(
-                    context,
-                    lineNumber,
-                    rows[lineNumber],
-                  )))),
+        key: ValueKey(rows[lineNumber]),
+        cells: List.generate(columns.length, (columnIdx) {
+          return DataCell(columns[columnIdx].builder(
+            context,
+            lineNumber,
+            rows[lineNumber],
+          ));
+        }),
+      ),
     );
     if (hasFooter) {
       lines.add(DataRow(

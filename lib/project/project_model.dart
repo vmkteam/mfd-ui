@@ -53,6 +53,7 @@ class Namespace {
     }
     return x.entries.map((e) => Namespace(name: e.key, entities: e.value)).toList();
   }
+
   // factory Namespace.fromApi(api.Namespace namespace) {
   //   return Namespace(
   //     name: namespace.name!,
