@@ -43,7 +43,13 @@ class MyApp extends StatelessWidget {
           ),
         ],
         child: MaterialApp(
-          title: 'MFD Edit',
+          onGenerateTitle: (context) {
+            final state = BlocProvider.of<ProjectBloc>(context).state;
+            if (state is! ProjectLoadSuccess) {
+              return 'MFD Edit';
+            }
+            return 'MFD Edit - ${state.project.name}';
+          },
           theme: ThemeData(
             inputDecorationTheme: const InputDecorationTheme(
               border: OutlineInputBorder(

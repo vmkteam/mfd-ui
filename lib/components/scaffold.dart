@@ -107,8 +107,8 @@ class ScaffoldMenu extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: const [
           _MenuButton(text: 'HOME', routeName: '/'),
-          _MenuButton(text: 'XML', routeName: '/xml'),
-          _MenuButton(text: 'XML-VT', routeName: '/xmlvt'),
+          _MenuButton(text: 'Entities', routeName: '/xml'),
+          _MenuButton(text: 'VT Entities', routeName: '/xmlvt'),
         ],
       ),
     );

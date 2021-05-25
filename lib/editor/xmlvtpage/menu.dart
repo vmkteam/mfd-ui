@@ -192,7 +192,11 @@ class __NewEntityDialogState extends State<_NewEntityDialog> {
             ListTile(
               title: NamespaceAutocomplete(
                 initialValue: resultNamespace,
-                onSubmitted: (value) => resultNamespace = value,
+                onSubmitted: (value) {
+                  if (value != null) {
+                    resultNamespace = value;
+                  }
+                },
               ),
             ),
             ListTile(
@@ -200,7 +204,11 @@ class __NewEntityDialogState extends State<_NewEntityDialog> {
                 tableName: tableName,
                 projectBloc: widget.projectBloc,
                 apiClient: widget.apiClient,
-                onSubmitted: (value) => tableName = value,
+                onSubmitted: (value) {
+                  if (value != null) {
+                    tableName = value;
+                  }
+                },
               ),
             ),
             const SizedBox(height: 90),

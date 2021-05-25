@@ -15,7 +15,7 @@ class TableAutocomplete extends StatefulWidget {
   final String tableName;
   final ProjectBloc projectBloc;
   final api.ApiClient apiClient;
-  final ValueChanged<String>? onSubmitted;
+  final ValueChanged<String?>? onSubmitted;
 
   @override
   _TableAutocompleteState createState() => _TableAutocompleteState();
@@ -33,21 +33,24 @@ class _TableAutocompleteState extends State<TableAutocomplete> {
 
   @override
   Widget build(BuildContext context) {
-    return MFDAutocomplete(
+    return MFDTextEdit<MFDLoadResult>(
       decoration: const InputDecoration(
         border: OutlineInputBorder(),
         labelText: 'Table',
       ),
-      initialValue: tableName,
-      optionsLoader: (query) async {
+      controller: TextEditingController(text: tableName),
+      itemsLoader: (query) async {
         final projectState = widget.projectBloc.state;
         if (projectState is! ProjectLoadSuccess) {
+          return List.empty();
+        }
+        if (query == null) {
           return List.empty();
         }
 
         final precursor = query.selection.isValid ? query.text.substring(0, query.selection.end) : '';
         if (_cachedTables != null) {
-          return _cachedTables!.where((element) => element.contains(precursor));
+          return _cachedTables!.where((element) => element.contains(precursor)).map((e) => MFDLoadResult(e));
         }
 
         final result = await widget.apiClient.project.tables(api.ProjectTablesArgs()).then(
@@ -58,8 +61,10 @@ class _TableAutocompleteState extends State<TableAutocomplete> {
         // start cache invalidation
         Future.delayed(const Duration(seconds: 10)).then((value) => _cachedTables = null);
 
-        return result.where((element) => element.contains(precursor));
+        return result.where((element) => element.contains(precursor)).map((e) => MFDLoadResult(e));
       },
+      preload: true,
+      itemBuilder: (context, query, option) => MFDSelectItem(value: option.value, child: Text(option.value!)),
       onSubmitted: widget.onSubmitted,
     );
   }

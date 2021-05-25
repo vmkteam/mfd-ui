@@ -180,7 +180,7 @@ class _EditorToolbar extends StatelessWidget {
             child: SizedBox(
                 width: 250,
                 child: ListTile(
-                  title: Text('XML $title'),
+                  title: Text('Open Entity $title'),
                   trailing: const Icon(Icons.forward),
                   onTap: () => Navigator.of(context).pushReplacementNamed('/xml',
                       arguments: MFDRouteSettings(

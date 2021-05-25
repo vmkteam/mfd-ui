@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mfdui/editor/attributes/attributes_table.dart';
@@ -10,7 +8,6 @@ import 'package:mfdui/editor/table_autocomplete.dart';
 import 'package:mfdui/editor/xmlpage/editor_bloc.dart';
 import 'package:mfdui/project/project.dart';
 import 'package:mfdui/services/api/api_client.dart';
-import 'package:mfdui/ui/ui.dart';
 
 class XMLEditorWidget extends StatefulWidget {
   @override
@@ -23,91 +20,6 @@ class _XMLEditorWidgetState extends State<XMLEditorWidget> {
     return BlocBuilder<EditorBloc, EditorState>(
       builder: (context, state) {
         if (state is EditorInitial) {
-          final rand = Random(DateTime.now().millisecondsSinceEpoch);
-          return Column(
-            children: [
-              const SizedBox(width: 150, child: MFDTextEdit()),
-              const MFDTextEdit(
-                decorationOptions: TextEditDecorationOptions(maxItemsShow: 2),
-                items: [
-                  DropdownMenuItem(
-                    value: 'aaa',
-                    child: ListTile(
-                      title: Text('aaa'),
-                    ),
-                  ),
-                  DropdownMenuItem(
-                    value: 'bbb',
-                    child: ListTile(
-                      title: Text('bbb'),
-                    ),
-                  ),
-                  DropdownMenuItem(
-                    value: 'ccc',
-                    child: ListTile(
-                      title: Text('ccc'),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                  width: 250,
-                  child: MFDTextEdit(
-                    itemsLoader: (value) => Future.value(
-                      List.generate(rand.nextInt(5), (index) => (rand.nextInt(100000) + 10000).toString()),
-                    ),
-                    itemBuilder: (context, value) => DropdownMenuItem(value: value, child: Text(value)),
-                  )),
-              SizedBox(
-                  width: 250,
-                  child: MFDTextEdit(
-                    decorationOptions: const TextEditDecorationOptions(showDoneButton: true),
-                    itemsLoader: (value) => Future.value(
-                      List.generate(rand.nextInt(5), (index) => (rand.nextInt(100000) + 10000).toString()),
-                    ),
-                    itemBuilder: (context, value) => DropdownMenuItem(value: value, child: Text(value)),
-                  )),
-              SizedBox(
-                  width: 245,
-                  child: MFDTextEdit(
-                    decoration: InputDecoration(labelText: 'default (submit)'),
-                    decorationOptions: const TextEditDecorationOptions(showDoneButton: true),
-                    itemsLoader: (value) => Future.value(
-                      List.generate(10, (index) => (index * 10000).toString()),
-                    ),
-                    preload: true,
-                    itemBuilder: (context, value) => DropdownMenuItem(value: value, child: Text(value)),
-                  )),
-              SizedBox(
-                  width: 240,
-                  child: MFDTextEdit(
-                    decoration: InputDecoration(labelText: 'replate'),
-                    decorationOptions: const TextEditDecorationOptions(
-                      showDoneButton: true,
-                      selectBehavior: MFDTextEditItemSelectBehavior.replace,
-                    ),
-                    itemsLoader: (value) => Future.value(
-                      List.generate(10, (index) => (index * 10000).toString()),
-                    ),
-                    preload: true,
-                    itemBuilder: (context, value) => DropdownMenuItem(value: value, child: Text(value)),
-                  )),
-              SizedBox(
-                  width: 260,
-                  child: MFDTextEdit(
-                    decoration: InputDecoration(labelText: 'complete'),
-                    decorationOptions: const TextEditDecorationOptions(
-                      showDoneButton: true,
-                      selectBehavior: MFDTextEditItemSelectBehavior.complete,
-                    ),
-                    itemsLoader: (value) => Future.value(
-                      List.generate(10, (index) => (index * 10000).toString()),
-                    ),
-                    preload: true,
-                    itemBuilder: (context, value) => DropdownMenuItem(value: value, child: Text(value)),
-                  )),
-            ],
-          );
           return Container();
         }
         if (state is EditorEntityLoadInProgress) {
@@ -181,7 +93,7 @@ class EntityView extends StatelessWidget {
             namespaceName: state.entity.namespace,
           ),
           _MainParameters(editorBloc: editorBloc, state: state),
-          AttributesTable(editorBloc: editorBloc),
+          AttributesTable(editorBloc: editorBloc, entityName: state.entity.name),
           const SliverToBoxAdapter(child: SizedBox(height: 56)),
           SearchesTable(editorBloc: editorBloc, attributes: state.entity.attributes),
           const SliverFillRemaining(
@@ -216,7 +128,11 @@ class _MainParameters extends StatelessWidget {
                 tableName: state.entity.table,
                 projectBloc: BlocProvider.of<ProjectBloc>(context),
                 apiClient: RepositoryProvider.of<ApiClient>(context),
-                onSubmitted: (value) => editorBloc.add(EntityTableChanged(value)),
+                onSubmitted: (value) {
+                  if (value != null) {
+                    editorBloc.add(EntityTableChanged(value));
+                  }
+                },
               ),
             ),
           ),
@@ -227,7 +143,11 @@ class _MainParameters extends StatelessWidget {
               width: 250,
               child: NamespaceAutocomplete(
                 initialValue: state.entity.namespace,
-                onSubmitted: (value) => editorBloc.add(EntityNamespaceChanged(value)),
+                onSubmitted: (value) {
+                  if (value != null) {
+                    editorBloc.add(EntityNamespaceChanged(value));
+                  }
+                },
               ),
             ),
           ),
@@ -256,7 +176,7 @@ class _EditorToolbar extends StatelessWidget {
             child: SizedBox(
                 width: 250,
                 child: ListTile(
-                  title: Text('XML-VT $title'),
+                  title: Text('Open VT Entity $title'),
                   trailing: const Icon(Icons.forward),
                   onTap: () => Navigator.of(context).pushReplacementNamed('/xmlvt',
                       arguments: MFDRouteSettings(

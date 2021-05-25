@@ -1,6 +1,6 @@
 part of 'ui.dart';
 
-class MFDTextEdit extends StatefulWidget {
+class MFDTextEdit<T extends MFDLoadResult> extends StatefulWidget {
   const MFDTextEdit({
     Key? key,
     this.controller,
@@ -11,14 +11,15 @@ class MFDTextEdit extends StatefulWidget {
     this.itemBuilder,
     this.preload = false,
     this.decorationOptions = const TextEditDecorationOptions(),
+    this.onSubmitted,
   })  : assert(
           // xor
           (itemBuilder == null && itemsLoader == null) || (itemBuilder != null && itemsLoader != null),
-          'when itemsLoader is provided itemBuilder is required and vice versa',
+          'When itemsLoader is provided itemBuilder is required and vice versa',
         ),
         assert(
           itemsLoader != null && items == null || itemsLoader == null,
-          'when itemsLoader is provided, items should be null',
+          'When itemsLoader is provided, items should be null',
         ),
         super(key: key);
 
@@ -28,17 +29,18 @@ class MFDTextEdit extends StatefulWidget {
   final InputDecoration? decoration;
   final TextEditDecorationOptions decorationOptions;
 
-  final List<DropdownMenuItem<String>>? items;
+  final List<MFDSelectItem<String>>? items;
 
-  final ItemsLoader<String>? itemsLoader;
-  final MFDTextEditItemBuilder<String>? itemBuilder;
+  final ItemsLoader<T>? itemsLoader;
+  final MFDTextEditItemBuilder<String, T>? itemBuilder;
   final bool preload;
+  final ValueChanged<String?>? onSubmitted;
 
   @override
-  _MFDTextEditState createState() => _MFDTextEditState();
+  _MFDTextEditState<T> createState() => _MFDTextEditState<T>();
 }
 
-class _MFDTextEditState extends State<MFDTextEdit> {
+class _MFDTextEditState<T extends MFDLoadResult> extends State<MFDTextEdit<T>> {
   late final TextEditingController _controller;
   late final FocusNode _focusNode;
 
@@ -60,9 +62,18 @@ class _MFDTextEditState extends State<MFDTextEdit> {
   }
 
   InputDecoration _effectiveDecoration(BuildContext context) {
-    InputDecoration result = widget.decoration ?? const InputDecoration();
+    InputDecoration result = widget.decoration ?? const InputDecoration(contentPadding: EdgeInsets.all(6));
     if (widget.decorationOptions.showEditButton) {
       result = result.copyWith(suffixIcon: const Tooltip(message: 'Edit', child: Icon(Icons.edit)));
+    }
+    if (widget.decorationOptions.hideUnfocusedBorder) {
+      result = result.copyWith(
+        border: const OutlineInputBorder(
+          gapPadding: 1,
+          borderRadius: BorderRadius.zero,
+          borderSide: BorderSide.none,
+        ),
+      );
     }
     return result;
   }
@@ -78,7 +89,7 @@ class _MFDTextEditState extends State<MFDTextEdit> {
     navigator
         .push(
       _MFDTextEditRoute(
-        delegate: _MFDTextEditDelegate(
+        delegate: _MFDTextEditDelegate<T>(
           initialValue: _controller.value,
           decoration: widget.decoration,
           decorationOptions: widget.decorationOptions,
@@ -95,6 +106,7 @@ class _MFDTextEditState extends State<MFDTextEdit> {
         itemsSize: widget.decorationOptions.itemHeight == null || widget.decorationOptions.maxItemsShow == null
             ? null
             : widget.decorationOptions.itemHeight! * widget.decorationOptions.maxItemsShow!,
+        minWidth: widget.decorationOptions.minWidth,
       ),
     )
         .then(
@@ -105,22 +117,45 @@ class _MFDTextEditState extends State<MFDTextEdit> {
         if (value.value != null) {
           _controller.text = value.value!;
         }
+        if (widget.onSubmitted != null) {
+          widget.onSubmitted!(value.value);
+        }
       },
     );
     _focusNode.unfocus();
   }
 }
 
-typedef ItemsLoader<T> = Future<Iterable<T>?> Function(TextEditingValue? value);
-typedef MFDTextEditItemBuilder<T> = DropdownMenuItem<T> Function(BuildContext context, T value);
+typedef ItemsLoader<T> = Future<Iterable<T>?> Function(TextEditingValue? query);
+typedef MFDTextEditItemBuilder<RES, T extends MFDLoadResult> = MFDSelectItem<RES> Function(BuildContext context, TextEditingValue? query, T option);
+
+class MFDSelectItem<T> {
+  const MFDSelectItem({
+    this.onTap,
+    this.value,
+    required this.child,
+  });
+
+  final VoidCallback? onTap;
+  final T? value;
+  final Widget child;
+}
+
+class MFDLoadResult {
+  const MFDLoadResult(this.value);
+  final String? value;
+}
 
 class TextEditDecorationOptions {
   const TextEditDecorationOptions({
     this.showEditButton = false,
     this.showDoneButton = true,
     this.maxItemsShow = 5,
-    this.itemHeight = 56,
+    this.itemHeight = 48,
     this.selectBehavior = MFDTextEditItemSelectBehavior.submit,
+    this.hideUnfocusedBorder = false,
+    this.horizontalItemPadding = 12,
+    this.minWidth = 170,
   });
 
   final bool showEditButton;
@@ -129,6 +164,10 @@ class TextEditDecorationOptions {
   final double? itemHeight;
   // [selectBehavior] определяет поведение оверлея по нажатию на одну из опций.
   final MFDTextEditItemSelectBehavior selectBehavior;
+  // Скрывает границы поля ввода, если оно не в фокусе
+  final bool hideUnfocusedBorder;
+  final double horizontalItemPadding;
+  final double minWidth;
 }
 
 enum MFDTextEditItemSelectBehavior {
@@ -148,12 +187,14 @@ class _MFDTextEditRoute extends PopupRoute<MFDTextEditPopupResult> {
     required this.buttonRect,
     required this.themes,
     this.itemsSize,
+    required this.minWidth,
   });
 
   final _MFDTextEditDelegate delegate;
   final Rect buttonRect;
   final CapturedThemes themes;
   final double? itemsSize;
+  final double minWidth;
 
   @override
   Color? get barrierColor => null;
@@ -173,6 +214,7 @@ class _MFDTextEditRoute extends PopupRoute<MFDTextEditPopupResult> {
             delegate: _MFDTextEditRouteLayout(
               buttonRect,
               itemsSize,
+              minWidth,
             ),
             child: themes.wrap(delegate),
           );
@@ -191,7 +233,7 @@ class MFDTextEditPopupResult {
   final String? value;
 }
 
-class _MFDTextEditDelegate extends StatefulWidget {
+class _MFDTextEditDelegate<T extends MFDLoadResult> extends StatefulWidget {
   const _MFDTextEditDelegate({
     Key? key,
     this.initialValue,
@@ -207,21 +249,21 @@ class _MFDTextEditDelegate extends StatefulWidget {
   final InputDecoration? decoration;
   final TextEditDecorationOptions decorationOptions;
 
-  final List<DropdownMenuItem<String>>? staticItems;
-  final ItemsLoader<String>? itemsLoader;
-  final MFDTextEditItemBuilder<String>? itemBuilder;
+  final List<MFDSelectItem<String>>? staticItems;
+  final ItemsLoader<T>? itemsLoader;
+  final MFDTextEditItemBuilder<String, T>? itemBuilder;
   final bool preload;
 
   @override
-  _MFDTextEditDelegateState createState() => _MFDTextEditDelegateState();
+  _MFDTextEditDelegateState<T> createState() => _MFDTextEditDelegateState<T>();
 }
 
-class _MFDTextEditDelegateState extends State<_MFDTextEditDelegate> {
+class _MFDTextEditDelegateState<T extends MFDLoadResult> extends State<_MFDTextEditDelegate<T>> {
   final FocusNode _focusNode = FocusNode(onKey: _handleNavigation);
   late final TextEditingController _controller;
   final ScrollController _scrollController = ScrollController();
 
-  List<String> options = [];
+  List<T> options = [];
   bool isLoading = false;
 
   @override
@@ -263,7 +305,14 @@ class _MFDTextEditDelegateState extends State<_MFDTextEditDelegate> {
       final children = [
         for (final item in itemWidgets)
           InkWell(
-            child: item,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: widget.decorationOptions.horizontalItemPadding),
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 48),
+                alignment: AlignmentDirectional.centerStart,
+                child: item.child,
+              ),
+            ),
             onTap: () {
               if (item.onTap != null) {
                 item.onTap!();
@@ -272,22 +321,32 @@ class _MFDTextEditDelegateState extends State<_MFDTextEditDelegate> {
             },
           )
       ];
-      optionsWidget = Expanded(
-        child: Scrollbar(
+      optionsWidget = Column(
+        mainAxisSize: MainAxisSize.min,
+        children: children,
+      );
+      if (children.length <= (widget.decorationOptions.maxItemsShow ?? 0)) {
+        optionsWidget = Material(
+          type: MaterialType.card,
+          elevation: 10,
+          child: optionsWidget,
+        );
+      }
+      optionsWidget = Scrollbar(
+        controller: _scrollController,
+        child: SingleChildScrollView(
           controller: _scrollController,
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            child: Material(
-              type: MaterialType.card,
-              elevation: 10,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: children,
-              ),
-            ),
-          ),
+          child: optionsWidget,
         ),
       );
+      if (children.length > (widget.decorationOptions.maxItemsShow ?? 0)) {
+        optionsWidget = Material(
+          type: MaterialType.card,
+          elevation: 10,
+          child: optionsWidget,
+        );
+      }
+      optionsWidget = Expanded(child: optionsWidget);
     }
     return FocusScope(
       onKey: _handleNavigation,
@@ -302,14 +361,23 @@ class _MFDTextEditDelegateState extends State<_MFDTextEditDelegate> {
     );
   }
 
-  List<DropdownMenuItem<String>>? getItems(BuildContext context) {
+  List<MFDSelectItem<String>>? getItems(BuildContext context) {
     if (widget.staticItems == null && widget.itemBuilder == null) {
       return null;
     }
     if (widget.staticItems?.isNotEmpty ?? false) {
       return widget.staticItems!;
     }
-    return List<DropdownMenuItem<String>>.generate(options.length, (index) => widget.itemBuilder!(context, options[index]));
+    if (options.isEmpty) {
+      return [];
+    }
+    return List<MFDSelectItem<String>>.generate(
+        options.length,
+        (index) => widget.itemBuilder!(
+              context,
+              _controller.value,
+              options[index],
+            ));
   }
 
   void _onTextChanged() {
@@ -330,7 +398,7 @@ class _MFDTextEditDelegateState extends State<_MFDTextEditDelegate> {
   }
 
   InputDecoration _effectivePopupDecoration(BuildContext context) {
-    InputDecoration result = widget.decoration ?? const InputDecoration();
+    InputDecoration result = widget.decoration ?? const InputDecoration(contentPadding: EdgeInsets.all(6));
     if (widget.decorationOptions.showDoneButton) {
       result = result.copyWith(
         suffixIcon: IconButton(
@@ -380,10 +448,11 @@ class _MFDTextEditDelegateState extends State<_MFDTextEditDelegate> {
 }
 
 class _MFDTextEditRouteLayout extends SingleChildLayoutDelegate {
-  _MFDTextEditRouteLayout(this.editRect, this.itemsSize);
+  _MFDTextEditRouteLayout(this.editRect, this.itemsSize, this.minWidth);
 
   final Rect editRect;
   final double? itemsSize;
+  final double minWidth;
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
@@ -391,7 +460,7 @@ class _MFDTextEditRouteLayout extends SingleChildLayoutDelegate {
     final itemsHeight = itemsSize ?? constraints.maxHeight;
     return BoxConstraints(
       minWidth: editRect.width,
-      maxWidth: editRect.width,
+      maxWidth: math.max(editRect.width, minWidth),
       minHeight: editRect.height,
       maxHeight: editRect.height + math.min(maxHeight, itemsHeight + _textEditBottomGap),
     );

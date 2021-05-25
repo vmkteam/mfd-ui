@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:mfdui/project/project.dart';
 import 'package:mfdui/services/api/api_client.dart' as api;
+import 'package:mfdui/services/api/errors.dart';
 
 part 'editor_event.dart';
 part 'editor_state.dart';
@@ -40,22 +41,25 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       yield EditorEntityLoadFailed(event.entityName, 'project is not opened');
       return;
     }
+    try {
+      final resp = await _apiClient.xmlvt.loadEntity(api.XmlvtLoadEntityArgs(
+        entity: event.entityName,
+        namespace: event.namespaceName,
+      ));
 
-    final resp = await _apiClient.xmlvt.loadEntity(api.XmlvtLoadEntityArgs(
-      entity: event.entityName,
-      namespace: event.namespaceName,
-    ));
+      _vtentity = VTEntity.fromApi(resp!, event.namespaceName);
 
-    _vtentity = VTEntity.fromApi(resp!, event.namespaceName);
+      final entityResp = await _apiClient.xml.loadEntity(api.XmlLoadEntityArgs(
+        entity: event.entityName,
+        namespace: event.namespaceName,
+      ));
 
-    final entityResp = await _apiClient.xml.loadEntity(api.XmlLoadEntityArgs(
-      entity: event.entityName,
-      namespace: event.namespaceName,
-    ));
+      _entity = Entity.fromApi(entityResp!);
 
-    _entity = Entity.fromApi(entityResp!);
-
-    yield EditorEntityLoadSuccess(_vtentity!, _entity!);
+      yield EditorEntityLoadSuccess(_vtentity!, _entity!);
+    } on ApiRpcError catch (e) {
+      yield EditorEntityLoadFailed(event.entityName, e.toString());
+    }
   }
 
   Stream<EditorState> _mapEntityEntityAttributesEventToState(EntityAttributesEvent event) async* {

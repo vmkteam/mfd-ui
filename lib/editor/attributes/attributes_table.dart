@@ -13,9 +13,14 @@ part 'dbtype_autocomplete.dart';
 part 'gotype_autocomplete.dart';
 
 class AttributesTable extends StatefulWidget {
-  const AttributesTable({Key? key, required this.editorBloc}) : super(key: key);
+  const AttributesTable({
+    Key? key,
+    required this.editorBloc,
+    this.entityName,
+  }) : super(key: key);
 
   final EditorBloc editorBloc;
+  final String? entityName;
 
   @override
   _AttributesTableState createState() => _AttributesTableState();
@@ -97,23 +102,15 @@ class _AttributesTableState extends State<AttributesTable> {
       ),
       TableColumn(
         header: const Header(),
-        builder: (context, rowIndex, row) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 3),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_forward, color: Colors.black26, size: 14),
-            tooltip: 'Complete go type',
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('not implemented')));
-            },
-            splashRadius: 20,
-          ),
-        ),
+        builder: (context, rowIndex, row) => const Icon(Icons.arrow_forward, color: Colors.black26, size: 14),
       ),
       TableColumn(
         header: const Header(label: 'go type'),
         builder: (context, index, row) {
           return GoTypeAutocomplete(
             value: row.goType,
+            attribute: row,
+            entityName: widget.entityName ?? '',
             onChanged: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(goType: value))),
           );
         },
