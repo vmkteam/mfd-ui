@@ -21,7 +21,6 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
   }
 
   Stream<ProjectState> _mapProjectLoadCurrentToState(ProjectLoadCurrent event) async* {
-    yield ProjectLoadInProgress();
     try {
       final resp = await apiClient.project.current(api.ProjectCurrentArgs());
       yield ProjectLoadSuccess(Project.fromApi(resp!));

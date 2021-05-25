@@ -12,6 +12,7 @@ class MFDTextEdit<T extends MFDLoadResult> extends StatefulWidget {
     this.preload = false,
     this.decorationOptions = const TextEditDecorationOptions(),
     this.onSubmitted,
+    this.inputFormatters,
   })  : assert(
           // xor
           (itemBuilder == null && itemsLoader == null) || (itemBuilder != null && itemsLoader != null),
@@ -28,6 +29,7 @@ class MFDTextEdit<T extends MFDLoadResult> extends StatefulWidget {
 
   final InputDecoration? decoration;
   final TextEditDecorationOptions decorationOptions;
+  final List<TextInputFormatter>? inputFormatters;
 
   final List<MFDSelectItem<String>>? items;
 
@@ -58,6 +60,7 @@ class _MFDTextEditState<T extends MFDLoadResult> extends State<MFDTextEdit<T>> {
       controller: _controller,
       onTap: _onTap,
       focusNode: _focusNode,
+      inputFormatters: widget.inputFormatters,
     );
   }
 
@@ -132,7 +135,7 @@ typedef MFDTextEditItemBuilder<RES, T extends MFDLoadResult> = MFDSelectItem<RES
 class MFDSelectItem<T> {
   const MFDSelectItem({
     this.onTap,
-    this.value,
+    required this.value,
     required this.child,
   });
 
@@ -243,11 +246,13 @@ class _MFDTextEditDelegate<T extends MFDLoadResult> extends StatefulWidget {
     this.itemBuilder,
     this.preload = false,
     this.decorationOptions = const TextEditDecorationOptions(),
+    this.inputFormatters,
   }) : super(key: key);
 
   final TextEditingValue? initialValue;
   final InputDecoration? decoration;
   final TextEditDecorationOptions decorationOptions;
+  final List<TextInputFormatter>? inputFormatters;
 
   final List<MFDSelectItem<String>>? staticItems;
   final ItemsLoader<T>? itemsLoader;
@@ -294,6 +299,7 @@ class _MFDTextEditDelegateState<T extends MFDLoadResult> extends State<_MFDTextE
         controller: _controller,
         decoration: _effectivePopupDecoration(context),
         onSubmitted: (value) => _submitResult(context, value),
+        inputFormatters: widget.inputFormatters,
       ),
     );
     final itemWidgets = getItems(context);

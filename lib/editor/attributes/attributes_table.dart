@@ -26,7 +26,7 @@ class AttributesTable extends StatefulWidget {
   _AttributesTableState createState() => _AttributesTableState();
 }
 
-class _AttributesTableState extends State<AttributesTable> {
+class _AttributesTableState extends State<AttributesTable> with AutomaticKeepAliveClientMixin {
   List<TableColumn<Attribute>> get columns {
     return [
       TableColumn(
@@ -176,6 +176,7 @@ class _AttributesTableState extends State<AttributesTable> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return SliverList(
       delegate: SliverChildListDelegate(
         [
@@ -248,4 +249,7 @@ class _AttributesTableState extends State<AttributesTable> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

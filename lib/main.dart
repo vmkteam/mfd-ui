@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
+import 'package:mfdui/blocs/api_connection_bloc.dart';
 import 'package:mfdui/blocs/settings/settings_bloc.dart';
 import 'package:mfdui/components/main_page.dart';
 import 'package:mfdui/editor/xmlpage/xml_page.dart';
@@ -33,6 +34,12 @@ class MyApp extends StatelessWidget {
         providers: [
           BlocProvider(
             create: (context) {
+              return ApiConnectionBloc(rpcClient)..add(CheckConnection(defaultApiUrl));
+            },
+            lazy: false,
+          ),
+          BlocProvider(
+            create: (context) {
               return ProjectBloc(RepositoryProvider.of<ApiClient>(context))..add(ProjectLoadCurrent());
             },
             lazy: false,
@@ -46,9 +53,9 @@ class MyApp extends StatelessWidget {
           onGenerateTitle: (context) {
             final state = BlocProvider.of<ProjectBloc>(context).state;
             if (state is! ProjectLoadSuccess) {
-              return 'MFD Edit';
+              return 'MFD UI';
             }
-            return 'MFD Edit - ${state.project.name}';
+            return 'MFD UI - ${state.project.name}';
           },
           theme: ThemeData(
             inputDecorationTheme: const InputDecorationTheme(
@@ -78,6 +85,7 @@ class MyApp extends StatelessWidget {
                 ),
               ),
             ),
+            pageTransitionsTheme: PageTransitionsTheme(builders: {TargetPlatform.macOS: NoneTransitionBuilder()}),
           ),
           routes: {
             '/': (context) => MainPage(),
@@ -87,5 +95,18 @@ class MyApp extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class NoneTransitionBuilder extends PageTransitionsBuilder {
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return FadeTransition(opacity: animation, child: child);
   }
 }

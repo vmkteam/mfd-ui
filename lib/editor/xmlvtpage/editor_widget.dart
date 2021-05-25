@@ -7,7 +7,6 @@ import 'package:mfdui/components/table.dart';
 import 'package:mfdui/editor/navigator.dart';
 import 'package:mfdui/editor/xmlvtpage/editor_bloc.dart';
 import 'package:mfdui/project/project.dart';
-import 'package:mfdui/services/public_repo.dart';
 import 'package:mfdui/ui/ui.dart';
 
 class XMLVTEditorWidget extends StatefulWidget {
@@ -86,8 +85,8 @@ class EntityView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scrollbar(
-      child: CustomScrollView(
-        slivers: [
+      child: ListView(
+        children: [
           _EditorToolbar(
             title: state.vtentity.name,
             entityName: state.vtentity.name,
@@ -95,9 +94,9 @@ class EntityView extends StatelessWidget {
           ),
           _MainParameters(editorBloc: editorBloc, state: state),
           AttributesTable(editorBloc: editorBloc, state: state),
-          const SliverToBoxAdapter(child: SizedBox(height: 56)),
+          const SizedBox(height: 56),
           VTTemplateTable(editorBloc: editorBloc, state: state),
-          const SliverFillRemaining(),
+          const SizedBox(height: 400),
         ],
       ),
     );
@@ -113,51 +112,52 @@ class _MainParameters extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (state is! EditorEntityLoadSuccess) {
-      return const SliverToBoxAdapter(child: SizedBox.shrink());
+      return const SizedBox.shrink();
     }
-    return SliverToBoxAdapter(
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 20, right: 4, top: 20, bottom: 38),
-            child: Row(
-              children: [
-                Text('VT Mode:', style: Theme.of(context).textTheme.subtitle1),
-                const SizedBox(width: 12),
-                Card(
-                  child: SizedBox(
-                    width: 225,
-                    child: VTModeDropdown(
-                      currentValue: state.vtentity.mode,
-                      onSubmitted: (value) => editorBloc.add(EntityModeChanged(value!)),
-                    ),
+    return Row(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 20, right: 4, top: 20, bottom: 38),
+          child: Row(
+            children: [
+              Text('VT Mode:', style: Theme.of(context).textTheme.subtitle1),
+              const SizedBox(width: 12),
+              Card(
+                child: SizedBox(
+                  width: 225,
+                  child: VTModeDropdown(
+                    currentValue: state.vtentity.mode,
+                    onSubmitted: (value) => editorBloc.add(EntityModeChanged(value!)),
                   ),
                 ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.zero, //const EdgeInsets.only(left: 20, right: 4, top: 20, bottom: 38),
+          child: SizedBox(
+            width: 250,
+            child: MFDTextEdit(
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Terminal path',
+                helperText: 'e.g. path/to/entity',
+              ),
+              controller: TextEditingController(text: state.vtentity.terminalPath),
+              onSubmitted: (value) {
+                if (value != null) {
+                  editorBloc.add(EntityTerminalPathChanged(value));
+                }
+              },
+              inputFormatters: [
+                FilteringTextInputFormatter.deny(RegExp(r'^/')),
               ],
             ),
           ),
-          Padding(
-            padding: EdgeInsets.zero, //const EdgeInsets.only(left: 20, right: 4, top: 20, bottom: 38),
-            child: SizedBox(
-              width: 250,
-              child: MFDAutocomplete(
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Terminal path',
-                  helperText: 'e.g. path/to/entity',
-                ),
-                initialValue: state.vtentity.terminalPath,
-                optionsLoader: null,
-                onSubmitted: (value) => editorBloc.add(EntityTerminalPathChanged(value)),
-                inputFormatters: [
-                  FilteringTextInputFormatter.deny(RegExp(r'^/')),
-                ],
-              ),
-            ),
-          ),
-          const Spacer(),
-        ],
-      ),
+        ),
+        const Spacer(),
+      ],
     );
   }
 }
@@ -171,7 +171,7 @@ class _EditorToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverAppBar(
+    return AppBar(
       title: Row(
         children: [
           Text(title, style: Theme.of(context).textTheme.headline6?.copyWith(color: Colors.black87)),
@@ -195,7 +195,6 @@ class _EditorToolbar extends StatelessWidget {
       primary: false,
       automaticallyImplyLeading: false,
       elevation: 0,
-      pinned: true,
       backgroundColor: Colors.blueGrey.shade100,
     );
   }
@@ -278,39 +277,45 @@ class VTModeDropdown extends StatelessWidget {
 
 enum VTEntityMode { None, ReadOnly, ReadOnlyWithTemplates, Full }
 
-class AttributesTable extends StatelessWidget {
-  AttributesTable({Key? key, required this.editorBloc, required this.state}) : super(key: key);
+class AttributesTable extends StatefulWidget {
+  const AttributesTable({Key? key, required this.editorBloc, required this.state}) : super(key: key);
 
   final EditorBloc editorBloc;
   final EditorEntityLoadSuccess state;
 
+  @override
+  _AttributesTableState createState() => _AttributesTableState();
+}
+
+class _AttributesTableState extends State<AttributesTable> with AutomaticKeepAliveClientMixin {
   List<TableColumn<VTAttribute>> get columns {
     return [
       TableColumn(
         header: const Header(label: 'Name'),
         builder: (context, index, row) {
-          final name = MFDAutocomplete(
-            initialValue: row.name,
-            optionsLoader: null,
-            onSubmitted: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(name: value))),
+          return MFDTextEdit(
+            controller: TextEditingController(text: row.name),
+            decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
+            onSubmitted: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(name: value))),
           );
-          return name;
         },
       ),
       TableColumn(
         header: const Header(
-          label: 'AttrName',
+          label: 'Attribute',
           tooltip: 'One of model attributes',
         ),
         builder: (context, index, row) {
-          final name = MFDAutocomplete(
-            initialValue: row.attrName,
-            optionsLoader: (query) {
-              return Future.value(state.entity.attributes.map((e) => e.name));
+          return MFDTextEdit<MFDLoadResult>(
+            controller: TextEditingController(text: row.attrName),
+            decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
+            itemsLoader: (query) {
+              return Future.value(widget.state.entity.attributes.map((e) => MFDLoadResult(e.name)));
             },
-            onSubmitted: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(attrName: value))),
+            itemBuilder: (context, query, option) => MFDSelectItem(value: option.value, child: Text(option.value ?? '')),
+            preload: true,
+            onSubmitted: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(attrName: value))),
           );
-          return name;
         },
       ),
       TableColumn(
@@ -322,7 +327,7 @@ class AttributesTable extends StatelessWidget {
           return Center(
             child: CheckboxStateful(
               value: row.required,
-              onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(required: value))),
+              onChanged: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(required: value))),
             ),
           );
         },
@@ -336,7 +341,7 @@ class AttributesTable extends StatelessWidget {
           return Center(
             child: CheckboxStateful(
               value: row.summary,
-              onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(summary: value))),
+              onChanged: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(summary: value))),
             ),
           );
         },
@@ -350,7 +355,7 @@ class AttributesTable extends StatelessWidget {
           return Center(
             child: CheckboxStateful(
               value: row.search,
-              onChanged: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(search: value))),
+              onChanged: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(search: value))),
             ),
           );
         },
@@ -361,24 +366,43 @@ class AttributesTable extends StatelessWidget {
           tooltip: 'Linked Search from xml model.',
         ),
         builder: (context, index, row) {
-          return MFDAutocomplete(
-            initialValue: row.searchName,
-            optionsLoader: (query) {
-              final attrs = state.entity.attributes.map((e) => e.name);
-              final searches = state.entity.searches.map((e) => e.name);
+          return MFDTextEdit<_SearchAutocompleteValue>(
+            controller: TextEditingController(text: row.searchName),
+            decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true, minWidth: 260),
+            itemsLoader: (query) {
+              final attrs = widget.state.entity.attributes.map((e) => e.name).map(
+                    (e) => _SearchAutocompleteValue(e, _SearchAutocompleteValueType.Attribute),
+                  );
+              final searches = widget.state.entity.searches.map((e) => e.name).map(
+                    (e) => _SearchAutocompleteValue(e, _SearchAutocompleteValueType.Search),
+                  );
               return Future.value([...attrs, ...searches]);
             },
-            onSubmitted: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(searchName: value))),
+            itemBuilder: (context, query, option) => MFDSelectItem(
+              value: option.value,
+              child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                  horizontalTitleGap: 0,
+                  title: Text(option.value ?? ''),
+                  trailing: option.type == _SearchAutocompleteValueType.Search
+                      ? const Icon(
+                          Icons.search,
+                          size: 15,
+                        )
+                      : null),
+            ),
+            preload: true,
+            onSubmitted: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(searchName: value))),
           );
         },
       ),
       TableColumn(
         header: const Header(label: 'Validate rule'),
         builder: (context, index, row) {
-          return MFDAutocomplete(
-            initialValue: row.validate,
-            optionsLoader: null,
-            onSubmitted: (value) => editorBloc.add(EntityAttributeChanged(index, row.copyWith(validate: value))),
+          return MFDTextEdit(
+            controller: TextEditingController(text: row.validate),
+            decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
+            onSubmitted: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(validate: value))),
           );
         },
       ),
@@ -390,7 +414,7 @@ class AttributesTable extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.close, color: Theme.of(context).errorColor),
                 tooltip: 'Remove attribute',
-                onPressed: () => editorBloc.add(EntityAttributeDeleted(index)),
+                onPressed: () => widget.editorBloc.add(EntityAttributeDeleted(index)),
                 splashRadius: 19,
               )
             ],
@@ -402,7 +426,7 @@ class AttributesTable extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.add, color: Colors.green),
                 tooltip: 'Add attribute',
-                onPressed: () => editorBloc.add(EntityAttributeAdded()),
+                onPressed: () => widget.editorBloc.add(EntityAttributeAdded()),
                 splashRadius: 19,
               )
             ],
@@ -416,63 +440,81 @@ class AttributesTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverList(
-      delegate: SliverChildListDelegate(
-        [
-          ListTile(
-            title: Text('VT Attributes', style: Theme.of(context).textTheme.headline5),
-          ),
-          Center(
-            child: Scrollbar(
+    super.build(context);
+    return Column(
+      children: [
+        ListTile(
+          title: Text('VT Attributes', style: Theme.of(context).textTheme.headline5),
+        ),
+        Center(
+          child: Scrollbar(
+            controller: scrollController1,
+            child: SingleChildScrollView(
               controller: scrollController1,
-              child: SingleChildScrollView(
-                controller: scrollController1,
-                scrollDirection: Axis.horizontal,
-                child: BlocBuilder<EditorBloc, EditorState>(
-                  builder: (context, state) {
-                    if (state is EditorEntityLoadSuccess) {
-                      return CustomTable(columns: columns, rows: state.vtentity.attributes);
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
+              scrollDirection: Axis.horizontal,
+              child: BlocBuilder<EditorBloc, EditorState>(
+                builder: (context, state) {
+                  if (state is EditorEntityLoadSuccess) {
+                    return CustomTable(columns: columns, rows: state.vtentity.attributes);
+                  }
+                  return const SizedBox.shrink();
+                },
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
-class VTTemplateTable extends StatelessWidget {
-  VTTemplateTable({Key? key, required this.editorBloc, required this.state}) : super(key: key);
+class _SearchAutocompleteValue extends MFDLoadResult {
+  _SearchAutocompleteValue(String? value, this.type) : super(value);
+  final _SearchAutocompleteValueType type;
+}
+
+enum _SearchAutocompleteValueType {
+  Attribute,
+  Search,
+}
+
+class VTTemplateTable extends StatefulWidget {
+  const VTTemplateTable({Key? key, required this.editorBloc, required this.state}) : super(key: key);
 
   final EditorBloc editorBloc;
   final EditorEntityLoadSuccess state;
 
+  @override
+  _VTTemplateTableState createState() => _VTTemplateTableState();
+}
+
+class _VTTemplateTableState extends State<VTTemplateTable> with AutomaticKeepAliveClientMixin {
   List<TableColumn<VTTemplateAttribute>> get columns {
     return [
       TableColumn(
         header: const Header(label: 'Name'),
         builder: (context, index, row) {
-          final name = MFDAutocomplete(
-            initialValue: row.name,
-            optionsLoader: null,
-            onSubmitted: (value) => editorBloc.add(EntityTemplateChanged(index, row.copyWith(name: value))),
+          return MFDTextEdit(
+            controller: TextEditingController(text: row.name),
+            decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
+            onSubmitted: (value) => widget.editorBloc.add(EntityTemplateChanged(index, row.copyWith(name: value))),
           );
-          return name;
         },
       ),
       TableColumn(
-        header: const Header(label: 'AttrName'),
+        header: const Header(label: 'VT Attribute'),
         builder: (context, index, row) {
-          final name = MFDAutocomplete(
-            initialValue: row.vtAttrName,
-            optionsLoader: (query) => Future.value(state.vtentity.attributes.map((e) => e.name)),
-            onSubmitted: (value) => editorBloc.add(EntityTemplateChanged(index, row.copyWith(vtAttrName: value))),
+          return MFDTextEdit<MFDLoadResult>(
+            controller: TextEditingController(text: row.vtAttrName),
+            decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
+            itemsLoader: (query) => Future.value(widget.state.vtentity.attributes.map((e) => MFDLoadResult(e.name))),
+            itemBuilder: (context, query, option) => MFDSelectItem(value: option.value, child: Text(option.value ?? '')),
+            preload: true,
+            onSubmitted: (value) => widget.editorBloc.add(EntityTemplateChanged(index, row.copyWith(vtAttrName: value))),
           );
-          return name;
         },
       ),
       TableColumn(
@@ -480,7 +522,7 @@ class VTTemplateTable extends StatelessWidget {
         builder: (context, index, row) {
           return HTMLTypeAutocomplete(
             value: row.search,
-            onSubmitted: (value) => editorBloc.add(EntityTemplateChanged(index, row.copyWith(search: value))),
+            onSubmitted: (value) => widget.editorBloc.add(EntityTemplateChanged(index, row.copyWith(search: value))),
           );
         },
       ),
@@ -489,7 +531,7 @@ class VTTemplateTable extends StatelessWidget {
         builder: (context, index, row) {
           return HTMLTypeAutocomplete(
             value: row.form,
-            onSubmitted: (value) => editorBloc.add(EntityTemplateChanged(index, row.copyWith(form: value))),
+            onSubmitted: (value) => widget.editorBloc.add(EntityTemplateChanged(index, row.copyWith(form: value))),
           );
         },
       ),
@@ -498,7 +540,7 @@ class VTTemplateTable extends StatelessWidget {
         builder: (context, index, row) {
           bool hasSummary = false;
           try {
-            final connectedAttr = state.vtentity.attributes.firstWhere((element) => element.name == row.vtAttrName);
+            final connectedAttr = widget.state.vtentity.attributes.firstWhere((element) => element.name == row.vtAttrName);
             hasSummary = connectedAttr.summary;
           } on StateError {
             // ignore
@@ -506,7 +548,7 @@ class VTTemplateTable extends StatelessWidget {
           Widget checkbox = CheckboxStateful(
             value: row.list,
             activeColor: !hasSummary && row.list ? Colors.orange : null,
-            onChanged: (value) => editorBloc.add(EntityTemplateChanged(index, row.copyWith(list: value))),
+            onChanged: (value) => widget.editorBloc.add(EntityTemplateChanged(index, row.copyWith(list: value))),
           );
           if (!hasSummary && row.list) {
             checkbox = Tooltip(message: 'Attribute not in Summary model', child: checkbox);
@@ -519,12 +561,11 @@ class VTTemplateTable extends StatelessWidget {
       TableColumn(
         header: const Header(label: 'FK Opts'),
         builder: (context, index, row) {
-          final name = MFDAutocomplete(
-            initialValue: row.fkOpts,
-            optionsLoader: null,
-            onSubmitted: (value) => editorBloc.add(EntityTemplateChanged(index, row.copyWith(fkOpts: value))),
+          return MFDTextEdit(
+            controller: TextEditingController(text: row.fkOpts),
+            decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
+            onSubmitted: (value) => widget.editorBloc.add(EntityTemplateChanged(index, row.copyWith(fkOpts: value))),
           );
-          return name;
         },
       ),
       TableColumn(
@@ -535,7 +576,7 @@ class VTTemplateTable extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.close, color: Theme.of(context).errorColor),
                 tooltip: 'Remove template',
-                onPressed: () => editorBloc.add(EntityTemplateDeleted(index)),
+                onPressed: () => widget.editorBloc.add(EntityTemplateDeleted(index)),
                 splashRadius: 19,
               )
             ],
@@ -547,7 +588,7 @@ class VTTemplateTable extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.add, color: Colors.green),
                 tooltip: 'Add template',
-                onPressed: () => editorBloc.add(EntityTemplateAdded()),
+                onPressed: () => widget.editorBloc.add(EntityTemplateAdded()),
                 splashRadius: 19,
               )
             ],
@@ -561,31 +602,33 @@ class VTTemplateTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverList(
-      delegate: SliverChildListDelegate(
-        [
-          ListTile(title: Text('Template Attributes', style: Theme.of(context).textTheme.headline5)),
-          Center(
-            child: Scrollbar(
+    super.build(context);
+    return Column(
+      children: [
+        ListTile(title: Text('Template Attributes', style: Theme.of(context).textTheme.headline5)),
+        Center(
+          child: Scrollbar(
+            controller: scrollController1,
+            child: SingleChildScrollView(
               controller: scrollController1,
-              child: SingleChildScrollView(
-                controller: scrollController1,
-                scrollDirection: Axis.horizontal,
-                child: BlocBuilder<EditorBloc, EditorState>(
-                  builder: (context, state) {
-                    if (state is EditorEntityLoadSuccess) {
-                      return CustomTable(columns: columns, rows: state.vtentity.templates);
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
+              scrollDirection: Axis.horizontal,
+              child: BlocBuilder<EditorBloc, EditorState>(
+                builder: (context, state) {
+                  if (state is EditorEntityLoadSuccess) {
+                    return CustomTable(columns: columns, rows: state.vtentity.templates);
+                  }
+                  return const SizedBox.shrink();
+                },
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class HTMLTypeAutocomplete extends StatelessWidget {
@@ -600,43 +643,50 @@ class HTMLTypeAutocomplete extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final subtitleStyle = Theme.of(context).textTheme.caption!.copyWith(fontFamily: 'FiraCode');
-    return _DropdownBuilder<String>(
+    return DropdownButton<String>(
       value: value,
+      items: _buildItems(context),
       onChanged: (value) => onSubmitted(value!),
-      itemsLoader: () async {
-        return RepositoryProvider.of<PublicRepo>(context).htmlTypes('').then((value) => value.toList());
-      },
-      itemBuilder: (value) {
-        final enumVal = HTMLType.values.firstWhere((element) => describeEnum(element) == value, orElse: () => HTMLType.HTML_UNKNOWN);
-        final enumText = _htmlTypeDisplayText(enumVal);
-        String mainText = value;
-        if (mainText.startsWith('HTML_')) {
-          mainText = mainText.substring('HTML_'.length);
-        }
-        final helpText = enumText ?? '$value (unknown)';
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(mainText),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 3.0),
-                  child: Text(helpText, style: subtitleStyle),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
+    // Previous code for downloading list of html types.
+    //
+    // final subtitleStyle = Theme.of(context).textTheme.caption!.copyWith(fontFamily: 'FiraCode');
+    // return _DropdownBuilder<String>(
+    //   value: value,
+    //   onChanged: (value) => onSubmitted(value!),
+    //   itemsLoader: () async {
+    //     return RepositoryProvider.of<PublicRepo>(context).htmlTypes('').then((value) => value.toList());
+    //   },
+    //   itemBuilder: (value) {
+    //     final enumVal = HTMLType.values.firstWhere((element) => describeEnum(element) == value, orElse: () => HTMLType.HTML_UNKNOWN);
+    //     final enumText = _htmlTypeDisplayText(enumVal);
+    //     String mainText = value;
+    //     if (mainText.startsWith('HTML_')) {
+    //       mainText = mainText.substring('HTML_'.length);
+    //     }
+    //     final helpText = enumText ?? '$value (unknown)';
+    //     return DropdownMenuItem<String>(
+    //       value: value,
+    //       child: Padding(
+    //         padding: const EdgeInsets.symmetric(vertical: 4),
+    //         child: Column(
+    //           mainAxisAlignment: MainAxisAlignment.center,
+    //           crossAxisAlignment: CrossAxisAlignment.start,
+    //           children: [
+    //             Text(mainText),
+    //             Padding(
+    //               padding: const EdgeInsets.symmetric(vertical: 3.0),
+    //               child: Text(helpText, style: subtitleStyle),
+    //             ),
+    //           ],
+    //         ),
+    //       ),
+    //     );
+    //   },
+    // );
   }
 
-  String? _htmlTypeDisplayText(HTMLType enumVal) {
+  static String? _htmlTypeDisplayText(HTMLType enumVal) {
     switch (enumVal) {
       case HTMLType.HTML_UNKNOWN:
         return '';
@@ -666,6 +716,53 @@ class HTMLTypeAutocomplete extends StatelessWidget {
         // TODO: Handle this case.
         break;
     }
+  }
+
+  List<DropdownMenuItem<String>> _buildItems(BuildContext context) {
+    final subtitleStyle = Theme.of(context).textTheme.caption!.copyWith(fontFamily: 'FiraCode');
+    return [
+      _buildItem('', subtitleStyle),
+      _buildItem('HTML_UNKNOWN', subtitleStyle),
+      _buildItem('HTML_NONE', subtitleStyle),
+      _buildItem('HTML_INPUT', subtitleStyle),
+      _buildItem('HTML_TEXT', subtitleStyle),
+      _buildItem('HTML_PASSWORD', subtitleStyle),
+      _buildItem('HTML_EDITOR', subtitleStyle),
+      _buildItem('HTML_CHECKBOX', subtitleStyle),
+      _buildItem('HTML_DATETIME', subtitleStyle),
+      _buildItem('HTML_DATE', subtitleStyle),
+      _buildItem('HTML_TIME', subtitleStyle),
+      _buildItem('HTML_FILE', subtitleStyle),
+      _buildItem('HTML_IMAGE', subtitleStyle),
+      _buildItem('HTML_SELECT', subtitleStyle),
+    ];
+  }
+
+  DropdownMenuItem<String> _buildItem(String value, TextStyle subtitleStyle) {
+    final enumVal = HTMLType.values.firstWhere((element) => describeEnum(element) == value, orElse: () => HTMLType.HTML_UNKNOWN);
+    final enumText = _htmlTypeDisplayText(enumVal);
+    String mainText = describeEnum(enumVal);
+    if (mainText.startsWith('HTML_')) {
+      mainText = mainText.substring('HTML_'.length);
+    }
+    final helpText = enumText ?? '$mainText (unknown)';
+    return DropdownMenuItem<String>(
+      value: value,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(mainText),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3.0),
+              child: Text(helpText, style: subtitleStyle),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

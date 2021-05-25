@@ -18,7 +18,7 @@ class SearchesTable extends StatefulWidget {
   _SearchesTableState createState() => _SearchesTableState();
 }
 
-class _SearchesTableState extends State<SearchesTable> {
+class _SearchesTableState extends State<SearchesTable> with AutomaticKeepAliveClientMixin {
   List<TableColumn<Search>> get columns {
     return [
       TableColumn(
@@ -114,6 +114,7 @@ class _SearchesTableState extends State<SearchesTable> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return SliverList(
       delegate: SliverChildListDelegate(
         [
@@ -186,6 +187,9 @@ class _SearchesTableState extends State<SearchesTable> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 final _searchAvailableGoTypes = [

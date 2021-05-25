@@ -29,12 +29,12 @@ dependencies:
   cupertino_icons: ^1.0.2
 
   http: ^0.13.1 # делать хттп запросы легко
-  file_picker: ^3.0.1
 
   flutter_bloc: ^7.0.0
   shared_preferences: ^2.0.5
   equatable: ^2.0.0
   editable: ^2.0.0
+  url_launcher: ^6.0.4
 
 dev_dependencies:
   flutter_test:

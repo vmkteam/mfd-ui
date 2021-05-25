@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mfdui/components/connection.dart';
 import 'package:mfdui/components/scaffold.dart';
 import 'package:mfdui/components/settings.dart';
 import 'package:mfdui/editor/home_page.dart';
@@ -78,8 +79,9 @@ class ClosedProjectHomePage extends StatelessWidget {
                     MFDActionCard(
                       title: Row(
                         children: [
-                          const Text('Welcome to MFD Edit'),
+                          const Text('Welcome to UI'),
                           const Spacer(),
+                          ConnectionIcon(),
                           SizedBox(
                             height: 38,
                             child: IconButton(
