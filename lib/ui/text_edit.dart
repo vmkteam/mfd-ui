@@ -124,7 +124,7 @@ class _MFDTextEditState<T extends MFDLoadResult> extends State<MFDTextEdit<T>> {
   }
 }
 
-typedef ItemsLoader<T> = Future<Iterable<T>?> Function(TextEditingValue? query);
+typedef ItemsLoader<T> = Future<Iterable<T>?> Function(TextEditingValue query);
 typedef MFDTextEditItemBuilder<RES, T extends MFDLoadResult> = MFDSelectItem<RES> Function(BuildContext context, TextEditingValue? query, T option);
 
 class MFDSelectItem<T> {
@@ -393,7 +393,7 @@ class _MFDTextEditDelegateState<T extends MFDLoadResult> extends State<_MFDTextE
     _updateOptions(_controller.value);
   }
 
-  Future<void> _updateOptions(TextEditingValue? value) async {
+  Future<void> _updateOptions(TextEditingValue value) async {
     if (widget.itemsLoader != null) {
       setState(() {
         isLoading = true;

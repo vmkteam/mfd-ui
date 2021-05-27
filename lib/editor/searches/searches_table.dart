@@ -45,7 +45,23 @@ class _SearchesTableState extends State<SearchesTable> with AutomaticKeepAliveCl
             controller: TextEditingController(text: row.attrName),
             decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
             itemsLoader: (query) {
-              return Future.value(widget.attributes?.map((e) => MFDLoadResult(e.name)) ?? []);
+              final precursor = query.selection.isValid ? query.text.substring(0, query.selection.end) : '';
+              final arr = widget.attributes?.toList() ?? [];
+              arr.sort((a, b) {
+                final containsA = a.name.contains(precursor);
+                final containsB = b.name.contains(precursor);
+                if (containsA && containsB) {
+                  return a.name.compareTo(b.name);
+                }
+                if (containsA) {
+                  return -1;
+                }
+                if (containsB) {
+                  return 1;
+                }
+                return a.name.compareTo(b.name);
+              });
+              return Future.value(arr.map((e) => MFDLoadResult(e.name)).toList());
             },
             preload: true,
             onSubmitted: (value) => widget.editorBloc.add(EntitySearchChanged(index, row.copyWith(attrName: value))),
@@ -219,13 +235,13 @@ class _SearchesTableState extends State<SearchesTable> with AutomaticKeepAliveCl
       case SearchType.SEARCHTYPE_NOT_NULL:
         break;
       case SearchType.SEARCHTYPE_GE:
-        break;
+        return ['${attrName}From'];
       case SearchType.SEARCHTYPE_LE:
-        break;
+        return ['${attrName}To'];
       case SearchType.SEARCHTYPE_G:
-        break;
+        return ['${attrName}From'];
       case SearchType.SEARCHTYPE_L:
-        break;
+        return ['${attrName}To'];
       case SearchType.SEARCHTYPE_LEFT_LIKE:
         break;
       case SearchType.SEARCHTYPE_LEFT_ILIKE:
