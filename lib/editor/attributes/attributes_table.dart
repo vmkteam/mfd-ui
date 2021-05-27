@@ -48,9 +48,9 @@ class _AttributesTableState extends State<AttributesTable> with AutomaticKeepAli
       TableColumn(
         header: const Header(label: 'Name'),
         builder: (context, index, row) {
-          return MFDAutocomplete(
-            initialValue: row.name,
-            optionsLoader: null,
+          return MFDTextEdit<MFDLoadResult>(
+            controller: TextEditingController(text: row.name),
+            decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
             onSubmitted: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(name: value))),
           );
         },
@@ -58,9 +58,9 @@ class _AttributesTableState extends State<AttributesTable> with AutomaticKeepAli
       TableColumn(
         header: const Header(label: 'DB column'),
         builder: (context, index, row) {
-          return MFDAutocomplete(
-            initialValue: row.dbName,
-            optionsLoader: null,
+          return MFDTextEdit<MFDLoadResult>(
+            controller: TextEditingController(text: row.dbName),
+            decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
             onSubmitted: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(dbName: value))),
           );
         },

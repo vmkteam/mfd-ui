@@ -8,17 +8,23 @@ class DBTypeAutocomplete extends StatelessWidget {
   }) : super(key: key);
 
   final String value;
-  final ValueChanged<String> onChanged;
+  final ValueChanged<String?> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return MFDAutocomplete(
-      initialValue: value,
-      loadOnTap: true,
-      optionsLoader: (query) {
+    return MFDTextEdit<MFDLoadResult>(
+      controller: TextEditingController(text: value),
+      decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
+      itemsLoader: (query) async {
+        if (query == null) {
+          return [];
+        }
         final precursor = query.selection.isValid ? query.text.substring(0, query.selection.end) : '';
-        return RepositoryProvider.of<PublicRepo>(context).dbTypes(precursor);
+        return RepositoryProvider.of<PublicRepo>(context).dbTypes(precursor).then((collection) => collection.map(
+              (e) => MFDLoadResult(e),
+            ));
       },
+      preload: true,
       onSubmitted: onChanged,
     );
   }

@@ -14,11 +14,6 @@ class MFDTextEdit<T extends MFDLoadResult> extends StatefulWidget {
     this.onSubmitted,
     this.inputFormatters,
   })  : assert(
-          // xor
-          (itemBuilder == null && itemsLoader == null) || (itemBuilder != null && itemsLoader != null),
-          'When itemsLoader is provided itemBuilder is required and vice versa',
-        ),
-        assert(
           itemsLoader != null && items == null || itemsLoader == null,
           'When itemsLoader is provided, items should be null',
         ),
@@ -146,6 +141,7 @@ class MFDSelectItem<T> {
 
 class MFDLoadResult {
   const MFDLoadResult(this.value);
+
   final String? value;
 }
 
@@ -165,8 +161,10 @@ class TextEditDecorationOptions {
   final bool showDoneButton;
   final int? maxItemsShow;
   final double? itemHeight;
+
   // [selectBehavior] определяет поведение оверлея по нажатию на одну из опций.
   final MFDTextEditItemSelectBehavior selectBehavior;
+
   // Скрывает границы поля ввода, если оно не в фокусе
   final bool hideUnfocusedBorder;
   final double horizontalItemPadding;
@@ -368,7 +366,7 @@ class _MFDTextEditDelegateState<T extends MFDLoadResult> extends State<_MFDTextE
   }
 
   List<MFDSelectItem<String>>? getItems(BuildContext context) {
-    if (widget.staticItems == null && widget.itemBuilder == null) {
+    if (widget.staticItems == null && widget.itemsLoader == null) {
       return null;
     }
     if (widget.staticItems?.isNotEmpty ?? false) {
@@ -377,9 +375,14 @@ class _MFDTextEditDelegateState<T extends MFDLoadResult> extends State<_MFDTextE
     if (options.isEmpty) {
       return [];
     }
+    final builder = widget.itemBuilder ??
+        (context, query, option) => MFDSelectItem(
+              value: option.value,
+              child: Text(option.value ?? ''),
+            );
     return List<MFDSelectItem<String>>.generate(
         options.length,
-        (index) => widget.itemBuilder!(
+        (index) => builder(
               context,
               _controller.value,
               options[index],

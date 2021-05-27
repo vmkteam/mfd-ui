@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mfdui/components/table.dart';
@@ -24,9 +27,13 @@ class _SearchesTableState extends State<SearchesTable> with AutomaticKeepAliveCl
       TableColumn(
         header: const Header(label: 'Name'),
         builder: (context, index, row) {
-          return MFDAutocomplete(
-            initialValue: row.name,
-            optionsLoader: null,
+          return MFDTextEdit<MFDLoadResult>(
+            controller: TextEditingController(text: row.name),
+            decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
+            itemsLoader: (query) async {
+              return _searchNameByParams(row.attrName, row.searchType).map((e) => MFDLoadResult(e));
+            },
+            preload: true,
             onSubmitted: (value) => widget.editorBloc.add(EntitySearchChanged(index, row.copyWith(name: value))),
           );
         },
@@ -34,11 +41,13 @@ class _SearchesTableState extends State<SearchesTable> with AutomaticKeepAliveCl
       TableColumn(
         header: const Header(label: 'Attribute'),
         builder: (context, index, row) {
-          return MFDAutocomplete(
-            initialValue: row.attrName,
-            optionsLoader: (query) {
-              return Future.value(widget.attributes?.map((e) => e.name) ?? []);
+          return MFDTextEdit<MFDLoadResult>(
+            controller: TextEditingController(text: row.attrName),
+            decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
+            itemsLoader: (query) {
+              return Future.value(widget.attributes?.map((e) => MFDLoadResult(e.name)) ?? []);
             },
+            preload: true,
             onSubmitted: (value) => widget.editorBloc.add(EntitySearchChanged(index, row.copyWith(attrName: value))),
           );
         },
@@ -67,15 +76,14 @@ class _SearchesTableState extends State<SearchesTable> with AutomaticKeepAliveCl
       TableColumn(
         header: const Header(
           label: 'Go type',
-          tooltip: 'Type search that is used for search. Available only with JSONB_PATH search.',
+          tooltip: 'Type search that is used for search.',
         ),
         builder: (context, rowIndex, row) {
-          return MFDAutocomplete(
-            // decoration: InputDecoration(),
-            initialValue: row.goType,
-            optionsLoader: (query) {
-              return Future.value(_searchAvailableGoTypes);
-            },
+          return MFDTextEdit(
+            controller: TextEditingController(text: row.goType),
+            decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
+            items: _searchAvailableGoTypes.map((e) => MFDSelectItem(value: e, child: Text(e))).toList(),
+            preload: true,
           );
         },
       ),
@@ -190,6 +198,63 @@ class _SearchesTableState extends State<SearchesTable> with AutomaticKeepAliveCl
 
   @override
   bool get wantKeepAlive => true;
+
+  List<String> _searchNameByParams(String attrName, String searchType) {
+    final enumVal = SearchType.values.firstWhere((element) => describeEnum(element) == searchType, orElse: () => SearchType.SEARCHTYPE_UNKNOWN);
+    final lastDot = attrName.lastIndexOf('.');
+    final lastArrow = attrName.lastIndexOf('->');
+    final lastSymbol = math.max(lastArrow, lastDot);
+    if (lastSymbol != -1) {
+      attrName = attrName.substring(lastSymbol + 1);
+    }
+    switch (enumVal) {
+      case SearchType.SEARCHTYPE_UNKNOWN:
+        break;
+      case SearchType.SEARCHTYPE_EQUALS:
+        return [attrName];
+      case SearchType.SEARCHTYPE_NOT_EQUALS:
+        return ['Not$attrName'];
+      case SearchType.SEARCHTYPE_NULL:
+        return [attrName];
+      case SearchType.SEARCHTYPE_NOT_NULL:
+        break;
+      case SearchType.SEARCHTYPE_GE:
+        break;
+      case SearchType.SEARCHTYPE_LE:
+        break;
+      case SearchType.SEARCHTYPE_G:
+        break;
+      case SearchType.SEARCHTYPE_L:
+        break;
+      case SearchType.SEARCHTYPE_LEFT_LIKE:
+        break;
+      case SearchType.SEARCHTYPE_LEFT_ILIKE:
+        break;
+      case SearchType.SEARCHTYPE_RIGHT_LIKE:
+        break;
+      case SearchType.SEARCHTYPE_RIGHT_ILIKE:
+        break;
+      case SearchType.SEARCHTYPE_LIKE:
+        return ['${attrName}Like'];
+      case SearchType.SEARCHTYPE_ILIKE:
+        return ['${attrName}ILike'];
+      case SearchType.SEARCHTYPE_ARRAY:
+        return ['${attrName}s'];
+      case SearchType.SEARCHTYPE_NOT_INARRAY:
+        break;
+      case SearchType.SEARCHTYPE_ARRAY_CONTAINS:
+        break;
+      case SearchType.SEARCHTYPE_ARRAY_NOT_CONTAINS:
+        break;
+      case SearchType.SEARCHTYPE_ARRAY_CONTAINED:
+        break;
+      case SearchType.SEARCHTYPE_ARRAY_INTERSECT:
+        break;
+      case SearchType.SEARCHTYPE_JSONB_PATH:
+        break;
+    }
+    return [];
+  }
 }
 
 final _searchAvailableGoTypes = [
