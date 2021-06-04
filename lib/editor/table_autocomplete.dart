@@ -38,6 +38,7 @@ class _TableAutocompleteState extends State<TableAutocomplete> {
         border: OutlineInputBorder(),
         labelText: 'Table',
       ),
+      style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode'),
       controller: TextEditingController(text: tableName),
       itemsLoader: (query) async {
         final projectState = widget.projectBloc.state;

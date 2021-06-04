@@ -13,6 +13,7 @@ class MFDTextEdit<T extends MFDLoadResult> extends StatefulWidget {
     this.decorationOptions = const TextEditDecorationOptions(),
     this.onSubmitted,
     this.inputFormatters,
+    this.style,
   })  : assert(
           itemsLoader != null && items == null || itemsLoader == null,
           'When itemsLoader is provided, items should be null',
@@ -22,9 +23,10 @@ class MFDTextEdit<T extends MFDLoadResult> extends StatefulWidget {
   final TextEditingController? controller;
   final FocusNode? focusNode;
 
-  final InputDecoration? decoration;
-  final TextEditDecorationOptions decorationOptions;
+  final InputDecoration? decoration; // from TextField
+  final TextEditDecorationOptions decorationOptions; // from TextField
   final List<TextInputFormatter>? inputFormatters;
+  final TextStyle? style; // from TextField
 
   final List<MFDSelectItem<String>>? items;
 
@@ -56,6 +58,7 @@ class _MFDTextEditState<T extends MFDLoadResult> extends State<MFDTextEdit<T>> {
       onTap: _onTap,
       focusNode: _focusNode,
       inputFormatters: widget.inputFormatters,
+      style: widget.style,
     );
   }
 
@@ -95,6 +98,7 @@ class _MFDTextEditState<T extends MFDLoadResult> extends State<MFDTextEdit<T>> {
           itemBuilder: widget.itemBuilder,
           itemsLoader: widget.itemsLoader,
           preload: widget.preload,
+          style: widget.style,
         ),
         buttonRect: buttonRect,
         themes: InheritedTheme.capture(
@@ -245,12 +249,14 @@ class _MFDTextEditDelegate<T extends MFDLoadResult> extends StatefulWidget {
     this.preload = false,
     this.decorationOptions = const TextEditDecorationOptions(),
     this.inputFormatters,
+    this.style,
   }) : super(key: key);
 
   final TextEditingValue? initialValue;
-  final InputDecoration? decoration;
+  final InputDecoration? decoration; // from TextField
   final TextEditDecorationOptions decorationOptions;
-  final List<TextInputFormatter>? inputFormatters;
+  final List<TextInputFormatter>? inputFormatters; // from TextField
+  final TextStyle? style; // from TextField
 
   final List<MFDSelectItem<String>>? staticItems;
   final ItemsLoader<T>? itemsLoader;
@@ -298,6 +304,7 @@ class _MFDTextEditDelegateState<T extends MFDLoadResult> extends State<_MFDTextE
         decoration: _effectivePopupDecoration(context),
         onSubmitted: (value) => _submitResult(context, value),
         inputFormatters: widget.inputFormatters,
+        style: widget.style,
       ),
     );
     final itemWidgets = getItems(context);
@@ -311,10 +318,13 @@ class _MFDTextEditDelegateState<T extends MFDLoadResult> extends State<_MFDTextE
           InkWell(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: widget.decorationOptions.horizontalItemPadding),
-              child: Container(
-                constraints: const BoxConstraints(minHeight: 48),
-                alignment: AlignmentDirectional.centerStart,
-                child: item.child,
+              child: DefaultTextStyle(
+                style: widget.style ?? const TextStyle(),
+                child: Container(
+                  constraints: const BoxConstraints(minHeight: 48),
+                  alignment: AlignmentDirectional.centerStart,
+                  child: item.child,
+                ),
               ),
             ),
             onTap: () {

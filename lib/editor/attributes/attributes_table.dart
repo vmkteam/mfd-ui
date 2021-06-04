@@ -50,6 +50,7 @@ class _AttributesTableState extends State<AttributesTable> with AutomaticKeepAli
         builder: (context, index, row) {
           return MFDTextEdit<MFDLoadResult>(
             controller: TextEditingController(text: row.name),
+            style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode', fontWeight: FontWeight.bold),
             decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
             onSubmitted: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(name: value))),
           );
@@ -60,6 +61,7 @@ class _AttributesTableState extends State<AttributesTable> with AutomaticKeepAli
         builder: (context, index, row) {
           return MFDTextEdit<MFDLoadResult>(
             controller: TextEditingController(text: row.dbName),
+            style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode'),
             decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
             onSubmitted: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(dbName: value))),
           );

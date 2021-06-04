@@ -18,6 +18,7 @@ class GoTypeAutocomplete extends StatelessWidget {
   Widget build(BuildContext context) {
     return MFDTextEdit<_LoadGoType>(
       controller: TextEditingController(text: value),
+      style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode'),
       decorationOptions: const TextEditDecorationOptions(
         horizontalItemPadding: 0,
         hideUnfocusedBorder: true,

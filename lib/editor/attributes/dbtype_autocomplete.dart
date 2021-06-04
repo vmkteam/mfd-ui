@@ -14,6 +14,7 @@ class DBTypeAutocomplete extends StatelessWidget {
   Widget build(BuildContext context) {
     return MFDTextEdit<MFDLoadResult>(
       controller: TextEditingController(text: value),
+      style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode'),
       decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
       itemsLoader: (query) async {
         if (query == null) {

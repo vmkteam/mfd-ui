@@ -16,6 +16,7 @@ class NamespaceAutocomplete extends StatelessWidget {
         border: OutlineInputBorder(),
         labelText: 'Namespace',
       ),
+      style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode'),
       controller: TextEditingController(text: initialValue),
       itemsLoader: (query) async {
         if (query == null) {

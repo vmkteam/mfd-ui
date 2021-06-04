@@ -29,6 +29,7 @@ class _SearchesTableState extends State<SearchesTable> with AutomaticKeepAliveCl
         builder: (context, index, row) {
           return MFDTextEdit<MFDLoadResult>(
             controller: TextEditingController(text: row.name),
+            style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode', fontWeight: FontWeight.bold),
             decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
             itemsLoader: (query) async {
               return _searchNameByParams(row.attrName, row.searchType).map((e) => MFDLoadResult(e));
@@ -43,13 +44,14 @@ class _SearchesTableState extends State<SearchesTable> with AutomaticKeepAliveCl
         builder: (context, index, row) {
           return MFDTextEdit<MFDLoadResult>(
             controller: TextEditingController(text: row.attrName),
+            style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode'),
             decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
             itemsLoader: (query) {
               final precursor = query.selection.isValid ? query.text.substring(0, query.selection.end) : '';
               final arr = widget.attributes?.toList() ?? [];
               arr.sort((a, b) {
-                final containsA = a.name.contains(precursor);
-                final containsB = b.name.contains(precursor);
+                final containsA = a.name.toLowerCase().contains(precursor.toLowerCase());
+                final containsB = b.name.toLowerCase().contains(precursor.toLowerCase());
                 if (containsA && containsB) {
                   return a.name.compareTo(b.name);
                 }
@@ -59,7 +61,7 @@ class _SearchesTableState extends State<SearchesTable> with AutomaticKeepAliveCl
                 if (containsB) {
                   return 1;
                 }
-                return a.name.compareTo(b.name);
+                return a.name.toLowerCase().compareTo(b.name.toLowerCase());
               });
               return Future.value(arr.map((e) => MFDLoadResult(e.name)).toList());
             },

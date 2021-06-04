@@ -144,6 +144,7 @@ class _MainParameters extends StatelessWidget {
                 labelText: 'Terminal path',
                 helperText: 'e.g. path/to/entity',
               ),
+              style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode'),
               controller: TextEditingController(text: state.vtentity.terminalPath),
               onSubmitted: (value) {
                 if (value != null) {
@@ -296,21 +297,30 @@ class _AttributesTableState extends State<AttributesTable> with AutomaticKeepAli
           return MFDTextEdit(
             controller: TextEditingController(text: row.name),
             decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
+            style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode', fontWeight: FontWeight.bold),
             onSubmitted: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(name: value))),
           );
         },
       ),
       TableColumn(
+        header: const Header(child: SizedBox()),
+        builder: (context, rowIndex, row) => const VerticalDivider(),
+      ),
+      TableColumn(
         header: const Header(
-          label: 'Attribute',
-          tooltip: 'One of model attributes',
+          label: 'Entity Attribute',
+          tooltip: 'One of entity attributes',
         ),
         builder: (context, index, row) {
           return MFDTextEdit<MFDLoadResult>(
             controller: TextEditingController(text: row.attrName),
+            style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode'),
             decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
             itemsLoader: (query) {
-              return Future.value(widget.state.entity.attributes.map((e) => MFDLoadResult(e.name)));
+              final precursor = query.selection.isValid ? query.text.substring(0, query.selection.end) : '';
+              final arr = widget.state.entity.attributes.map((e) => e.name).toList();
+              arr.sort(_sortByPrefix(precursor.toLowerCase()));
+              return Future.value(arr.map((e) => MFDLoadResult(e)).toList());
             },
             itemBuilder: (context, query, option) => MFDSelectItem(value: option.value, child: Text(option.value ?? '')),
             preload: true,
@@ -319,32 +329,13 @@ class _AttributesTableState extends State<AttributesTable> with AutomaticKeepAli
         },
       ),
       TableColumn(
-        header: const Header(
-          label: 'Required',
-          tooltip: 'Indicates that this parameter should not be null in add or update methods.',
+        header: Header(
+          child: RotatedBox(
+            quarterTurns: -1,
+            child: Text('Filters', style: Theme.of(context).textTheme.caption),
+          ),
         ),
-        builder: (context, index, row) {
-          return Center(
-            child: CheckboxStateful(
-              value: row.required,
-              onChanged: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(required: value))),
-            ),
-          );
-        },
-      ),
-      TableColumn(
-        header: const Header(
-          label: 'Summary',
-          tooltip: 'Parameter would be represented in Summary model, that is used in lists.',
-        ),
-        builder: (context, index, row) {
-          return Center(
-            child: CheckboxStateful(
-              value: row.summary,
-              onChanged: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(summary: value))),
-            ),
-          );
-        },
+        builder: (context, rowIndex, row) => const VerticalDivider(),
       ),
       TableColumn(
         header: const Header(
@@ -368,14 +359,23 @@ class _AttributesTableState extends State<AttributesTable> with AutomaticKeepAli
         builder: (context, index, row) {
           return MFDTextEdit<_SearchAutocompleteValue>(
             controller: TextEditingController(text: row.searchName),
+            style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode'),
             decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true, minWidth: 260),
             itemsLoader: (query) {
-              final attrs = widget.state.entity.attributes.map((e) => e.name).map(
-                    (e) => _SearchAutocompleteValue(e, _SearchAutocompleteValueType.Attribute),
-                  );
-              final searches = widget.state.entity.searches.map((e) => e.name).map(
-                    (e) => _SearchAutocompleteValue(e, _SearchAutocompleteValueType.Search),
-                  );
+              var precursor = query.selection.isValid ? query.text.substring(0, query.selection.end) : '';
+              precursor = precursor.toLowerCase();
+
+              final attributesList = widget.state.entity.attributes.map((e) => e.name).toList();
+              attributesList.sort(_sortByPrefix(precursor));
+              final searchesList = widget.state.entity.searches.map((e) => e.name).toList();
+              searchesList.sort(_sortByPrefix(precursor));
+
+              final attrs = attributesList.map(
+                (e) => _SearchAutocompleteValue(e, _SearchAutocompleteValueType.Attribute),
+              );
+              final searches = searchesList.map(
+                (e) => _SearchAutocompleteValue(e, _SearchAutocompleteValueType.Search),
+              );
               return Future.value([...attrs, ...searches]);
             },
             itemBuilder: (context, query, option) => MFDSelectItem(
@@ -397,10 +397,57 @@ class _AttributesTableState extends State<AttributesTable> with AutomaticKeepAli
         },
       ),
       TableColumn(
+        header: Header(
+          child: RotatedBox(
+            quarterTurns: -1,
+            child: Text('List', style: Theme.of(context).textTheme.caption),
+          ),
+        ),
+        builder: (context, rowIndex, row) => const VerticalDivider(),
+      ),
+      TableColumn(
+        header: const Header(
+          label: 'Summary',
+          tooltip: 'Parameter would be represented in Summary model, that is used in lists.',
+        ),
+        builder: (context, index, row) {
+          return Center(
+            child: CheckboxStateful(
+              value: row.summary,
+              onChanged: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(summary: value))),
+            ),
+          );
+        },
+      ),
+      TableColumn(
+        header: Header(
+          child: RotatedBox(
+            quarterTurns: -1,
+            child: Text('Form', style: Theme.of(context).textTheme.caption),
+          ),
+        ),
+        builder: (context, rowIndex, row) => const VerticalDivider(),
+      ),
+      TableColumn(
+        header: const Header(
+          label: 'Required',
+          tooltip: 'Indicates that this parameter should not be null in add or update methods.',
+        ),
+        builder: (context, index, row) {
+          return Center(
+            child: CheckboxStateful(
+              value: row.required,
+              onChanged: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(required: value))),
+            ),
+          );
+        },
+      ),
+      TableColumn(
         header: const Header(label: 'Validate rule'),
         builder: (context, index, row) {
           return MFDTextEdit(
             controller: TextEditingController(text: row.validate),
+            style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode'),
             decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
             onSubmitted: (value) => widget.editorBloc.add(EntityAttributeChanged(index, row.copyWith(validate: value))),
           );
@@ -499,6 +546,7 @@ class _VTTemplateTableState extends State<VTTemplateTable> with AutomaticKeepAli
         builder: (context, index, row) {
           return MFDTextEdit(
             controller: TextEditingController(text: row.name),
+            style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode', fontWeight: FontWeight.bold),
             decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
             onSubmitted: (value) => widget.editorBloc.add(EntityTemplateChanged(index, row.copyWith(name: value))),
           );
@@ -509,8 +557,14 @@ class _VTTemplateTableState extends State<VTTemplateTable> with AutomaticKeepAli
         builder: (context, index, row) {
           return MFDTextEdit<MFDLoadResult>(
             controller: TextEditingController(text: row.vtAttrName),
+            style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode'),
             decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
-            itemsLoader: (query) => Future.value(widget.state.vtentity.attributes.map((e) => MFDLoadResult(e.name))),
+            itemsLoader: (query) {
+              final precursor = query.selection.isValid ? query.text.substring(0, query.selection.end) : '';
+              final arr = widget.state.vtentity.attributes.map((e) => e.name).toList();
+              arr.sort(_sortByPrefix(precursor.toLowerCase()));
+              return Future.value(arr.map((e) => MFDLoadResult(e)));
+            },
             itemBuilder: (context, query, option) => MFDSelectItem(value: option.value, child: Text(option.value ?? '')),
             preload: true,
             onSubmitted: (value) => widget.editorBloc.add(EntityTemplateChanged(index, row.copyWith(vtAttrName: value))),
@@ -518,7 +572,16 @@ class _VTTemplateTableState extends State<VTTemplateTable> with AutomaticKeepAli
         },
       ),
       TableColumn(
-        header: const Header(label: 'Search'),
+        header: Header(
+          child: RotatedBox(
+            quarterTurns: -1,
+            child: Text('Filter', style: Theme.of(context).textTheme.caption),
+          ),
+        ),
+        builder: (context, rowIndex, row) => const VerticalDivider(),
+      ),
+      TableColumn(
+        header: const Header(label: 'Filter'),
         builder: (context, index, row) {
           return HTMLTypeAutocomplete(
             value: row.search,
@@ -527,13 +590,13 @@ class _VTTemplateTableState extends State<VTTemplateTable> with AutomaticKeepAli
         },
       ),
       TableColumn(
-        header: const Header(label: 'Form'),
-        builder: (context, index, row) {
-          return HTMLTypeAutocomplete(
-            value: row.form,
-            onSubmitted: (value) => widget.editorBloc.add(EntityTemplateChanged(index, row.copyWith(form: value))),
-          );
-        },
+        header: Header(
+          child: RotatedBox(
+            quarterTurns: -1,
+            child: Text('List', style: Theme.of(context).textTheme.caption),
+          ),
+        ),
+        builder: (context, rowIndex, row) => const VerticalDivider(),
       ),
       TableColumn(
         header: const Header(label: 'List'),
@@ -559,10 +622,29 @@ class _VTTemplateTableState extends State<VTTemplateTable> with AutomaticKeepAli
         },
       ),
       TableColumn(
-        header: const Header(label: 'FK Opts'),
+        header: Header(
+          child: RotatedBox(
+            quarterTurns: -1,
+            child: Text('Form', style: Theme.of(context).textTheme.caption),
+          ),
+        ),
+        builder: (context, rowIndex, row) => const VerticalDivider(),
+      ),
+      TableColumn(
+        header: const Header(label: 'Form'),
+        builder: (context, index, row) {
+          return HTMLTypeAutocomplete(
+            value: row.form,
+            onSubmitted: (value) => widget.editorBloc.add(EntityTemplateChanged(index, row.copyWith(form: value))),
+          );
+        },
+      ),
+      TableColumn(
+        header: const Header(label: 'FK Opts', tooltip: 'IDK what it is'),
         builder: (context, index, row) {
           return MFDTextEdit(
             controller: TextEditingController(text: row.fkOpts),
+            style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode'),
             decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
             onSubmitted: (value) => widget.editorBloc.add(EntityTemplateChanged(index, row.copyWith(fkOpts: value))),
           );
@@ -825,3 +907,22 @@ class __DropdownBuilderState<T> extends State<_DropdownBuilder<T>> {
 
 typedef _ItemsLoader<T> = Future<List<T>?> Function();
 typedef _ItemBuilder<T> = DropdownMenuItem<T> Function(T);
+
+Comparator<String> _sortByPrefix(String prefix) {
+  return (String a, String b) {
+    final containsA = a.toLowerCase().contains(prefix);
+    final containsB = b.toLowerCase().contains(prefix);
+    if (containsA && containsB) {
+      final result = a.toLowerCase().compareTo(b.toLowerCase());
+      return result;
+    }
+    if (containsA) {
+      return -1;
+    }
+    if (containsB) {
+      return 1;
+    }
+    final result = a.toLowerCase().compareTo(b.toLowerCase());
+    return result;
+  };
+}
