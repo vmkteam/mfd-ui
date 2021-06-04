@@ -20,11 +20,9 @@ class OpenProjectDialog extends StatelessWidget {
     return BlocProvider.value(
       value: projectBloc,
       child: Dialog(
-        child: Unfocuser(
-          child: OpenProjectCard(
-            path: path,
-            conn: conn,
-          ),
+        child: OpenProjectCard(
+          path: path,
+          conn: conn,
         ),
       ),
     );

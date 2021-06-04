@@ -26,12 +26,12 @@ class SearchTypeAutocomplete extends StatelessWidget {
       },
       itemBuilder: (value) {
         final enumVal = SearchType.values.firstWhere((element) => describeEnum(element) == value, orElse: () => SearchType.SEARCHTYPE_UNKNOWN);
-        final enumText = _searchTypeDisplayText(enumVal);
+        final enumText = _searchTypeDisplayText(enumVal, columnName);
         String mainText = value;
         if (mainText.startsWith('SEARCHTYPE_')) {
           mainText = mainText.substring('SEARCHTYPE_'.length);
         }
-        final helpText = enumText != null ? 'where "$columnName" $enumText' : '$value (unknown)';
+        final helpText = enumText ?? '$value (unknown)';
         return DropdownMenuItem<String>(
           value: value,
           child: Padding(
@@ -53,52 +53,52 @@ class SearchTypeAutocomplete extends StatelessWidget {
     );
   }
 
-  String? _searchTypeDisplayText(SearchType enumVal) {
+  String? _searchTypeDisplayText(SearchType enumVal, String columnName) {
     switch (enumVal) {
       case SearchType.SEARCHTYPE_UNKNOWN:
         return null;
       case SearchType.SEARCHTYPE_EQUALS:
-        return '= ?';
+        return 'where "$columnName" = ?';
       case SearchType.SEARCHTYPE_NOT_EQUALS:
-        return '!= ?';
+        return 'where "$columnName" != ?';
       case SearchType.SEARCHTYPE_NULL:
-        return 'is null';
+        return 'where "$columnName" is null';
       case SearchType.SEARCHTYPE_NOT_NULL:
-        return 'is not null';
+        return 'where "$columnName" is not null';
       case SearchType.SEARCHTYPE_GE:
-        return '>= ?';
+        return 'where "$columnName" >= ?';
       case SearchType.SEARCHTYPE_LE:
-        return '<= ?';
+        return 'where "$columnName" <= ?';
       case SearchType.SEARCHTYPE_G:
-        return '> ?';
+        return 'where "$columnName" > ?';
       case SearchType.SEARCHTYPE_L:
-        return '< ?';
+        return 'where "$columnName" < ?';
       case SearchType.SEARCHTYPE_LEFT_LIKE:
-        return 'like %?';
+        return 'where "$columnName" like %?';
       case SearchType.SEARCHTYPE_LEFT_ILIKE:
-        return 'ilike %?';
+        return 'where "$columnName" ilike %?';
       case SearchType.SEARCHTYPE_RIGHT_LIKE:
-        return 'like ?%';
+        return 'where "$columnName" like ?%';
       case SearchType.SEARCHTYPE_RIGHT_ILIKE:
-        return 'ilike ?%';
+        return 'where "$columnName" ilike ?%';
       case SearchType.SEARCHTYPE_LIKE:
-        return 'like %?%';
+        return 'where "$columnName" like %?%';
       case SearchType.SEARCHTYPE_ILIKE:
-        return 'ilike %?%';
+        return 'where "$columnName" ilike %?%';
       case SearchType.SEARCHTYPE_ARRAY:
-        return 'in (?)';
+        return 'where "$columnName" in (?)';
       case SearchType.SEARCHTYPE_NOT_INARRAY:
-        return 'not in (?)';
+        return 'where "$columnName" not in (?)';
       case SearchType.SEARCHTYPE_ARRAY_CONTAINS:
-        return '= any (?)';
+        return 'where "$columnName" = any (?)';
       case SearchType.SEARCHTYPE_ARRAY_NOT_CONTAINS:
-        return '!= any (?)';
+        return 'where "$columnName" != any (?)';
       case SearchType.SEARCHTYPE_ARRAY_CONTAINED:
-        return 'ARRAY[?] <@';
+        return 'where ARRAY[?] <@ "$columnName"';
       case SearchType.SEARCHTYPE_ARRAY_INTERSECT:
-        return 'ARRAY[?] &&';
+        return 'where ARRAY[?] && "$columnName"';
       case SearchType.SEARCHTYPE_JSONB_PATH:
-        return 'column @> ?';
+        return 'where $columnName @> ?';
     }
   }
 }

@@ -44,9 +44,6 @@ class _TableAutocompleteState extends State<TableAutocomplete> {
         if (projectState is! ProjectLoadSuccess) {
           return List.empty();
         }
-        if (query == null) {
-          return List.empty();
-        }
 
         final precursor = query.selection.isValid ? query.text.substring(0, query.selection.end) : '';
         if (_cachedTables != null) {

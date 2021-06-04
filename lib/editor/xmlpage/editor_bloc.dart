@@ -174,23 +174,34 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
   Stream<EditorState> _mapEditorEntityAddedToState(EditorEntityAdded event) async* {
     yield EditorEntityLoadInProgress(event.tableName);
 
-    final newEntity = await _apiClient.xml.generateEntity(api.XmlGenerateEntityArgs(
-      namespace: event.namespaceName,
-      table: event.tableName,
-    ));
+    try {
+      final newEntity = await _apiClient.xml.generateEntity(api.XmlGenerateEntityArgs(
+        namespace: event.namespaceName,
+        table: event.tableName,
+      ));
 
-    _entity = Entity.fromApi(newEntity!);
+      _entity = Entity.fromApi(newEntity!);
+      if (event.entityName != '') {
+        _entity = _entity!.copyWith(name: event.entityName);
+      }
 
-    await _apiClient.xml.updateEntity(api.XmlUpdateEntityArgs(entity: _entity!.toApi()));
+      await _apiClient.xml.updateEntity(api.XmlUpdateEntityArgs(entity: _entity!.toApi()));
 
-    final newVtEntity = await _apiClient.xmlvt.generateEntity(api.XmlvtGenerateEntityArgs(
-      namespace: event.namespaceName,
-      entity: newEntity.name,
-    ));
-    await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newVtEntity, namespace: event.namespaceName));
+      var newVtEntity = await _apiClient.xmlvt.generateEntity(api.XmlvtGenerateEntityArgs(
+        namespace: event.namespaceName,
+        entity: _entity!.name,
+      ));
+      if (event.entityName != '') {
+        newVtEntity = VTEntity.fromApi(newVtEntity!, event.namespaceName).copyWith(name: event.entityName).toApi();
+      }
+      await _apiClient.xmlvt.updateEntity(api.XmlvtUpdateEntityArgs(entity: newVtEntity, namespace: event.namespaceName));
 
-    _projectBloc.add(ProjectLoadCurrent()); // reload menu
-    yield EditorEntityLoadSuccess(_entity!);
+      _projectBloc.add(ProjectLoadCurrent()); // reload menu
+      yield EditorEntityLoadSuccess(_entity!);
+    } catch (e) {
+      yield EditorEntityLoadFailed(event.entityName, e.toString());
+      rethrow;
+    }
   }
 
   Stream<EditorState> _mapEditorEntityTableChangedToState(EntityTableChanged event) async* {

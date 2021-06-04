@@ -76,8 +76,9 @@ class XMLMenu extends StatelessWidget {
                                   }
 
                                   BlocProvider.of<EditorBloc>(context).add(EditorEntityAdded(
-                                    result.namespace,
-                                    result.tableName,
+                                    entityName: result.entityName,
+                                    namespaceName: result.namespace,
+                                    tableName: result.tableName,
                                   ));
                                   projectBloc.add(ProjectLoadCurrent());
                                 },
@@ -201,6 +202,7 @@ class _NewEntityDialog extends StatefulWidget {
 class __NewEntityDialogState extends State<_NewEntityDialog> {
   late String resultNamespace;
   String tableName = '';
+  String resultName = '';
 
   @override
   void initState() {
@@ -212,68 +214,82 @@ class __NewEntityDialogState extends State<_NewEntityDialog> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: widget.projectBloc,
-      child: Unfocuser(
-        child: SimpleDialog(
-          contentPadding: const EdgeInsets.all(8.0),
-          title: const Text('New entity'),
-          children: [
-            const SizedBox(height: 30),
-            ListTile(
-              title: NamespaceAutocomplete(
-                initialValue: resultNamespace,
-                onSubmitted: (value) {
-                  if (value != null) {
-                    resultNamespace = value;
-                  }
-                },
-              ),
+      child: SimpleDialog(
+        contentPadding: const EdgeInsets.all(8.0),
+        title: const Text('New entity'),
+        children: [
+          const SizedBox(height: 30),
+          ListTile(
+            title: NamespaceAutocomplete(
+              initialValue: resultNamespace,
+              onSubmitted: (value) {
+                if (value != null) {
+                  resultNamespace = value;
+                }
+              },
             ),
-            ListTile(
-              title: TableAutocomplete(
-                tableName: tableName,
-                projectBloc: widget.projectBloc,
-                apiClient: widget.apiClient,
-                onSubmitted: (value) {
-                  if (value != null) {
-                    tableName = value;
-                  }
-                },
+          ),
+          ListTile(
+            title: MFDTextEdit(
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                labelText: 'Name',
+                hintText: 'Left empty for default',
+                hintStyle: Theme.of(context).textTheme.caption,
               ),
+              onSubmitted: (value) {
+                setState(() {
+                  resultName = value ?? '';
+                });
+              },
             ),
-            const SizedBox(height: 90),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 36,
-                    child: TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancel'),
-                    ),
+          ),
+          ListTile(
+            title: TableAutocomplete(
+              tableName: tableName,
+              projectBloc: widget.projectBloc,
+              apiClient: widget.apiClient,
+              onSubmitted: (value) {
+                if (value != null) {
+                  tableName = value;
+                }
+              },
+            ),
+          ),
+          const SizedBox(height: 90),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 36,
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Cancel'),
                   ),
                 ),
-                Expanded(
-                  child: SizedBox(
-                    height: 36,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(_AddEntityDialogResult(resultNamespace, tableName)),
-                      child: const Text('Add entity'),
-                    ),
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: 36,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(_AddEntityDialogResult(resultName, resultNamespace, tableName)),
+                    child: const Text('Add entity'),
                   ),
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
 
 class _AddEntityDialogResult {
-  _AddEntityDialogResult(this.namespace, this.tableName);
+  _AddEntityDialogResult(this.entityName, this.namespace, this.tableName);
 
+  final String entityName;
   final String namespace;
   final String tableName;
 }

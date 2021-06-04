@@ -399,10 +399,12 @@ class _MFDTextEditDelegateState<T extends MFDLoadResult> extends State<_MFDTextE
         isLoading = true;
       });
       final result = await widget.itemsLoader!(value);
-      setState(() {
-        isLoading = false;
-        options = result?.toList() ?? [];
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+          options = result?.toList() ?? [];
+        });
+      }
     }
   }
 

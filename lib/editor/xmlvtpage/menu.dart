@@ -6,7 +6,6 @@ import 'package:mfdui/editor/table_autocomplete.dart';
 import 'package:mfdui/editor/xmlvtpage/editor_bloc.dart';
 import 'package:mfdui/project/project.dart';
 import 'package:mfdui/services/api/api_client.dart' as api;
-import 'package:mfdui/ui/ui.dart';
 
 class XMLVTMenu extends StatelessWidget {
   @override
@@ -183,60 +182,58 @@ class __NewEntityDialogState extends State<_NewEntityDialog> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: widget.projectBloc,
-      child: Unfocuser(
-        child: SimpleDialog(
-          contentPadding: const EdgeInsets.all(8.0),
-          title: const Text('New entity'),
-          children: [
-            const SizedBox(height: 30),
-            ListTile(
-              title: NamespaceAutocomplete(
-                initialValue: resultNamespace,
-                onSubmitted: (value) {
-                  if (value != null) {
-                    resultNamespace = value;
-                  }
-                },
-              ),
+      child: SimpleDialog(
+        contentPadding: const EdgeInsets.all(8.0),
+        title: const Text('New entity'),
+        children: [
+          const SizedBox(height: 30),
+          ListTile(
+            title: NamespaceAutocomplete(
+              initialValue: resultNamespace,
+              onSubmitted: (value) {
+                if (value != null) {
+                  resultNamespace = value;
+                }
+              },
             ),
-            ListTile(
-              title: TableAutocomplete(
-                tableName: tableName,
-                projectBloc: widget.projectBloc,
-                apiClient: widget.apiClient,
-                onSubmitted: (value) {
-                  if (value != null) {
-                    tableName = value;
-                  }
-                },
-              ),
+          ),
+          ListTile(
+            title: TableAutocomplete(
+              tableName: tableName,
+              projectBloc: widget.projectBloc,
+              apiClient: widget.apiClient,
+              onSubmitted: (value) {
+                if (value != null) {
+                  tableName = value;
+                }
+              },
             ),
-            const SizedBox(height: 90),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 36,
-                    child: TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancel'),
-                    ),
+          ),
+          const SizedBox(height: 90),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 36,
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Cancel'),
                   ),
                 ),
-                Expanded(
-                  child: SizedBox(
-                    height: 36,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(_AddEntityDialogResult(resultNamespace, tableName)),
-                      child: const Text('Add entity'),
-                    ),
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: 36,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(_AddEntityDialogResult(resultNamespace, tableName)),
+                    child: const Text('Add entity'),
                   ),
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
