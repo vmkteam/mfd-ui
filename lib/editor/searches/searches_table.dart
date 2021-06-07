@@ -45,7 +45,10 @@ class _SearchesTableState extends State<SearchesTable> with AutomaticKeepAliveCl
           return MFDTextEdit<MFDLoadResult>(
             controller: TextEditingController(text: row.attrName),
             style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode'),
-            decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
+            decorationOptions: const TextEditDecorationOptions(
+              hideUnfocusedBorder: true,
+              showClearButton: true,
+            ),
             itemsLoader: (query) {
               final precursor = query.selection.isValid ? query.text.substring(0, query.selection.end) : '';
               final arr = widget.attributes?.toList() ?? [];

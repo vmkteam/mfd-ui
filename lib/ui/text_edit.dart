@@ -159,10 +159,12 @@ class TextEditDecorationOptions {
     this.hideUnfocusedBorder = false,
     this.horizontalItemPadding = 12,
     this.minWidth = 170,
+    this.showClearButton = false,
   });
 
   final bool showEditButton;
   final bool showDoneButton;
+  final bool showClearButton;
   final int? maxItemsShow;
   final double? itemHeight;
 
@@ -420,14 +422,33 @@ class _MFDTextEditDelegateState<T extends MFDLoadResult> extends State<_MFDTextE
 
   InputDecoration _effectivePopupDecoration(BuildContext context) {
     InputDecoration result = widget.decoration ?? const InputDecoration(contentPadding: EdgeInsets.all(6));
-    if (widget.decorationOptions.showDoneButton) {
+    if (widget.decorationOptions.showDoneButton || widget.decorationOptions.showClearButton) {
       result = result.copyWith(
-        suffixIcon: IconButton(
-          focusNode: FocusNode(canRequestFocus: false, descendantsAreFocusable: false, skipTraversal: true),
-          onPressed: () => _submitResult(context, _controller.text),
-          icon: const Icon(Icons.done),
-          tooltip: 'Submit',
-          splashRadius: 20,
+        suffixIcon: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            if (widget.decorationOptions.showClearButton)
+              IconButton(
+                focusNode: FocusNode(canRequestFocus: false, descendantsAreFocusable: false, skipTraversal: true),
+                onPressed: () {
+                  setState(() {
+                    _controller.clear();
+                  });
+                },
+                icon: const Icon(Icons.clear, color: Colors.black45),
+                tooltip: 'Clear',
+                splashRadius: 20,
+              ),
+            if (widget.decorationOptions.showDoneButton)
+              IconButton(
+                focusNode: FocusNode(canRequestFocus: false, descendantsAreFocusable: false, skipTraversal: true),
+                onPressed: () => _submitResult(context, _controller.text),
+                icon: const Icon(Icons.done),
+                tooltip: 'Submit',
+                splashRadius: 20,
+              ),
+          ],
         ),
       );
     }

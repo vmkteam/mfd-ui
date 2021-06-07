@@ -140,10 +140,10 @@ class _MainParameters extends StatelessWidget {
             width: 250,
             child: MFDTextEdit(
               decoration: const InputDecoration(
-                border: OutlineInputBorder(),
                 labelText: 'Terminal path',
                 helperText: 'e.g. path/to/entity',
               ),
+              decorationOptions: const TextEditDecorationOptions(showEditButton: true),
               style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode'),
               controller: TextEditingController(text: state.vtentity.terminalPath),
               onSubmitted: (value) {
@@ -360,7 +360,11 @@ class _AttributesTableState extends State<AttributesTable> with AutomaticKeepAli
           return MFDTextEdit<_SearchAutocompleteValue>(
             controller: TextEditingController(text: row.searchName),
             style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode'),
-            decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true, minWidth: 260),
+            decorationOptions: const TextEditDecorationOptions(
+              hideUnfocusedBorder: true,
+              showClearButton: true,
+              minWidth: 260,
+            ),
             itemsLoader: (query) {
               var precursor = query.selection.isValid ? query.text.substring(0, query.selection.end) : '';
               precursor = precursor.toLowerCase();
@@ -558,7 +562,10 @@ class _VTTemplateTableState extends State<VTTemplateTable> with AutomaticKeepAli
           return MFDTextEdit<MFDLoadResult>(
             controller: TextEditingController(text: row.vtAttrName),
             style: const TextStyle(fontSize: 14, fontFamily: 'FiraCode'),
-            decorationOptions: const TextEditDecorationOptions(hideUnfocusedBorder: true),
+            decorationOptions: const TextEditDecorationOptions(
+              hideUnfocusedBorder: true,
+              showClearButton: true,
+            ),
             itemsLoader: (query) {
               final precursor = query.selection.isValid ? query.text.substring(0, query.selection.end) : '';
               final arr = widget.state.vtentity.attributes.map((e) => e.name).toList();
